@@ -15,7 +15,7 @@ function sysCall_threadmain()
     
     -- Auxiliary variables for outputting current end-effector position
     sim.setIntegerSignal('showPos',0)
-    local IKsol=1;
+    local IKsol=0;
     
     --[[ Main loop ]]--
     while sim.getSimulationState()~=sim.simulation_advancing_abouttostop do
@@ -24,10 +24,14 @@ function sysCall_threadmain()
             -- get tip position relative to the robots' base
             local tip_pos=sim.getObjectPosition(tip,UR10)
             -- print tip position
+            IKsol=IKsol+1
             print('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
             print('End-effector position '.. IKsol)
             print(tip_pos)
-            IKsol=IKsol+1
+            -- reset value of IKsol, when reaching final solution
+            if(IKsol==8) then
+                IKsol=0
+            end
         end
     end
     
