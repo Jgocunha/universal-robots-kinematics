@@ -72,12 +72,12 @@ function joint=invKin8sol(d, a, eePosOri)
          T_61=inv(T_16);
          % y1 seen from frame 6
          Y_16=T_61(:,2);
-
+        
          % If theta 5 is equal to zero give arbitrary value to theta 6
-        if(real(joint(j,5)) == 0 || real(joint(j,5)) == 2*pi)
-             joint(j,6)=0;
+        if(int8(rad2deg(real(joint(j,5)))) == 0 || int8(rad2deg(real(joint(j,5)))) == 2*pi)
+            joint(j,6)=deg2rad(190);
         else
-         joint(j,6)= (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
+            joint(j,6)= (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
         end
         
         %% Computing theta 3, 2 and 4
@@ -118,7 +118,6 @@ function joint=invKin8sol(d, a, eePosOri)
             end
             % theta 2
             joint(j,2) =pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(psi))/P_14_xz));
-            joint(j,2)=0;
             % theta 4
             % Fix Error using atan2 / Inputs must be real.
             joint=real(double(rad2deg(joint)));

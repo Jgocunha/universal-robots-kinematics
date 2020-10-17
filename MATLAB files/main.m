@@ -8,6 +8,7 @@ a=zeros(1,dof); %distances
 theta=zeros(1,dof); %joint angles
 jh=zeros(1,dof); %CoppeliaSim joint handles
 totalIKsol=8; %number of inverse kinematic solutions
+printTimeInterval=0.006; %correct time interval for printing variables in CoppeliaSim
 
 % Do the connection with CoppeliaSim
 
@@ -20,27 +21,41 @@ clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
 
 % Distances from the mechanical drawing of the UR10
 % These values can be changed to accomodate any of the UR series robots
-d(1)=0.128;
-d(2)=0.088;
-d(3)=0.024;
+% d(1)=0.128;
+% d(2)=0.088;
+% d(3)=0.024;
+% d(4)=-0.006;
+% d(5)=0.058; 
+% d(6)=0.092;
+% d(7)=0.10;
+% 
+% a(2)=0.612;
+% a(3)=0.572;
+% a(4)=0.058;
+% a(5)=0.058;
+
+% CoppeliaSim link dimensions for the UR10 model
+d(1)=0.109;
+d(2)=0.101222;
+d(3)=0.01945;
 d(4)=-0.006;
-d(5)=0.058; 
-d(6)=0.092;
-d(7)=0.110;
+d(5)=0.0585; 
+d(6)=0.0572+0.03434;%to the tip
+d(7)=0.10185;
 
 a(2)=0.612;
-a(3)=0.572;
-a(4)=0.058;
-a(5)=0.058;
+a(3)=0.573;
+a(4)=0.0567;
+a(5)=0.059;
 
 % Target joint angles
 % Select here the target joint angle you want the robot to assume
-theta(1)=0;
-theta(2)=0;
-theta(3)=0;
-theta(4)=0;
-theta(5)=0;
-theta(6)=-20;
+theta(1)=35;
+theta(2)=12;
+theta(3)=89;
+theta(4)=128;
+theta(5)=11;
+theta(6)=190;
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
 DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
@@ -91,12 +106,14 @@ if (clientID>-1)
          disp(rad2deg(joints(i,:)));
          disp('Value in radians');
          disp(joints(i,:));
-         
+         pause(0.5);
          for j = 1 : dof
              sim.simxSetJointTargetPosition(clientID, jh(j), (joints(i,j)), sim.simx_opmode_streaming);
          end
-         pause(1);
-     
+         pause(0.5);
+         sim.simxSetIntegerSignal(clientID, 'showPos', 1, sim.simx_opmode_streaming);
+         pause(printTimeInterval);
+         sim.simxSetIntegerSignal(clientID, 'showPos', 0, sim.simx_opmode_streaming);
      end
     
 else
