@@ -8,7 +8,7 @@ a=zeros(1,dof); %distances
 theta=zeros(1,dof); %joint angles
 jh=zeros(1,dof); %CoppeliaSim joint handles
 totalIKsol=8; %number of inverse kinematic solutions
-printTimeInterval=0.0055; %correct time interval for printing variables in CoppeliaSim
+printTimeInterval=0.006; %correct time interval for printing variables in CoppeliaSim
 
 % Do the connection with CoppeliaSim
 
@@ -51,11 +51,11 @@ a(5)=0.059;
 % Target joint angles
 % Select here the target joint angle you want the robot to assume
 theta(1)=35;
-theta(2)=0;
-theta(3)=90;
-theta(4)=50;
-theta(5)=30;
-theta(6)=20;
+theta(2)=12;
+theta(3)=89;
+theta(4)=128;
+theta(5)=11;
+theta(6)=190;
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
 DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
