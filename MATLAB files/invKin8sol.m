@@ -25,7 +25,7 @@ function joint=invKin8sol(d, a, eePosOri)
     %% Computing theta1
     
     % 0P5 position of reference frame {5} in relation to {0}
-    P=eePosOri*[0 0 -d(6) 1].';
+    P=eePosOri*[0 0 -d(6)-d(7) 1].';
     
     psi=atan2(P(2,1),P(1,1));
     
@@ -43,8 +43,8 @@ function joint=invKin8sol(d, a, eePosOri)
     % From the eePosOri it is possible to know the tipPosOri    
     T_67=MDHMatrix([0 0 d(7) 0]);
     %T_06=T_07*T_76
-    %T_06=eePosOri*inv(T_67);
-    T_06=eePosOri;
+    T_06=eePosOri*inv(T_67);
+    %T_06=eePosOri;
 
     for j = 1:ikSol
         %% Computing theta5

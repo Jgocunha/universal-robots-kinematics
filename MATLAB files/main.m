@@ -50,12 +50,12 @@ a(5)=0.059;
 
 % Target joint angles
 % Select here the target joint angle you want the robot to assume
-theta(1)=0;
+theta(1)=35;
 theta(2)=0;
-theta(3)=0;
-theta(4)=0;
-theta(5)=0;
-theta(6)=40;
+theta(3)=90;
+theta(4)=50;
+theta(5)=30;
+theta(6)=20;
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
 DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
@@ -93,7 +93,7 @@ if (clientID>-1)
     disp(M{2}{numFrames-1}(:,4));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
-    joints=(invKin8sol(d,a,M{2}{numFrames-1}(:,:)));
+    joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
     % Print the joint values for every IK solution
     disp('Inverse kinematics solutions:')
     disp(int32(rad2deg(joints(:,:))));
@@ -106,13 +106,14 @@ if (clientID>-1)
          disp(rad2deg(joints(i,:)));
          disp('Value in radians');
          disp(joints(i,:));
+         pause(0.5);
          for j = 1 : dof
              sim.simxSetJointTargetPosition(clientID, jh(j), (joints(i,j)), sim.simx_opmode_streaming);
          end
+         pause(0.5);
          sim.simxSetIntegerSignal(clientID, 'showPos', 1, sim.simx_opmode_streaming);
          pause(printTimeInterval);
          sim.simxSetIntegerSignal(clientID, 'showPos', 0, sim.simx_opmode_streaming);
-         pause(1);
      end
     
 else
