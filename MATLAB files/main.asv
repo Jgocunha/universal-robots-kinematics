@@ -34,20 +34,19 @@ clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
 % a(4)=0.058;
 % a(5)=0.058;
 
-% CoppeliaSim link dimensions for the UR10 model
-d(1)=0.109;
-d(2)=0.101222;
+% COPPELIASIM
+d(1)=0.08335;
+d(2)=0.09265;
 d(3)=0.01945;
 d(4)=-0.006;
 d(5)=0.0585; 
-d(6)=0.0572+0.03434;%to the tip
-d(7)=0.10185;
+d(6)=0.0572;
+d(7)=0.10;
 
 a(2)=0.612;
 a(3)=0.573;
 a(4)=0.0567;
 a(5)=0.059;
-
 % Target joint angles
 % Select here the target joint angle you want the robot to assume
 theta(1)=0;
