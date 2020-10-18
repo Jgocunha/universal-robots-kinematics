@@ -17,14 +17,5 @@ function RPY = RPY(iTx)
     
 
     RPY=[alpha, beta, gamma];
-    
-    %sciciliano
-% 
-%     v=rad2deg( atan2( -R(3,1), -sqrt( R(3,2)^2 + R(3,3)^2 )));     
-%     phi=rad2deg(atan2(-R(2,1),-R(1,1)));
-%     psi=rad2deg(atan2(-R(3,2),-R(3,3)));
-%     
-%     
-%     RPY=[phi, v, psi];
 end
 
