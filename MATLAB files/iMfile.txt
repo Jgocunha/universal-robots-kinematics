@@ -1,1 +1,46 @@
-"[cos((j1*pi)/180), -sin((j1*pi)/180), 0, 0; sin((j1*pi)/180), cos((j1*pi)/180), 0, 0; 0, 0, 1, d1; 0, 0, 0, 1]"
+Individual transformation matrices
+0T1
+cos(j1),-sin(j1),0,0
+sin(j1),cos(j1),0,0
+0,0,1,d1
+0,0,0,1
+1T2
+cos(j2 - 90),-sin(j2 - 90),0,0
+sin(j2 - 90)*cos(90),cos(j2 - 90)*cos(90),sin(90),d2*sin(90)
+-sin(j2 - 90)*sin(90),-cos(j2 - 90)*sin(90),cos(90),d2*cos(90)
+0,0,0,1
+2T3
+cos(j3),-sin(j3),0,a2
+sin(j3),cos(j3),0,0
+0,0,1,d3
+0,0,0,1
+3T4
+cos(j4),-sin(j4),0,a3
+sin(j4),cos(j4),0,0
+0,0,1,d4
+0,0,0,1
+4T5
+cos(90),-sin(90),0,a4
+sin(90),cos(90),0,0
+0,0,1,d5
+0,0,0,1
+5T6
+cos(j5),-sin(j5),0,0
+cos(90)*sin(j5),cos(90)*cos(j5),-sin(90),0
+sin(90)*sin(j5),sin(90)*cos(j5),cos(90),0
+0,0,0,1
+6T7
+cos(90),sin(90),0,0
+-cos(90)*sin(90),cos(90)^2,sin(90),0
+sin(90)^2,-cos(90)*sin(90),cos(90),0
+0,0,0,1
+7T8
+cos(j6),-sin(j6),0,a5
+sin(j6),cos(j6),0,0
+0,0,1,d6
+0,0,0,1
+8T9
+1,0,0,0
+0,1,0,0
+0,0,1,d7
+0,0,0,1
