@@ -15,16 +15,19 @@
 %
 % Out: 4x4 transformation matrix from frame i-1 to i
 %%
-function T = MDHMatrix(DHparams)
-    T = [ cosd(DHparams(4))                                 -sind(DHparams(4))                      0                 DHparams(2)     ;
-          sind(DHparams(4))*cosd(DHparams(1))     cosd(DHparams(4))*cosd(DHparams(1))       -sind(DHparams(1))     -sind(DHparams(1))*DHparams(3);
-          sind(DHparams(4))*sind(DHparams(1))     cosd(DHparams(4))*sind(DHparams(1))       cosd(DHparams(1))      cosd(DHparams(1))*DHparams(3) ;
-                    0                                               0                               0                       1    ];
-end
 
+% Use this function to test the program regularly
 % function T = MDHMatrix(DHparams)
-%     T = [ cos(DHparams(4))                                 -sin(DHparams(4))                      0                 DHparams(2)     ;
-%           sin(DHparams(4))*cos(DHparams(1))     cos(DHparams(4))*cos(DHparams(1))       -sin(DHparams(1))     -sin(DHparams(1))*DHparams(3);
-%           sin(DHparams(4))*sin(DHparams(1))     cos(DHparams(4))*sin(DHparams(1))       cos(DHparams(1))      cos(DHparams(1))*DHparams(3) ;
+%     T = [ cosd(DHparams(4))                                 -sind(DHparams(4))                      0                 DHparams(2)     ;
+%           sind(DHparams(4))*cosd(DHparams(1))     cosd(DHparams(4))*cosd(DHparams(1))       -sind(DHparams(1))     -sind(DHparams(1))*DHparams(3);
+%           sind(DHparams(4))*sind(DHparams(1))     cosd(DHparams(4))*sind(DHparams(1))       cosd(DHparams(1))      cosd(DHparams(1))*DHparams(3) ;
 %                     0                                               0                               0                       1    ];
 % end
+
+% Use this function to print matrices
+function T = MDHMatrix(DHparams)
+    T = [ cos(DHparams(4))                                 -sin(DHparams(4))                      0                 DHparams(2)     ;
+          sin(DHparams(4))*cos(DHparams(1))     cos(DHparams(4))*cos(DHparams(1))       -sin(DHparams(1))     -sin(DHparams(1))*DHparams(3);
+          sin(DHparams(4))*sin(DHparams(1))     cos(DHparams(4))*sin(DHparams(1))       cos(DHparams(1))      cos(DHparams(1))*DHparams(3) ;
+                    0                                               0                               0                       1    ];
+end

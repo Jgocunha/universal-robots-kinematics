@@ -75,7 +75,7 @@ function joint=invKin8sol(d, a, eePosOri)
         
          % If theta 5 is equal to zero give arbitrary value to theta 6
         if(int8(rad2deg(real(joint(j,5)))) == 0 || int8(rad2deg(real(joint(j,5)))) == 2*pi)
-            joint(j,6)=deg2rad(190);
+            joint(j,6)=deg2rad(0);
         else
             joint(j,6)= (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
         end
