@@ -10,4 +10,4 @@ We present a **forward kinematic solution based on the Modified Denavit-Hartenbe
 
 For more information refer to the [Wiki](https://github.com/Jgocunha/universal-robots-kinematics/wiki) page.
 
-![Visual Represenatation](\Images\proof.png)
+![Visual Represenatation](/Images/proof.png)
