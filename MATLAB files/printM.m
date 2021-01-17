@@ -14,15 +14,15 @@ cMfile='.\MatrixOutput\cMfile.txt'; % compound matrices output file
 aux_matrix=strings(4,4); %auxiliary matrix of strings to correctly output the matrices
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
-DHMatrix = [ 0         0       d1   j1;    % 1  0T1 
+DHMatrix = [ 0         0       d1   j1;      % 1  0T1 
             -pi/2      0       d2   j2-pi/2; % 2  1T2 
-             0         a2      d3   j3;    % 3  2T3 
-             0         a3      d4   j4;    % 4  3T4
+             0         a2      d3   j3;      % 3  2T3 
+             0         a3      d4   j4;      % 4  3T4
              0         a4      d5   pi/2;    % 4' 4T4' 5
-             pi/2      0       0    j5;    % 5  4'T5 6
+             pi/2      0       0    j5;      % 5  4'T5 6
             -pi/2      0       0    -pi/2;   % 5' 5T5' 7
-             0         a5      d6   j6;    % 6  5'T6 8
-             0         0       d7   0;];   % 7  6T7  9
+             0         a5      d6   j6;      % 6  5'T6 8
+             0         0       d7   0;];     % 7  6T7  9
 
 %% Main program
 
