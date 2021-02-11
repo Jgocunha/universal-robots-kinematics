@@ -100,7 +100,7 @@ if (clientID>-1)
     % Print the joint values for every IK solution
     disp('Inverse kinematics solutions:')
     disp(int32(rad2deg(joints(:,:))));
-        
+     
     % Send joint values to CoppeliaSim
      for i = 1: totalIKsol
          disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
@@ -113,6 +113,8 @@ if (clientID>-1)
          for j = 1 : dof
              sim.simxSetJointTargetPosition(clientID, jh(j), (joints(i,j)), sim.simx_opmode_streaming);
          end
+         %signalValue="0";
+         sim.simxGetStringSignal(clientID, 'tip_pose_final',sim.simx_opmode_streaming)
          pause(0.5);
          sim.simxSetIntegerSignal(clientID, 'showPos', 1, sim.simx_opmode_streaming);
          pause(printTimeInterval);
