@@ -71,9 +71,9 @@ if (clientID>-1)
         % Set random joint values 
         %for j = 1 : dof
             theta(1)=randi([-360 360],1,1);
-            theta(2)=randi([-60 60],1,1);
-            theta(3)=randi([-60 60],1,1);
-            theta(4)=randi([-90 90],1,1);
+            theta(2)=0;
+            theta(3)=90;
+            theta(4)=20;
             theta(5)=randi([-90 90],1,1);
             theta(6)=randi([-360 360],1,1);
         %end
@@ -134,6 +134,7 @@ if (clientID>-1)
          %% Get deviation of tip pose (CoppeliaSim Vs. FwdKin) - Validation
          % Get average tip pose from CoppeliaSim
          avg_tip_pose = acc_tip_pose/totalIKsol;
+         acc_tip_pose=0;
          std_dev = abs (avg_tip_pose - fwd_tip_pose(1:3));
          writematrix(std_dev,ValFile,'WriteMode','append');
     end
