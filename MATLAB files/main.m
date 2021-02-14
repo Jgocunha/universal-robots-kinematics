@@ -36,18 +36,15 @@ clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
 % a(4)=0.058;
 % a(5)=0.058;
 
-% CoppeliaSim link dimensions for the UR10 model
+% CoppeliaSim link dimensions for the UR10 model (to get better results)
 d(1)=0.109;
 d(2)=0.101222;
 d(3)=0.01945;
 d(4)=-0.006;
 d(5)=0.0585;
-%d(5)=0.0585-0.0002; 
 d(6)=0.0572+0.03434;%to the tip
-%d(6)=0.0572+0.03434-0.0001;%to the tip 
 d(7)=0.10185;
 
-%a(2)=0.612-0.0007;
 a(2)=0.612;
 a(3)=0.573;
 a(4)=0.0567;
@@ -55,11 +52,11 @@ a(5)=0.059;
 
 % Target joint angles
 % Select here the target joint angle you want the robot to assume
-theta(1)=30;
+theta(1)=20;
 theta(2)=0;
 theta(3)=90;
-theta(4)=20;
-theta(5)=40;
+theta(4)=0;
+theta(5)=20;
 theta(6)=0;
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
@@ -89,13 +86,16 @@ if (clientID>-1)
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute forward kinematics
     M=fwdKin(DHMatrix);
+    %M{2}{numFrames}
+    %R=M{2}{numFrames}([1,2,3],[1,2,3])
+    %RPY(R)
     disp('Forward kinematics solution')
     % Print end-effector position
     disp('End effector position in meters:')
     disp(M{2}{numFrames}(:,4));
     % Print robot's tip position
     disp('Robot´s tip position in meters:')
-    fwd_tip_pose = M{2}{numFrames-1}(:,4).'
+    fwd_tip_pose = M{2}{numFrames-1}(:,4).';
     disp(fwd_tip_pose(1:3));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
