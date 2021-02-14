@@ -74,8 +74,8 @@ if (clientID>-1)
             theta(2)=0;
             theta(3)=90;
             theta(4)=20;
-            theta(5)=randi([-90 90],1,1);
-            theta(6)=randi([-360 360],1,1);
+            theta(5)=randi([-45 45],1,1);
+            theta(6)=randi([-180 180],1,1);
         %end
         %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
            DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
