@@ -28,7 +28,7 @@ d(3)=0.01945;
 d(4)=-0.006;
 d(5)=0.0585;
 d(6)=0.0572+0.03434;%to the tip
-d(7)=0.10185;
+d(7)=0.10185;%end-effector
 
 a(2)=0.612;
 a(3)=0.573;
@@ -71,14 +71,18 @@ if (clientID>-1)
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute forward kinematics
     M=fwdKin(DHMatrix);
+    R=M{2}{numFrames-1}([1,2,3],[1,2,3]);
     disp('Forward kinematics solution')
     % Print end-effector position
     disp('End effector position in meters:')
-    disp(M{2}{numFrames}(:,4));
+    disp(M{2}{numFrames}(:,4).');
     % Print robot's tip position
     disp('Robot´s tip position in meters:')
     fwd_tip_pose = M{2}{numFrames-1}(:,4).';
     disp(fwd_tip_pose(1:3));
+    % Print robot's tip and end-effector orientation
+    disp('Robot´s tip and end-effector orientation in degrees:')
+    disp(RPY(R));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
     joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
