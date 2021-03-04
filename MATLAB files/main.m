@@ -99,6 +99,8 @@ if (clientID>-1)
     disp(fwd_tip_pose(1:3));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
+    %f=@() invKin8sol(d,a,M{2}{numFrames}(:,:))
+    %t=timeit(f)
     joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
     % Print the joint values for every IK solution
     disp('Inverse kinematics solutions:')

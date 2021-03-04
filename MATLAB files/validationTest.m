@@ -9,8 +9,8 @@ theta=zeros(1,dof); %joint angles
 jh=zeros(1,dof); %CoppeliaSim joint handles
 totalIKsol=8; %number of inverse kinematic solutions
 printTimeInterval=0.006; %correct time interval for printing variables in CoppeliaSim
-acc_tip_pose=zeros(1,3); %accumulative tip pose (retrieved from CoppeliaSim)
-fwd_tip_pose=zeros(1,3); % tip pose returned from Forward Kinematics
+acc_tip_pose=zeros(1,6); %accumulative tip pose (retrieved from CoppeliaSim)
+fwd_tip_pose=zeros(1,6); % tip pose returned from Forward Kinematics
 iterations=1000; %number of code iterations
 
 ValFile='.\ValidationOutput\stdev.xlsx'; % compound matrices output file
@@ -24,33 +24,15 @@ clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
 
 %% Denavit-Hartenberg parameters (User interface)
 
-% Distances from the mechanical drawing of the UR10
-% These values can be changed to accomodate any of the UR series robots
-% d(1)=0.128;
-% d(2)=0.088;
-% d(3)=0.024;
-% d(4)=-0.006;
-% d(5)=0.058; 
-% d(6)=0.092;
-% d(7)=0.10;
-% 
-% a(2)=0.612;
-% a(3)=0.572;
-% a(4)=0.058;
-% a(5)=0.058;
-
 % CoppeliaSim link dimensions for the UR10 model
 d(1)=0.109;
 d(2)=0.101222;
 d(3)=0.01945;
 d(4)=-0.006;
 d(5)=0.0585;
-%d(5)=0.0585-0.0002; 
 d(6)=0.0572+0.03434;%to the tip
-%d(6)=0.0572+0.03434-0.0001;%to the tip 
 d(7)=0.10185;
 
-%a(2)=0.612-0.0007;
 a(2)=0.612;
 a(3)=0.573;
 a(4)=0.0567;
@@ -94,14 +76,20 @@ if (clientID>-1)
         disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
         %% Compute forward kinematics
         M=fwdKin(DHMatrix);
+        R=M{2}{numFrames-1}([1,2,3],[1,2,3]);
         disp('Forward kinematics solution')
         % Print end-effector position
         disp('End effector position in meters:')
-        disp(M{2}{numFrames}(:,4));
+        disp(M{2}{numFrames}(:,4).');
         % Print robot's tip position
         disp('Robot´s tip position in meters:')
-        fwd_tip_pose = M{2}{numFrames-1}(:,4).'
-        disp(fwd_tip_pose(1:3));
+        fwd_tip_pos = M{2}{numFrames-1}(:,4).';
+        disp(fwd_tip_pos(1:3));
+        % Print robot's tip and end-effector orientation
+        disp('Robot´s tip and end-effector orientation in degrees:')
+        fwd_tip_ori = RPY(R);
+        disp(fwd_tip_ori);
+        fwd_tip_pose = [fwd_tip_pos(1:3) fwd_tip_ori];
         disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
         %% Compute inverse kinematics
         joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
@@ -135,7 +123,7 @@ if (clientID>-1)
          % Get average tip pose from CoppeliaSim
          avg_tip_pose = acc_tip_pose/totalIKsol;
          acc_tip_pose=0;
-         std_dev = abs (avg_tip_pose - fwd_tip_pose(1:3));
+         std_dev = abs( (avg_tip_pose - fwd_tip_pose)./fwd_tip_pose);
          writematrix(std_dev,ValFile,'WriteMode','append');
     end
 else

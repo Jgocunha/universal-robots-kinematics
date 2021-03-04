@@ -43,7 +43,7 @@ function joint=invKin8sol(d, a, eePosOri)
     % From the eePosOri it is possible to know the tipPosOri    
     T_67=MDHMatrix([0 0 d(7) 0]);
     %T_06=T_07*T_76
-    T_06=eePosOri*inv(T_67);
+    T_06=eePosOri/T_67;
 
     for j = 1:ikSol
         %% Computing theta5
@@ -52,7 +52,7 @@ function joint=invKin8sol(d, a, eePosOri)
         T_01=MDHMatrix([0 0 d(1) rad2deg(joint(j,1))]);
 
         % 1T6 = 1T0 * 0T6
-        T_16 = inv(T_01)*T_06;
+        T_16 = T_01\T_06;
         %1P6
         P_16=T_16(:,4);
         
@@ -151,7 +151,7 @@ function joint4=joint4(d, a, theta2, theta3, T_06, T_01, T_64)
     T_23=MDHMatrix([0         a(2)    d(3)   rad2deg(theta3)]);
     T_03=T_01*T_12*T_23;
     
-    T_36=inv(T_03)*T_06;
+    T_36=T_03\T_06;
     T_34=T_36*T_64;
     
     x_34=T_34(:,1);
