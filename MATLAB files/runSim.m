@@ -22,21 +22,23 @@ clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
 %% Denavit-Hartenberg parameters (User interface)
 
 % CoppeliaSim link dimensions for the UR10 model (to get better results)
-d(1)=0.109;
-d(2)=0.101222;
-d(3)=0.01945;
-d(4)=-0.006;
-d(5)=0.0585;
-d(6)=0.0572+0.03434;%to the tip
-d(7)=0.10185;%end-effector
+d(1)=0.828-0.719;
+d(2)=0.10122;
+d(3)=0.12067-0.10122;
+d(4)=0.11406-0.12067;
+d(5)=0.17246-0.11406;
+d(6)=0.23-0.17246;
+d(7)=0.36594-0.22976;
+%d(6)=0.2641-0.17246;
+%d(7)=0.36594-0.2641;
 
-a(2)=0.612;
-a(3)=0.573;
-a(4)=0.0567;
-a(5)=0.059;
+a(2)=1.4401-0.828;
+a(3)=2.0123-1.4401;
+a(4)=2.069-2.0123;
+a(5)=2.128-2.069;
+
 
 % Target joint angles
-% Select here the target joint angle you want the robot to assume
 theta(1)=theta1;
 theta(2)=theta2;
 theta(3)=theta3;
