@@ -117,6 +117,9 @@ function joint=invKin8sol(d, a, eePosOri)
                 joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,2) =pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(psi))/P_14_xz));
             % theta 4
             % Fix Error using atan2 / Inputs must be real.
@@ -131,6 +134,9 @@ function joint=invKin8sol(d, a, eePosOri)
                 joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,2) = pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(-psi))/P_14_xz));
             % theta 4
             % Fix Error using atan2 / Inputs must be real.
