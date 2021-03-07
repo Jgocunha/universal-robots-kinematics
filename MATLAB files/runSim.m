@@ -21,19 +21,53 @@ clientID=sim.simxStart('127.0.0.1',19999,true,true,5000,5);
 
 %% Denavit-Hartenberg parameters (User interface)
 
-% CoppeliaSim link dimensions for the UR10 model (to get better results)
-d(1)=0.109;
-d(2)=0.10122;
-d(3)=0.12067-0.10122;
-d(4)=0.11406-0.12067;
-d(5)=0.17246-0.11406;
-d(6)=0.26612-0.17246;
-d(7)=0.36474-0.26612;
+% CoppeliaSim link dimensions for the UR models (to get better results)
+switch robot
+    case "UR10"
+        d(1)=0.109;
+        d(2)=0.10122;
+        d(3)=0.12067-0.10122;
+        d(4)=0.11406-0.12067;
+        d(5)=0.17246-0.11406;
+        d(6)=0.26612-0.17246;
+        d(7)=0.36474-0.26612;
 
-a(2)=0.7211-0.109;
-a(3)=1.2933-0.7211;
-a(4)=1.3506-1.2933;
-a(5)=1.409-1.3506;
+        a(2)=0.7211-0.109;
+        a(3)=1.2933-0.7211;
+        a(4)=1.3506-1.2933;
+        a(5)=1.409-1.3506;
+        joint_handle='UR10_joint';
+    case "UR5"
+        d(1)=0.07455;
+        d(2)=0.0703;
+        d(3)=0.0703-0.0703;
+        d(4)=0.0703-0.0703;
+        d(5)=0.11-0.0703;
+        d(6)=0.1929-0.11;
+        d(7)=0.36474-0.26612;
+
+        a(2)=0.49965-0.07455;
+        a(3)=0.8918-0.49965;
+        a(4)=0.93737-0.8918;
+        a(5)=0.98655-0.93737;
+        joint_handle='UR5_joint';
+    case "UR3"
+        d(1)=0.10887;
+        d(2)=0.11154;
+        d(3)=0.11154-0.11154;
+        d(4)=0.11154-0.11154;
+        d(5)=0.11223-0.11154;
+        d(6)=0.194-0.11223;
+        d(7)=0.36474-0.26612;
+
+        a(2)=0.35252-0.10887;
+        a(3)=0.56577-0.35252;
+        a(4)=0.64999-0.56577;
+        a(5)=0.65111-0.64999;
+        joint_handle='UR3_joint';
+    otherwise
+        disp('You didn´t select a robot!');
+end
 
 
 % Target joint angles
@@ -66,7 +100,7 @@ if (clientID>-1)
     
     % Retreive joint handles from CoppeliaSim
     for i = 1 : dof
-        [~,jh(i)]=sim.simxGetObjectHandle(clientID, strcat('UR10_joint', int2str(i)) , sim.simx_opmode_blocking);
+        [~,jh(i)]=sim.simxGetObjectHandle(clientID, strcat(joint_handle, int2str(i)) , sim.simx_opmode_blocking);
     end
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute forward kinematics
