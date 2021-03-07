@@ -76,9 +76,6 @@ function joint=invKin8sol(d, a, eePosOri)
             joint(j,6) = deg2rad(0);
         else
             joint(j,6) = (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
-            if(joint(j,6) == deg2rad(180))
-                joint(j,6) = deg2rad(0); %singularity error
-            end
         end
         
         %% Computing theta 3, 2 and 4
