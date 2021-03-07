@@ -71,12 +71,12 @@ end
 
 
 % Target joint angles
-theta(1)=theta1;
-theta(2)=theta2;
-theta(3)=theta3;
-theta(4)=theta4;
-theta(5)=theta5;
-theta(6)=theta6;
+theta(1)=str2double(theta1);
+theta(2)=str2double(theta2);
+theta(3)=str2double(theta3);
+theta(4)=str2double(theta4);
+theta(5)=str2double(theta5);
+theta(6)=str2double(theta6);
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
 DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
