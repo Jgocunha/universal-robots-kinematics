@@ -62,22 +62,23 @@ function joint=invKin8sol(d, a, eePosOri)
         else
             joint(j,5)=(-(acos((P_16(2,1)-(d(2)+d(3)+d(4)+d(5)))/d(6))));
         end
-        
-        % Fix Error using atan2 / Inputs must be real.
-        joint=real(double(rad2deg(joint)));
-        joint=deg2rad(joint);
 
         %% Computing theta 6
 
          T_61=inv(T_16);
          % y1 seen from frame 6
          Y_16=T_61(:,2);
-        
+        % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
          % If theta 5 is equal to zero give arbitrary value to theta 6
         if(int8(rad2deg(real(joint(j,5)))) == 0 || int8(rad2deg(real(joint(j,5)))) == 2*pi)
-            joint(j,6)=deg2rad(0);
+            joint(j,6) = deg2rad(0);
         else
-            joint(j,6)= (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
+            joint(j,6) = (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
+            if(joint(j,6) == deg2rad(180))
+                joint(j,6) = deg2rad(0); %singularity error
+            end
         end
         
         %% Computing theta 3, 2 and 4
