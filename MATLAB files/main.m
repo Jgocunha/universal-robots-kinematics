@@ -52,11 +52,11 @@ a(5)=0.059;
 
 % Target joint angles
 % Select here the target joint angle you want the robot to assume
-theta(1)=20;
+theta(1)=357;
 theta(2)=0;
-theta(3)=90;
+theta(3)=0;
 theta(4)=0;
-theta(5)=20;
+theta(5)=0;
 theta(6)=0;
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
