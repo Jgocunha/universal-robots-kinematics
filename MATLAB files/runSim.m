@@ -118,7 +118,7 @@ if (clientID>-1)
     disp(rad2deg(RPY(R)));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
-    joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
+    joints=(invKin8sol(d,a, ));
     % Print the joint values for every IK solution
     disp('Inverse kinematics solutions:')
     disp(int32(rad2deg(joints(:,:))));
