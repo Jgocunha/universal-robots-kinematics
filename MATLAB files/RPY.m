@@ -25,5 +25,5 @@ function RPY = RPY(R)
       alpha = atan2(R(1,2)/cos(beta), R(1,1)/cos(beta));
     end
 
-    RPY = rad2deg([alpha beta gamma]);
+    RPY = [alpha beta gamma];
 end

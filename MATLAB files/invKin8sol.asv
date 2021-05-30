@@ -69,7 +69,7 @@ function joint=invKin8sol(d, a, eePosOri)
          Y_16 = T_61(:,2);
 
          % If theta 5 is equal to zero give arbitrary value to theta 6
-        if(real(joint(j,5)) == 0 || real(joint(j,5)) == 2*pi)
+        if(joint(j,5) == 0 || joint(j,5) == 2*pi)
             joint(j,6) = 0;
         else
             joint(j,6) = (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
@@ -84,58 +84,72 @@ function joint=invKin8sol(d, a, eePosOri)
         
         %T_45 = T_44'*T_4'5
         T_44_ = MDHMatrix([0         a(4)    d(5)   deg2rad(90)]);
-        T_4_5 = MDHMatrix([deg2rad(90)        0       0      joint(j,5)]);
+        T_4_5 = MDHMatrix([90        0       0      joint(j,5)]);
         T_45 = T_44_*T_4_5;
         
         %T_56 = T_55'*T_5'6
-        T_55_ = MDHMatrix([deg2rad(-90)        0       0      deg2rad(-90)]);
+        T_55_ = MDHMatrix([-90        0       0      -90]);
         T_5_6 = MDHMatrix([0         a(5)    d(6)   joint(j,6)]);
         T_56 = T_55_*T_5_6;
         
         T_46 = T_45*T_56;
         
-        T_64 = real(inv(T_46));
+        T_64 = inv(T_46);
     
         T_14=T_16*T_64;
 
         %P_14 is the fourth column of T_14
-        P_14=real(T_14(:,4));
+        P_14=T_14(:,4);
 
         P_14_xz=sqrt( P_14(1)^2 +  P_14(3)^2);
         
         %Elbow up or down
         if(rem(j,2)==0)
-            psi= real(acos( ( P_14_xz^2-a(3)^2-a(2)^2 )/( -2*a(2)*a(3) ) ));
+            psi= acos( ( P_14_xz^2-a(3)^2-a(2)^2 )/( -2*a(2)*a(3) ) );
             joint(j,3)=( pi - psi);
             % Masking theta3 for CoppeliaSim (invert value for ang>180)
             if(joint(j,3)>pi)
                 joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,2) =pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(psi))/P_14_xz));
             % theta 4
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,4) = joint4(d, a, joint(j,2), joint(j,3), T_06, T_01, T_64);
         else
-            psi= real(acos( ( P_14_xz^2-a(3)^2-a(2)^2 )/( -2*a(2)*a(3) ) ));
+            psi= acos( ( P_14_xz^2-a(3)^2-a(2)^2 )/( -2*a(2)*a(3) ) );
             joint(j,3)=( pi + psi);
             % Masking theta3 for CoppeliaSim (invert value for ang>180)
             if(joint(j,3)>pi)
                 joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,2) = pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(-psi))/P_14_xz));
             % theta 4
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,4) = joint4(d, a, joint(j,2), joint(j,3), T_06, T_01, T_64);
         end
     end
-    joint = real(joint)
+    % Fix Error using atan2 / Inputs must be real.
+    joint=real(double(rad2deg(joint)));
+    joint=deg2rad(joint);
 end
 
 %% Computing theta4
 function joint4=joint4(d, a, theta2, theta3, T_06, T_01, T_64)
 
-    T_12=MDHMatrix([deg2rad(-90)        0       d(2)   theta2+deg2rad(-90)]);
-    T_23=MDHMatrix([0         a(2)    d(3)   theta3]);
+    T_12=MDHMatrix([-90        0       d(2)   rad2deg(theta2)-90]);
+    T_23=MDHMatrix([0         a(2)    d(3)   rad2deg(theta3)]);
     T_03=T_01*T_12*T_23;
     
     T_36=T_03\T_06;
@@ -144,5 +158,4 @@ function joint4=joint4(d, a, theta2, theta3, T_06, T_01, T_64)
     x_34=T_34(:,1);
     
     joint4 = (atan2(x_34(2),x_34(1)));
-    %joint4 = 0;
 end

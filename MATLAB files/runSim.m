@@ -70,23 +70,23 @@ switch robot
 end
 
 % Target joint angles
-theta(1)=str2double(theta1);
-theta(2)=str2double(theta2);
-theta(3)=str2double(theta3);
-theta(4)=str2double(theta4);
-theta(5)=str2double(theta5);
-theta(6)=str2double(theta6);
+theta(1)=deg2rad(str2double(theta1));
+theta(2)=deg2rad(str2double(theta2));
+theta(3)=deg2rad(str2double(theta3));
+theta(4)=deg2rad(str2double(theta4));
+theta(5)=deg2rad(str2double(theta5));
+theta(6)=deg2rad(str2double(theta6));
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
-DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
-            -90        0       d(2)   theta(2)-90; % 2  1T2 
-             0         a(2)    d(3)   theta(3);    % 3  2T3 
-             0         a(3)    d(4)   theta(4);    % 4  3T4
-             0         a(4)    d(5)   90;          % 4' 4T4' 5
-             90        0       0      theta(5);    % 5  4'T5 6
-            -90        0       0      -90;         % 5' 5T5' 7
-             0         a(5)    d(6)   theta(6);    % 6  5'T6 8
-             0         0       d(7)     0;];       % 7  6T7  9
+DHMatrix = [ 0              0       d(1)   theta(1);              % 1  0T1 
+             deg2rad(-90)   0       d(2)   theta(2)+deg2rad(-90); % 2  1T2 
+             0              a(2)    d(3)   theta(3);              % 3  2T3 
+             0              a(3)    d(4)   theta(4);              % 4  3T4
+             0              a(4)    d(5)   deg2rad(90);           % 4' 4T4' 5
+             deg2rad(90)    0       0      theta(5);              % 5  4'T5 6
+             deg2rad(-90)   0       0      deg2rad(-90);          % 5' 5T5' 7
+             0              a(5)    d(6)   theta(6);              % 6  5'T6 8
+             0              0       d(7)     0;];                 % 7  6T7  9
 
 %% Main program
 
@@ -115,7 +115,7 @@ if (clientID>-1)
     disp(fwd_tip_pose(1:3));
     % Print robot's tip and end-effector orientation
     disp('Robot´s tip and end-effector orientation in degrees:')
-    disp(RPY(R));
+    disp(rad2deg(RPY(R)));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
     joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
