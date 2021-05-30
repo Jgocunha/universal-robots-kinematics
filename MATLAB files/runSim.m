@@ -69,24 +69,13 @@ switch robot
         disp('You didn´t select a robot!');
 end
 
-
 % Target joint angles
-<<<<<<< HEAD:MATLAB files/main.m
-% Select here the target joint angle you want the robot to assume
-theta(1)=0;
-theta(2)=60;
-theta(3)=0;
-theta(4)=0;
-theta(5)=0;
-theta(6)=0;
-=======
 theta(1)=str2double(theta1);
 theta(2)=str2double(theta2);
 theta(3)=str2double(theta3);
 theta(4)=str2double(theta4);
 theta(5)=str2double(theta5);
 theta(6)=str2double(theta6);
->>>>>>> 695e9ed1b517f3559ff198842ae60b56776b233b:MATLAB files/runSim.m
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
 DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 

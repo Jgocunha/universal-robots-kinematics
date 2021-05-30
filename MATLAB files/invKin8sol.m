@@ -161,5 +161,4 @@ function joint4=joint4(d, a, theta2, theta3, T_06, T_01, T_64)
     x_34=T_34(:,1);
     
     joint4 = (atan2(x_34(2),x_34(1)));
-    %joint4=0;
 end
