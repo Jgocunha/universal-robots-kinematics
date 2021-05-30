@@ -43,7 +43,7 @@ function joint=invKin8sol(d, a, eePosOri)
     % From the eePosOri it is possible to know the tipPosOri    
     T_67=MDHMatrix([0 0 d(7) 0]);
     %T_06=T_07*T_76
-    T_06=eePosOri*inv(T_67);
+    T_06=eePosOri/T_67;
 
     for j = 1:ikSol
         %% Computing theta5
@@ -52,7 +52,7 @@ function joint=invKin8sol(d, a, eePosOri)
         T_01=MDHMatrix([0 0 d(1) rad2deg(joint(j,1))]);
 
         % 1T6 = 1T0 * 0T6
-        T_16 = inv(T_01)*T_06;
+        T_16 = T_01\T_06;
         %1P6
         P_16=T_16(:,4);
         
@@ -62,22 +62,20 @@ function joint=invKin8sol(d, a, eePosOri)
         else
             joint(j,5)=(-(acos((P_16(2,1)-(d(2)+d(3)+d(4)+d(5)))/d(6))));
         end
-        
-        % Fix Error using atan2 / Inputs must be real.
-        joint=real(double(rad2deg(joint)));
-        joint=deg2rad(joint);
 
         %% Computing theta 6
 
          T_61=inv(T_16);
          % y1 seen from frame 6
          Y_16=T_61(:,2);
-        
+        % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
          % If theta 5 is equal to zero give arbitrary value to theta 6
         if(int8(rad2deg(real(joint(j,5)))) == 0 || int8(rad2deg(real(joint(j,5)))) == 2*pi)
-            joint(j,6)=deg2rad(0);
+            joint(j,6) = deg2rad(0);
         else
-            joint(j,6)= (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
+            joint(j,6) = (pi/2 + atan2( -Y_16(2,1)/sin(joint(j,5))  , Y_16(1,1)/sin(joint(j,5))));
         end
         
         %% Computing theta 3, 2 and 4
@@ -117,6 +115,9 @@ function joint=invKin8sol(d, a, eePosOri)
                 joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,2) =pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(psi))/P_14_xz));
             % theta 4
             % Fix Error using atan2 / Inputs must be real.
@@ -131,6 +132,9 @@ function joint=invKin8sol(d, a, eePosOri)
                 joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
+            % Fix Error using atan2 / Inputs must be real.
+            joint=real(double(rad2deg(joint)));
+            joint=deg2rad(joint);
             joint(j,2) = pi/2 - (atan2( P_14(3), +P_14(1)) + asin( (a(3)*sin(-psi))/P_14_xz));
             % theta 4
             % Fix Error using atan2 / Inputs must be real.
@@ -151,7 +155,7 @@ function joint4=joint4(d, a, theta2, theta3, T_06, T_01, T_64)
     T_23=MDHMatrix([0         a(2)    d(3)   rad2deg(theta3)]);
     T_03=T_01*T_12*T_23;
     
-    T_36=inv(T_03)*T_06;
+    T_36=T_03\T_06;
     T_34=T_36*T_64;
     
     x_34=T_34(:,1);
