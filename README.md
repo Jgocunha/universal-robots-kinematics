@@ -9,5 +9,3 @@ Thus, the main goal of this work is to provide an **explicit and transparent gui
 We present a **forward kinematic solution based on the Modified Denavit-Hartenberg convention** and an **inverse kinematic solution based on a geometric analysis**. These solutions were tested in *CoppeliaSim* using *MATLAB* through a remoteAPI.
 
 For more information refer to the [Wiki](https://github.com/Jgocunha/universal-robots-kinematics/wiki) page.
-
-![Visual Representation](/Images/proof.png)
