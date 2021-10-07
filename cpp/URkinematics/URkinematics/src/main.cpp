@@ -32,20 +32,52 @@ float deg(const float& rad)
 
 struct RPY
 {
-	float m_alpha = 0, m_beta = 0, m_gamma = 0;
+	float m_alpha = 0.0f, m_beta = 0.0f, m_gamma = 0.0f;
+
+	RPY()
+		: m_alpha(0.0f), m_beta(0.0f), m_gamma(0.0f) {}
 
 	RPY(const float& alpha, const float& beta, const float& gamma)
 		:m_alpha(alpha), m_beta(beta), m_gamma(gamma) {}
 
-	RPY calcRPYangles(const float (&rotationMatrix)[3][3])
+	RPY(const float(&rotationMatrix)[3][3])
 	{
-
+		if (rotationMatrix[0][2] == 1 || rotationMatrix[0][2] == -1)
+		{
+			//special case
+			m_alpha = 0; // set arbitrarily
+			//static 
+			float dlta = atan2(rotationMatrix[0][1], rotationMatrix[0][2]);
+			if (rotationMatrix[0][2] == - 1)
+			{
+				m_beta = std::numbers::pi_v<float> / 2;
+				m_gamma = m_alpha + dlta;
+			}
+			else
+			{
+				m_beta = -std::numbers::pi_v<float> / 2;
+				m_gamma = -m_alpha + dlta;
+			}
+		}
+		else
+		{
+			m_beta = -asin(rotationMatrix[0][2]);
+			m_gamma = atan2(rotationMatrix[1][2] / cos(m_beta), rotationMatrix[2][2] / cos(m_beta));
+			m_alpha = atan2(rotationMatrix[0][1] / cos(m_beta), rotationMatrix[0][0] / cos(m_beta));
+		}
 	}
+
 };
 
 struct position
 {
-	float x = 0.0f, y = 0.0f, z = 0.0f;
+	float m_x = 0.0f, m_y = 0.0f, m_z = 0.0f;
+
+	position()
+		: m_x(0.0f), m_y(0.0f), m_z(0.0f) {}
+
+	position(const float& x, const float& y, const float& z)
+		: m_x(x), m_y(y), m_z(z) {}
 };
 
 struct tipPose
@@ -83,7 +115,8 @@ struct TransformationMatrix
 
 TransformationMatrix** operator*(const TransformationMatrix& mat1, const TransformationMatrix& mat2)
 {
-	float result[4][4] = {};
+	//static 
+		float result[4][4] = {};
 
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
@@ -100,7 +133,8 @@ TransformationMatrix** operator*(const TransformationMatrix& mat1, const Transfo
 // Computes the transformation matrix from a system of coordinates to another
 float** calcTransformationMatrix(const float(&DHparams)[])
 {
-	float individualTransformationMatrix[4][4] = { {cos(DHparams[3]),								-sin(DHparams[3]),							0,							DHparams[1]},
+	//static 
+		float individualTransformationMatrix[4][4] = { {cos(DHparams[3]),								-sin(DHparams[3]),							0,							DHparams[1]},
 													{(sin(DHparams[3]) * cos(DHparams[0])),		(cos(DHparams[3]) * cos(DHparams[0])),	    -sin(DHparams[0]),	    (-sin(DHparams[0]) * DHparams[2])},
 													{(sin(DHparams[3]) * sin(DHparams[0])),		(cos(DHparams[3]) * sin(DHparams[0])),	    cos(DHparams[0]),		(cos(DHparams[0]) * DHparams[2])},
 													{0,														0,										0,							1} };
@@ -175,7 +209,7 @@ private:
 	}
 	void setMDHmatrix(void)
 	{
-		float tempMat[m_numReferenceFrames][4]= {{0,		0,			m_d[0],			m_theta[0]},				// 0T1
+		static float tempMat[m_numReferenceFrames][4]= {{0,		0,			m_d[0],			m_theta[0]},				// 0T1
 												{ -rad(90),	0,			m_d[1],			m_theta[1] - rad(90) },	// 1T2
 												{ 0,		m_a[0],		m_d[2],			m_theta[2] },				// 2T3
 												{ 0,		m_a[1],		m_d[3],			m_theta[3] },				// 3T4
@@ -213,16 +247,13 @@ tipPose UR::forwardKinematics(const float(&targetJointVal)[])
 		memcpy(generalTransformationMatrices[i].m_matrix, (generalTransformationMatrices[i-1]*individualTransformationMatrices[i]), sizeof(float[4][4]) );
 	}
 
-	float rotationMatrix[3][3] = {  { generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][2] },
+	//static 
+		float rotationMatrix[3][3] = {  { generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][2] },
 									{ generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][2] },
 									{ generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][2] } };
 		
 		
-		
-		//generalTransformationMatrices[m_numReferenceFrames].m_matrix
-
-	//tipPose tipPose( ,RPY::calcRPYangles(rotationMatrix));
-	tipPose tipPose;
+	tipPose tipPose(position::position(generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][3], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][3], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][3]),RPY::RPY(rotationMatrix));
 	return tipPose;
 }
 
@@ -257,16 +288,16 @@ ostream& operator <<(ostream& stream, const UR& robot)
 	stream << "Translations in the x-axis (meters)\n";
 	for (unsigned int i = 0; i < robot.m_numTransX; i++)
 		stream << "a" << i + 2 << ": " << robot.getTransX()[i] << endl;
-	stream << "Modified Denavit-Hartengerg Matrix\n";
-	for (int x = 0; x < robot.m_numReferenceFrames; x++)  // loop lines
-	{
-		for (int y = 0; y < 4; y++)  // loop columns
-		{
-			//stream << robot.getMDHmatrix()[x][y];
-			stream << (robot.m_MDHmatrix[x][y]) << "				";
-		}
-		stream << endl;  
-	}
+	//stream << "Modified Denavit-Hartengerg Matrix\n";
+	//for (int x = 0; x < robot.m_numReferenceFrames; x++)  // loop lines
+	//{
+	//	for (int y = 0; y < 4; y++)  // loop columns
+	//	{
+	//		//stream << robot.getMDHmatrix()[x][y];
+	//		stream << (robot.m_MDHmatrix[x][y]) << "				";
+	//	}
+	//	stream << endl;  
+	//}
 	stream << "Joint values (deg)\n";
 	for (unsigned int i = 0; i < robot.m_numDoF; i++)
 		stream << "Theta" << i + 1 << ": " << deg(robot.getTheta()[i]) << endl;
