@@ -1,8 +1,11 @@
 // universalRobotsKinematics.h
+
 #pragma once
 
 #include <iostream>
+#include <Eigen/Dense>
 #include "mathLib.h"
+
 
 namespace universalRobots
 {
@@ -12,7 +15,7 @@ namespace universalRobots
 		UR3, UR5, UR10 // 0, 1, 2
 	};
 
-	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type);
+	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type);
 
 	class UR
 	{
@@ -30,15 +33,16 @@ namespace universalRobots
 		mathLib::tipPose m_tipPose; // end-effector/tip position
 
 	public:
-		float m_MDHmatrix[m_numReferenceFrames][4] = { {0,					0,			m_d[0],			m_theta[0]},					// 0T1
-														{mathLib::rad(-90),	0,			m_d[1],			m_theta[1] + mathLib::rad(-90)},// 1T2
-														{0,					m_a[0],		m_d[2],			m_theta[2]},					// 2T3
-														{0,					m_a[1],		m_d[3],			m_theta[3]},					// 3T4
-														{0,					m_a[2],		m_d[4],			mathLib::rad(90)},				// 4T4'
-														{mathLib::rad(90),	0,			0,				m_theta[4]},					// 4'T5
-														{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},				// 5T5'
-														{0,					m_a[3],		m_d[5],			m_theta[5]},					// 5'T6
-														{0,					0,			m_d[6],			0} };							// 6T7
+
+		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_theta[0]},					// 0T1
+																	{mathLib::rad(-90),	0,			m_d[1],			m_theta[1] + mathLib::rad(-90)},// 1T2
+																	{0,					m_a[0],		m_d[2],			m_theta[2]},					// 2T3
+																	{0,					m_a[1],		m_d[3],			m_theta[3]},					// 3T4
+																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},				// 4T4'
+																	{mathLib::rad(90),	0,			0,				m_theta[4]},					// 4'T5
+																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},				// 5T5'
+																	{0,					m_a[3],		m_d[5],			m_theta[5]},					// 5'T6
+																	{0,					0,			m_d[6],			0} };							// 6T7
 
 	public:
 		// constructors
@@ -46,7 +50,7 @@ namespace universalRobots
 		// set methods
 		void setTipPose(const mathLib::tipPose &tipPose);
 		// other methods
-		mathLib::tipPose forwardKinematics(const float(&jointVal)[]);
+		mathLib::tipPose forwardKinematics(const float(&targetJointVal)[]);
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 	private:
 		// set methods

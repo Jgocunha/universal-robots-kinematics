@@ -1,4 +1,18 @@
+// universalRobotsKinematics.cpp
+
 #include "universalRobotsKinematics.h"
+
+
+Eigen::Matrix4f calcTransformationMatrix(const Eigen::Matrix<float,1 , 4> &DHparams)
+{
+	Eigen::Matrix4f individualTransformationMatrix;
+	individualTransformationMatrix  <<	cos(DHparams[3]),								-sin(DHparams[3]),							0,							DHparams[1],
+										(sin(DHparams[3]) * cos(DHparams[0])),		(cos(DHparams[3]) * cos(DHparams[0])),	    -sin(DHparams[0]),	    (-sin(DHparams[0]) * DHparams[2]),
+										(sin(DHparams[3]) * sin(DHparams[0])),		(cos(DHparams[3]) * sin(DHparams[0])),	    cos(DHparams[0]),		(cos(DHparams[0]) * DHparams[2]),
+										0,														0,									0,							1;
+	return individualTransformationMatrix;
+}
+
 
 namespace universalRobots
 {
@@ -6,6 +20,15 @@ namespace universalRobots
 		: m_endEffector(endEffector)
 	{
 		m_d[m_numTransZ - 1] = endEffectorDimension;
+		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_theta[0] ,					// 0T1
+						mathLib::rad(-90),	0.0f,		m_d[1],			m_theta[1] + mathLib::rad(-90) ,// 1T2
+						0.0f,				m_a[0],		m_d[2],			m_theta[2] ,					// 2T3
+						0.0f,				m_a[1],		m_d[3],			m_theta[3] ,					// 3T4
+						0.0f,				m_a[2],		m_d[4],			mathLib::rad(90) ,				// 4T4'
+						mathLib::rad(90),	0.0f,		0.0f,			m_theta[4] ,					// 4'T5
+						mathLib::rad(-90),	0.0f,		0.0f,			mathLib::rad(-90) ,				// 5T5'
+						0.0f,				m_a[3],		m_d[5],			m_theta[5] ,					// 5'T6
+						0.0f,				0,			m_d[6],			0 ;								// 6T7
 	}
 
 	const URtype UR::getRobotType(void) const
@@ -47,19 +70,15 @@ namespace universalRobots
 	}
 	void UR::setMDHmatrix(void)
 	{
-		using namespace mathLib;
-		static float tempMat[m_numReferenceFrames][4] = { {0,		0,			m_d[0],			m_theta[0]},	// 0T1
-												{ -rad(90),	0,			m_d[1],			m_theta[1] - rad(90) },	// 1T2
-												{ 0,		m_a[0],		m_d[2],			m_theta[2] },			// 2T3
-												{ 0,		m_a[1],		m_d[3],			m_theta[3] },			// 3T4
-												{ 0,		m_a[2],		m_d[4],			rad(90) },				// 4T4'
-												{ rad(90),	0,			0,				m_theta[4] },			// 4'T5
-												{ -rad(90),	0,			0,				-rad(90) },				// 5T5'
-												{ 0,		m_a[3],		m_d[5],			m_theta[5] },			// 5'T6
-												{ 0,		0,			m_d[6],			0 } };					// 6T7
-
-		std::memcpy(m_MDHmatrix, tempMat, sizeof(m_MDHmatrix));
-
+		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_theta[0] ,					// 0T1
+						mathLib::rad(-90),		0.0f,		m_d[1],			m_theta[1] + mathLib::rad(-90) ,// 1T2
+						0.0f,					m_a[0],		m_d[2],			m_theta[2] ,					// 2T3
+						0.0f,					m_a[1],		m_d[3],			m_theta[3] ,					// 3T4
+						0.0f,					m_a[2],		m_d[4],			mathLib::rad(90) ,				// 4T4'
+						mathLib::rad(90),		0.0f,		0.0f,			m_theta[4] ,					// 4'T5
+						mathLib::rad(-90),		0.0f,		0.0f,			mathLib::rad(-90) ,				// 5T5'
+						0.0f,					m_a[3],		m_d[5],			m_theta[5] ,					// 5'T6
+						0.0f,					0,			m_d[6],			0 ;								// 6T7
 	}
 	const mathLib::tipPose UR::getTipPose(void) const
 	{
@@ -74,39 +93,39 @@ namespace universalRobots
 		setMDHmatrix();
 
 		// create an array of transformation matrices
-		mathLib::TransformationMatrix individualTransformationMatrices[m_numReferenceFrames] = {};
+		Eigen::Matrix4f individualTransformationMatrices[m_numReferenceFrames] = {};
 		// determine the indiviual transformation matrices
 		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
 		{
-			std::memcpy(individualTransformationMatrices[i].m_matrix, mathLib::calcTransformationMatrix(m_MDHmatrix[i]), sizeof(float[4][4]));
-			//memcpy(individualTransformationMatrices[i].matrix, MDHMatrix(getMDHmatrix()[i]), sizeof(float[4][4]));
+			individualTransformationMatrices[i] = calcTransformationMatrix(m_MDHmatrix.row(i));
 		}
 		// create another array of transformation matrices
-		mathLib::TransformationMatrix generalTransformationMatrices[m_numReferenceFrames] = {};
+		Eigen::Matrix4f generalTransformationMatrices[m_numReferenceFrames] = {};
 		// determine the general transformation matrix
-		memcpy(generalTransformationMatrices[0].m_matrix, individualTransformationMatrices[0].m_matrix, sizeof(float[4][4]));
+		generalTransformationMatrices[0] = individualTransformationMatrices[0];
 		for (unsigned int i = 1; i < m_numReferenceFrames; i++)
 		{
-			std::memcpy(generalTransformationMatrices[i].m_matrix, (generalTransformationMatrices[i - 1] * individualTransformationMatrices[i]), sizeof(float[4][4]));
+			generalTransformationMatrices[i] = generalTransformationMatrices[i - 1] * individualTransformationMatrices[i];
 		}
 
-		//static 
-		float rotationMatrix[3][3] = {  { generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][2] },
-										{ generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][2] },
-										{ generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][0], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][1], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][2] } };
-
-
-		return mathLib::tipPose(mathLib::position::position(generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[0][3], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[1][3], generalTransformationMatrices[m_numReferenceFrames - 1].m_matrix[2][3]), mathLib::RPY::RPY(rotationMatrix));
+		Eigen::Matrix3f rotationMatrix;
+		rotationMatrix << generalTransformationMatrices[m_numReferenceFrames - 1](0, 0),	generalTransformationMatrices[m_numReferenceFrames - 1](0, 1),	generalTransformationMatrices[m_numReferenceFrames - 1](0, 2),
+						  generalTransformationMatrices[m_numReferenceFrames - 1](1, 0),	generalTransformationMatrices[m_numReferenceFrames - 1](1, 1),	generalTransformationMatrices[m_numReferenceFrames - 1](1, 2),
+						  generalTransformationMatrices[m_numReferenceFrames - 1](2, 0),	generalTransformationMatrices[m_numReferenceFrames - 1](2, 1),	generalTransformationMatrices[m_numReferenceFrames - 1](2, 2);
+		
+		return mathLib::tipPose( Eigen::Matrix<float, 1, 3>(generalTransformationMatrices[m_numReferenceFrames - 1](0, 3), 
+															generalTransformationMatrices[m_numReferenceFrames - 1](1, 3), 
+															generalTransformationMatrices[m_numReferenceFrames - 1](2, 3)), 
+								rotationMatrix);
 	}
 
 	void UR::setTipPose(const mathLib::tipPose& newTipPose)
 	{
-		m_tipPose.m_pos_e = newTipPose.m_pos_e;
-		m_tipPose.m_rpy_e = newTipPose.m_rpy_e;
+		m_tipPose = newTipPose;
 	}
 	
 	// << overloading to be able to print a URtype enum
-	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type)
+	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type)
 	{
 		switch (type)
 		{
@@ -149,8 +168,8 @@ namespace universalRobots
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
 			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta()[i]) << std::endl;
 		stream << "Tip pose:\n";
-		stream << "x " << robot.getTipPose().m_pos_e.m_x << " y " << robot.getTipPose().m_pos_e.m_y << " z " << robot.getTipPose().m_pos_e.m_z << " (meters)\nalpha "
-			<< mathLib::deg(robot.getTipPose().m_rpy_e.m_alpha) << " beta " << mathLib::deg(robot.getTipPose().m_rpy_e.m_beta) << " gamma " << mathLib::deg(robot.getTipPose().m_rpy_e.m_gamma) << " (degrees)" << std::endl;
+		stream << "x " << robot.getTipPose().m_pos.x() << " y " << robot.getTipPose().m_pos.y() << " z " << robot.getTipPose().m_pos.z() << " (meters)\nalpha "
+			<< mathLib::deg(robot.getTipPose().m_rpy.x()) << " beta " << mathLib::deg(robot.getTipPose().m_rpy.y()) << " gamma " << mathLib::deg(robot.getTipPose().m_rpy.z()) << " (degrees)" << std::endl;
 		return stream;
 	}
 }
