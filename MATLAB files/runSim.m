@@ -119,30 +119,30 @@ if (clientID>-1)
     disp(RPY(R));
     disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
     %% Compute inverse kinematics
-%     joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
-%     % Print the joint values for every IK solution
-%     disp('Inverse kinematics solutions:')
-%     disp(int32(rad2deg(joints(:,:))));
-%      
-%     % Send joint values to CoppeliaSim
-%      for i = 1: totalIKsol
-%          disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
-%          fprintf('Inverse kinematic solution %d\n',i);
-%          disp('Value in degrees');
-%          disp(rad2deg(joints(i,:)));
-%          disp('Value in radians');
-%          disp(joints(i,:));
-%          pause(0.5);
-%          for j = 1 : dof
-%              % Send joint values for robot model
-%              sim.simxSetJointTargetPosition(clientID, jh(j), (joints(i,j)), sim.simx_opmode_blocking);
-%          end
-%          pause(0.5);
-%          % Allow Coppelia to display tip pose
-%          sim.simxSetIntegerSignal(clientID, 'showPos', 1, sim.simx_opmode_blocking);
-%          pause(printTimeInterval);
-%          sim.simxSetIntegerSignal(clientID, 'showPos', 0, sim.simx_opmode_blocking);
-%      end
+    joints=(invKin8sol(d,a,M{2}{numFrames}(:,:)));
+    % Print the joint values for every IK solution
+    disp('Inverse kinematics solutions:')
+    disp(int32(rad2deg(joints(:,:))));
+     
+    % Send joint values to CoppeliaSim
+     for i = 1: totalIKsol
+         disp('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
+         fprintf('Inverse kinematic solution %d\n',i);
+         disp('Value in degrees');
+         disp(rad2deg(joints(i,:)));
+         disp('Value in radians');
+         disp(joints(i,:));
+         pause(0.5);
+         for j = 1 : dof
+             % Send joint values for robot model
+             sim.simxSetJointTargetPosition(clientID, jh(j), (joints(i,j)), sim.simx_opmode_blocking);
+         end
+         pause(0.5);
+         % Allow Coppelia to display tip pose
+         sim.simxSetIntegerSignal(clientID, 'showPos', 1, sim.simx_opmode_blocking);
+         pause(printTimeInterval);
+         sim.simxSetIntegerSignal(clientID, 'showPos', 0, sim.simx_opmode_blocking);
+     end
 else
     disp('Failed connecting to remote API server');
 end
