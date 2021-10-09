@@ -43,4 +43,17 @@ namespace mathLib
 		}
 	}
 
+
+	Eigen::Matrix4f calcTransformationMatrix(const Eigen::Matrix<float, 1, 4>& DHparams)
+	{
+		Eigen::Matrix4f individualTransformationMatrix;
+		individualTransformationMatrix << cos(DHparams[3]), -sin(DHparams[3]), 0, DHparams[1],
+			(sin(DHparams[3]) * cos(DHparams[0])), (cos(DHparams[3]) * cos(DHparams[0])), -sin(DHparams[0]), (-sin(DHparams[0]) * DHparams[2]),
+			(sin(DHparams[3]) * sin(DHparams[0])), (cos(DHparams[3]) * sin(DHparams[0])), cos(DHparams[0]), (cos(DHparams[0]) * DHparams[2]),
+			0, 0, 0, 1;
+
+		return individualTransformationMatrix;
+	}
+
+
 } //namespace mathLib

@@ -9,9 +9,6 @@ namespace mathLib
 {
 	//const double PI = std::atan(1.0) * 4;
 
-	float rad(const float& degree);
-	float deg(const float& rad);
-
 	struct tipPose
 	{
 		Eigen::Matrix<float, 1, 3> m_pos; // x y z (meters)
@@ -26,6 +23,11 @@ namespace mathLib
 		tipPose(const Eigen::Matrix<float, 1, 3>& pos, const Eigen::Matrix3f& rotationMatrix);
 
 	};
+
+	float rad(const float& degree);
+	float deg(const float& rad);
+
+	Eigen::Matrix4f calcTransformationMatrix(const Eigen::Matrix<float, 1, 4>& DHparams);
 
 } //namespace mathLib
 
