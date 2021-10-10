@@ -44,7 +44,7 @@ namespace mathLib
 	}
 
 
-	Eigen::Matrix4f calcTransformationMatrix(const Eigen::Matrix<float, 1, 4>& DHparams)
+	Eigen::Matrix4f calcTransformationMatrix(const Eigen::RowVector4f& DHparams)
 	{
 		Eigen::Matrix4f individualTransformationMatrix;
 		individualTransformationMatrix << cos(DHparams[3]), -sin(DHparams[3]), 0, DHparams[1],

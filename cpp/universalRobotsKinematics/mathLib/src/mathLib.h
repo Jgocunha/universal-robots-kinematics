@@ -27,7 +27,7 @@ namespace mathLib
 	float rad(const float& degree);
 	float deg(const float& rad);
 
-	Eigen::Matrix4f calcTransformationMatrix(const Eigen::Matrix<float, 1, 4>& DHparams);
+	Eigen::Matrix4f calcTransformationMatrix(const Eigen::RowVector4f& DHparams);
 
 } //namespace mathLib
 

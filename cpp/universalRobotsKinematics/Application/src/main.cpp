@@ -18,16 +18,19 @@ int main()
 	// compute forward kinematics and update robot's tip pose
 	robot.setTipPose(robot.forwardKinematics(targetJointValues));
 
-
+	std::cout << robot << std::endl << std::endl;
+	
 	// test different target tip poses
 	// 
 	//float targetTipPose[6] = { 0.2982f, 0.6746f, 0.7211f, mathLib::rad(180), mathLib::rad(45), mathLib::rad(90) };
-	const Eigen::Matrix<float, 1, 6> targetTipPose = { 0.2982f, 0.6746f, 0.7211f, mathLib::rad(180), mathLib::rad(45), mathLib::rad(90) };
+	//const Eigen::Matrix<float, 1, 6> targetTipPose = { 0.2982f, 0.6746f, 0.7211f, mathLib::rad(180), mathLib::rad(45), mathLib::rad(90) };
+	const Eigen::Matrix<float, 1, 6> targetTipPose = { 0.3835f, 0.3730f, 0.9581f, mathLib::rad(-30.5348f), mathLib::rad(28.4603f), mathLib::rad(47.5405f) }; // mathLib::rad(23), mathLib::rad(345), mathLib::rad(78), mathLib::rad(66), mathLib::rad(77), mathLib::rad(12)
 	// compute inverse kinematics 
 	//float ikSols[8][robot.m_numDoF] =
+	robot.inverseKinematics(targetTipPose);
 		
 
-	std::cout << robot << std::endl << std::endl;
+	
 	//std::cout << robot.inverseKinematics(targetTipPose)[0][0];
 
 	std::cin.get();

@@ -173,37 +173,47 @@ namespace universalRobots
 	{
 		float ikSols[m_numIkSol][m_numDoF] = {};
 
-		Eigen::Matrix4f transformationMatrix = Eigen::Matrix4f::Identity();
+		Eigen::Matrix4f OT7 = Eigen::Matrix4f::Identity(); // 0T7
 
-		// Get translation matrix
+		// Get translation matrix.
 		const Eigen::Vector3f translation = { targetTipPose(0, 0), targetTipPose(0, 1), targetTipPose(0, 2) };
-		
-		// Calculate rotation matrix using Eigen 
-		const Eigen::AngleAxisf rollAngle(targetTipPose(0, 3), Eigen::Vector3f::UnitZ());
-		const Eigen::AngleAxisf yawAngle(targetTipPose(0, 4), Eigen::Vector3f::UnitY());
-		const Eigen::AngleAxisf pitchAngle(targetTipPose(0, 5), Eigen::Vector3f::UnitX());
 
-		const Eigen::Quaternion<float> auxQuaternion = rollAngle * pitchAngle * yawAngle;
-		const Eigen::Matrix3f rotation = auxQuaternion.matrix();
+		// Calculate rotation matrix.
+		Eigen::Matrix3f rotation;
+		rotation = Eigen::AngleAxisf(targetTipPose(0, 3), Eigen::Vector3f::UnitX())
+				*Eigen::AngleAxisf( targetTipPose(0, 4), Eigen::Vector3f::UnitY())
+				*Eigen::AngleAxisf( targetTipPose(0, 5), Eigen::Vector3f::UnitZ());
 
-		transformationMatrix.block<3, 3>(0, 0) = rotation;
-		transformationMatrix.block<3, 1>(0, 3) = translation;
+		OT7.block<3, 3>(0, 0) = rotation;
+		OT7.block<3, 1>(0, 3) = translation;
 
-		
-		// Computing theta1
-		Eigen::Matrix<float, 1, 4> OP5 = transformationMatrix * Eigen::Matrix<float, 1, 4>(0, 0.0f, -m_d[5] - m_d[6], 1.0f).transpose(); // 0P5 position of reference frame {5} in relation to {0}
+		// Computing theta1.
+		Eigen::Matrix<float, 1, 4> OP5 = OT7 * Eigen::Matrix<float, 1, 4>(0, 0.0f, -m_d[5] - m_d[6], 1.0f).transpose(); // 0P5 position of reference frame {5} in relation to {0}
 		const float theta1_psi = atan2(OP5(0, 1), OP5(0, 0));
 
-		// There are two possible solutions for theta1, that depend on whether
-		// the shoulder joint(joint 2) is left or right
+		// There are two possible solutions for theta1, that depend on whether the shoulder joint (joint 2) is left or right.
 		const float theta1_phi = acos( (m_d[1] + m_d[2] + m_d[3] + m_d[4]) / (sqrt( pow(OP5(0, 1), 2) + pow(OP5(0, 0), 2) ) ) );
 
 		for (int i = -4; i < int (m_numIkSol) - 4 ; i++)
 		{
 			ikSols[i + 4][0] = (std::numbers::pi_v<float> / 2 + theta1_psi + (i < 0 ? 1 : -1)* theta1_phi) - std::numbers::pi_v<float>; // (i < 0 ? 1 : -1) first 4 theta1 values have positive phi
 		}
+		
+		Eigen::Matrix4f OT6 = OT7;
+		OT6(2, 3) = OT7(2, 3) - m_d[m_numTransZ - 1]; // 0T6
 
-			std::cout << theta1_phi;
+
+		for (unsigned int i = 0; i < m_numIkSol; i++)
+		{
+			// Computing theta5.
+
+			// Knowing theta1 it is possible to know 0T1.
+			//Eigen::Matrix4f OT1 = mathLib::calcTransformationMatrix(Eigen::RowVector4f{ 0.0f, 0.0f, m_d[0], ikSols[i][0] });
+			//std::cout << OT1 << std::endl << std::endl;
+		}
+
+
+		
 
 		return reinterpret_cast<float**>(ikSols);
 	}
