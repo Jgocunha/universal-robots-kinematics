@@ -130,23 +130,23 @@ namespace universalRobots
 
 		void setTipPose(const mathLib::tipPose &tipPose);
 		mathLib::tipPose forwardKinematics(const float(&targetJointVal)[]);
-		float** inverseKinematics(const Eigen::Matrix<float, 1, 6>& targetTipPose);
+		void inverseKinematics(const float(&targetTipPose)[], float(*outIkSols)[m_numIkSol][m_numDoF]);
 		
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 	private:
 		
-		void setMDHmatrix(void);
+		void setMDHmatrix();
 		void setRobotType(const URtype& type);
 		void setTransZ(const float (&d)[]);
 		void setTransX(const float (&a)[]);
 		void setTheta(const float (&jointVal)[]);
 
-		const URtype getRobotType(void) const;
-		const float* getTransZ(void) const;
-		const float* getTransX(void) const;
-		const float* getTheta(void) const;
-		const mathLib::tipPose getTipPose(void) const;
-		//const float** getMDHmatrix(void) const;
+		const URtype getRobotType() const;
+		const float* getTransZ() const;
+		const float* getTransX() const;
+		const float* getTheta() const;
+		const mathLib::tipPose getTipPose() const;
+		//const float** getMDHmatrix() const;
 	};
 
 
