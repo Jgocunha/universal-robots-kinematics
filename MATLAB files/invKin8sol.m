@@ -57,7 +57,7 @@ function joint=invKin8sol(d, a, eePosOri)
         
         %Wrist up or down 
         if(ismember(j,[1,2,5,6]))
-           joint(j,5)=((acos((P_16(2,1)-(d(2)+d(3)+d(4)+d(5)))/d(6))));
+           joint(j,5)=( (acos( (P_16(2,1)-(d(2)+d(3)+d(4)+d(5) ) ) / d(6)) ) );
         else
             joint(j,5)=(-(acos((P_16(2,1)-(d(2)+d(3)+d(4)+d(5)))/d(6))));
         end
@@ -112,7 +112,7 @@ function joint=invKin8sol(d, a, eePosOri)
             joint(j,3)=( pi - psi);
             % Masking theta3 for CoppeliaSim (invert value for ang>180)
             if(joint(j,3)>pi)
-                joint(j,3)=joint(j,3)-pi*2;
+                %joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
             % Fix Error using atan2 / Inputs must be real.
@@ -129,7 +129,7 @@ function joint=invKin8sol(d, a, eePosOri)
             joint(j,3)=( pi + psi);
             % Masking theta3 for CoppeliaSim (invert value for ang>180)
             if(joint(j,3)>pi)
-                joint(j,3)=joint(j,3)-pi*2;
+                %joint(j,3)=joint(j,3)-pi*2;
             end
             % theta 2
             % Fix Error using atan2 / Inputs must be real.
