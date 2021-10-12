@@ -31,12 +31,12 @@ namespace universalRobots
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ eulerAngles[0], eulerAngles[1], eulerAngles[2] } {}
 
 		pose(const float(&pos)[], const Eigen::Matrix3f& rotationMatrix)
-			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(2, 1, 0).x(), rotationMatrix.eulerAngles(2, 1, 0).y(), rotationMatrix.eulerAngles(2, 1, 0).z() } {}
+			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(), rotationMatrix.eulerAngles(1, 2, 0).x() } {}
 	};
 
 	struct joint
 	{
-		pose jointPose;
+		pose jointPose = {};
 		float jointValue = 0.0f;
 	};
 
@@ -147,7 +147,6 @@ namespace universalRobots
 
 	public:
 		UR(const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
-		void setTipPose(const mathLib::tipPose &tipPose);
 		pose forwardKinematics(const float(&targetJointVal)[]);
 		void inverseKinematics(const float(&targetTipPose)[], float(*outIkSols)[m_numIkSol][m_numDoF]);
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);

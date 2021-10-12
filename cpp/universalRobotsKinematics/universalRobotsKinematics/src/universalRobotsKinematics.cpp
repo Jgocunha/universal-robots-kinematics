@@ -70,13 +70,6 @@ namespace universalRobots
 			m_jointState[i].jointValue = jointVal[i];
 	} 
 	
-	/// <summary>setTipPose</summary>
-	/// <param name="newTipPose"></param>
-	void UR::setTipPose(const mathLib::tipPose& newTipPose)
-	{
-		//m_tipPose = newTipPose;
-	}
-	
 	/// <summary>Returns the enum URtype. Used for printing purposes.</summary>
 	/// <returns>m_type</returns>
 	const URtype UR::getRobotType() const
@@ -109,7 +102,7 @@ namespace universalRobots
 	/// <returns>m_tipPose</returns>
 	const pose UR::getTipPose() const
 	{
-		return m_jointState[m_numDoF].jointPose;
+		return m_jointState[m_numDoF-1].jointPose;
 	}
 	
 	/// <summary>Receives an array of target joint values and computes the pose of the robot's tip.</summary>
@@ -127,25 +120,29 @@ namespace universalRobots
 
 		// Determine the general transformation matrices.		
 		Eigen::Matrix3f rotationMatrix;
+		unsigned int currentJoint = 0;
 		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
 		{
 			if(!i)
 				m_generalTransformationMatrices[0] = m_individualTransformationMatrices[0];
 			else
-			{
 				m_generalTransformationMatrices[i] = m_generalTransformationMatrices[i - 1] * m_individualTransformationMatrices[i];
 
-				// Obtaining the joint pose	
-				if (!i == (4, 6, 8))
-				{
-					// 0T1 1 // 1T2 2// 2T3 3// 3T4 4// 4T4' // 4'T5 5// 5T5' // 5'T6 6// 6T7
-					rotationMatrix <<	m_generalTransformationMatrices[i](0, 0), m_generalTransformationMatrices[i](0, 1), m_generalTransformationMatrices[i](0, 2),
-										m_generalTransformationMatrices[i](1, 0), m_generalTransformationMatrices[i](1, 1), m_generalTransformationMatrices[i](1, 2),
-										m_generalTransformationMatrices[i](2, 0), m_generalTransformationMatrices[i](2, 1), m_generalTransformationMatrices[i](2, 2);
-					float position[3] = { m_generalTransformationMatrices[i](0, 3), m_generalTransformationMatrices[i](1, 3), m_generalTransformationMatrices[i](2, 3) };
-					m_jointState[i].jointPose = pose(position, rotationMatrix);
-				}
 
+			// Obtaining the joint pose
+			// Since we have more reference frames than joints only some represent a joint pose
+			// 0T1 J1 // 1T2 J2// 2T3 J3// 3T4 J4// 4T4' XX// 4'T5 J5// 5T5' XX// 5'T6 J6// 6T7 XX
+			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7)
+			{
+				// 0T1 1 // 1T2 2// 2T3 3// 3T4 4// 4T4' // 4'T5 5// 5T5' // 5'T6 6// 6T7
+				rotationMatrix << m_generalTransformationMatrices[i](0, 0), m_generalTransformationMatrices[i](0, 1), m_generalTransformationMatrices[i](0, 2),
+					m_generalTransformationMatrices[i](1, 0), m_generalTransformationMatrices[i](1, 1), m_generalTransformationMatrices[i](1, 2),
+					m_generalTransformationMatrices[i](2, 0), m_generalTransformationMatrices[i](2, 1), m_generalTransformationMatrices[i](2, 2);
+
+				float position[3] = { m_generalTransformationMatrices[i](0, 3), m_generalTransformationMatrices[i](1, 3), m_generalTransformationMatrices[i](2, 3) };
+
+				m_jointState[currentJoint].jointPose = pose(position, rotationMatrix);
+				currentJoint++;
 			}
 		}
 
