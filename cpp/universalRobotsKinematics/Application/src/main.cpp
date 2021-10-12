@@ -16,7 +16,8 @@ int main()
 	const float targetJointValues[robot.m_numDoF] = { mathLib::rad(23), mathLib::rad(345), mathLib::rad(78), mathLib::rad(66), mathLib::rad(77), mathLib::rad(12) };
 
 	// compute forward kinematics and update robot's tip pose
-	robot.setTipPose(robot.forwardKinematics(targetJointValues));
+	//robot.setTipPose(robot.forwardKinematics(targetJointValues));
+	robot.forwardKinematics(targetJointValues);
 
 	std::cout << robot << std::endl;
 	

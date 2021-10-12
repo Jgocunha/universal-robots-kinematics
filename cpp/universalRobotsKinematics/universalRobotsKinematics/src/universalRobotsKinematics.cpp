@@ -2,172 +2,159 @@
 
 #include "universalRobotsKinematics.h"
 
-
 namespace universalRobots
 {
-	/////////////////////////////////////////////////////////////////////////////
-	/// UR methods
-	/// 
-
-	
-	/// UR constructor
-	/// 
-	/// Only constructor available for now.
+	/// <summary> setRobotType
 	/// User is only allowed to specify whether there is an end-effector and its translation to the tip.
 	/// Example usage:
-	///		universalRobots::UR robot_one(); // Robot does not have an end-effector.
-	///		universalRobots::UR robot_one(true, 0.15f); // End-effector translated 0.15 meters from the robot's tip.
-	/// 
+	///		universalRobots::UR robot_one(); Robot does not have an end-effector.
+	///		universalRobots::UR robot_one(true, 0.15f); End-effector translated 0.15 meters from the robot's tip.
+	/// </summary>
+	/// <param name="endEffector"></param>
+	/// <param name="endEffectorDimension"></param>
 	UR::UR(const bool& endEffector, const float& endEffectorDimension)
 		: m_endEffector(endEffector)
 	{
 		m_d[m_numTransZ - 1] = endEffectorDimension;
-		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_theta[0] ,					// 0T1
-						mathLib::rad(-90),	0.0f,		m_d[1],			m_theta[1] + mathLib::rad(-90) ,// 1T2
-						0.0f,				m_a[0],		m_d[2],			m_theta[2] ,					// 2T3
-						0.0f,				m_a[1],		m_d[3],			m_theta[3] ,					// 3T4
-						0.0f,				m_a[2],		m_d[4],			mathLib::rad(90) ,				// 4T4'
-						mathLib::rad(90),	0.0f,		0.0f,			m_theta[4] ,					// 4'T5
-						mathLib::rad(-90),	0.0f,		0.0f,			mathLib::rad(-90) ,				// 5T5'
-						0.0f,				m_a[3],		m_d[5],			m_theta[5] ,					// 5'T6
-						0.0f,				0,			m_d[6],			0 ;								// 6T7
+		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_jointState[0].jointValue,						// 0T1
+						mathLib::rad(-90),	0.0f,		m_d[1],			m_jointState[1].jointValue + mathLib::rad(-90) ,// 1T2
+						0.0f,				m_a[0],		m_d[2],			m_jointState[2].jointValue,						// 2T3
+						0.0f,				m_a[1],		m_d[3],			m_jointState[3].jointValue,						// 3T4
+						0.0f,				m_a[2],		m_d[4],			mathLib::rad(90) ,								// 4T4'
+						mathLib::rad(90),	0.0f,		0.0f,			m_jointState[4].jointValue,						// 4'T5
+						mathLib::rad(-90),	0.0f,		0.0f,			mathLib::rad(-90) ,								// 5T5'
+						0.0f,				m_a[3],		m_d[5],			m_jointState[5].jointValue,						// 5'T6
+						0.0f,				0,			m_d[6],			0 ;												// 6T7
 	}
-
-	/// setRobotType
-	/// 
+	
+	/// <summary>setRobotType</summary>
+	/// <param name="type"></param>
 	void UR::setRobotType(const URtype& type)
 	{
 		m_type = type;
 	}
 
-	/// setTransZ
-	/// 
+	/// <summary>setTransZ</summary>
+	/// <param name="d"></param>
 	void UR::setTransZ(const float(&d)[])
 	{
 		memcpy(m_d, d, sizeof(m_d));
 	}
-
-	/// setTransX
-	/// 
+	
+	/// <summary>setTransX </summary>
+	/// <param name="a"></param>
 	void UR::setTransX(const float(&a)[])
 	{
 		memcpy(m_a, a, sizeof(m_a));
 	}
 
-	/// setMDHmatrix
-	/// 
-	void UR::setMDHmatrix(void)
+	/// <summary>setMDHmatrix</summary>
+	void UR::setMDHmatrix()
 	{
-		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_theta[0] ,					// 0T1
-						mathLib::rad(-90),		0.0f,		m_d[1],			m_theta[1] + mathLib::rad(-90) ,// 1T2
-						0.0f,					m_a[0],		m_d[2],			m_theta[2] ,					// 2T3
-						0.0f,					m_a[1],		m_d[3],			m_theta[3] ,					// 3T4
+		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_jointState[0].jointValue,					// 0T1
+						mathLib::rad(-90),		0.0f,		m_d[1],			m_jointState[1].jointValue + mathLib::rad(-90) ,// 1T2
+						0.0f,					m_a[0],		m_d[2],			m_jointState[2].jointValue,					// 2T3
+						0.0f,					m_a[1],		m_d[3],			m_jointState[3].jointValue,					// 3T4
 						0.0f,					m_a[2],		m_d[4],			mathLib::rad(90) ,				// 4T4'
-						mathLib::rad(90),		0.0f,		0.0f,			m_theta[4] ,					// 4'T5
+						mathLib::rad(90),		0.0f,		0.0f,			m_jointState[4].jointValue,					// 4'T5
 						mathLib::rad(-90),		0.0f,		0.0f,			mathLib::rad(-90) ,				// 5T5'
-						0.0f,					m_a[3],		m_d[5],			m_theta[5] ,					// 5'T6
+						0.0f,					m_a[3],		m_d[5],			m_jointState[5].jointValue,					// 5'T6
 						0.0f,					0,			m_d[6],			0 ;								// 6T7
-	}	
+	}
 	
-	/// setTheta
-	/// 
+	/// <summary>setTheta</summary>
+	/// <param name="jointVal"></param>
 	void UR::setTheta(const float(&jointVal)[])
 	{
-		std::memcpy(m_theta, jointVal, sizeof(m_theta));
-	}
-
-	/// setTipPose
-	/// 
+		for (unsigned int i = 0; i < m_numDoF; i++)
+			m_jointState[i].jointValue = jointVal[i];
+	} 
+	
+	/// <summary>setTipPose</summary>
+	/// <param name="newTipPose"></param>
 	void UR::setTipPose(const mathLib::tipPose& newTipPose)
 	{
-		m_tipPose = newTipPose;
+		//m_tipPose = newTipPose;
 	}
-
-	/// getRobotType
-	/// 
-	/// Returns the enum URtype. Used for printing purposes.
-	/// 
-	const URtype UR::getRobotType(void) const
+	
+	/// <summary>Returns the enum URtype. Used for printing purposes.</summary>
+	/// <returns>m_type</returns>
+	const URtype UR::getRobotType() const
 	{
 		return m_type;
 	}
-
-	/// getTransZ
-	/// 
-	/// Returns the values of the z-axis translations (d array). Used for printing purposes.
-	/// 
-	const float* UR::getTransZ(void) const
+	
+	/// <summary>Returns the values of the z-axis translations (d array). Used for printing purposes.</summary>
+	/// <returns>m_d</returns>
+	const float* UR::getTransZ() const
 	{
 		return m_d;
 	}
-
-
-	/// getTransX
-	/// 
-	/// Returns the values of the x-axis translations (a array). Used for printing purposes.
-	/// 
-	const float* UR::getTransX(void) const
+	
+	/// <summary>Returns the values of the x-axis translations (a array). Used for printing purposes.</summary>
+	/// <returns>m_a</returns>
+	const float* UR::getTransX() const
 	{
 		return m_a;
 	}
-
-	/// getTheta
-	/// 
-	/// Returns the robot's current joint values. Used for printing purposes.
-	/// 
-	const float* UR::getTheta(void) const
+	
+	/// <summary>Returns the robot's current joint values. Used for printing purposes.</summary>
+	/// <returns>m_theta</returns>
+	const float UR::getTheta(const int &ix) const
 	{
-		return m_theta;
+		return m_jointState[ix].jointValue;
 	}
-
-	/// getTipPose
-	/// 
-	/// Returns the robot's current tip pose. Used for printing purposes.
-	/// 
-	const mathLib::tipPose UR::getTipPose(void) const
+	
+	/// <summary>Returns the robot's current tip pose. Used for printing purposes.</summary>
+	/// <returns>m_tipPose</returns>
+	const pose UR::getTipPose() const
 	{
-		return m_tipPose;
+		return m_jointState[m_numDoF].jointPose;
 	}
-
-	/// forwardKinematics
-	/// 
-	/// Receives an array of target joint values and computes the pose of the robot's tip.
-	/// 
-	mathLib::tipPose UR::forwardKinematics(const float(&targetJointVal)[])
+	
+	/// <summary>Receives an array of target joint values and computes the pose of the robot's tip.</summary>
+	/// <param name="targetJointVal"></param>
+	/// <returns>tipPose</returns>
+	pose UR::forwardKinematics(const float(&targetJointVal)[])
 	{
 		// Assign joint values to compute MDH matrix.
 		setTheta(targetJointVal);
 		setMDHmatrix();
 
-		// Create an array of (individual) transformation matrices iTi+1 / i-1Ti
-		Eigen::Matrix4f individualTransformationMatrices[m_numReferenceFrames] = {};
 		// Determine the indiviual transformation matrices.
 		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
-		{
-			individualTransformationMatrices[i] = mathLib::calcTransformationMatrix(m_MDHmatrix.row(i));
-		}
+			m_individualTransformationMatrices[i] = mathLib::calcTransformationMatrix(m_MDHmatrix.row(i));
 
-		// Create another array of transformation matrices 0Ti
-		Eigen::Matrix4f generalTransformationMatrices[m_numReferenceFrames] = {};
-		// Determine the general transformation matrices.
-		generalTransformationMatrices[0] = individualTransformationMatrices[0];
-		for (unsigned int i = 1; i < m_numReferenceFrames; i++)
-		{
-			generalTransformationMatrices[i] = generalTransformationMatrices[i - 1] * individualTransformationMatrices[i];
-		}
-
+		// Determine the general transformation matrices.		
 		Eigen::Matrix3f rotationMatrix;
-		rotationMatrix << generalTransformationMatrices[m_numReferenceFrames - 1](0, 0),	generalTransformationMatrices[m_numReferenceFrames - 1](0, 1),	generalTransformationMatrices[m_numReferenceFrames - 1](0, 2),
-						  generalTransformationMatrices[m_numReferenceFrames - 1](1, 0),	generalTransformationMatrices[m_numReferenceFrames - 1](1, 1),	generalTransformationMatrices[m_numReferenceFrames - 1](1, 2),
-						  generalTransformationMatrices[m_numReferenceFrames - 1](2, 0),	generalTransformationMatrices[m_numReferenceFrames - 1](2, 1),	generalTransformationMatrices[m_numReferenceFrames - 1](2, 2);
-		
-		return mathLib::tipPose( Eigen::Matrix<float, 1, 3>(generalTransformationMatrices[m_numReferenceFrames - 1](0, 3), 
-															generalTransformationMatrices[m_numReferenceFrames - 1](1, 3), 
-															generalTransformationMatrices[m_numReferenceFrames - 1](2, 3)), 
-								rotationMatrix);
+		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
+		{
+			if(!i)
+				m_generalTransformationMatrices[0] = m_individualTransformationMatrices[0];
+			else
+			{
+				m_generalTransformationMatrices[i] = m_generalTransformationMatrices[i - 1] * m_individualTransformationMatrices[i];
+
+				// Obtaining the joint pose	
+				if (!i == (4, 6, 8))
+				{
+					// 0T1 1 // 1T2 2// 2T3 3// 3T4 4// 4T4' // 4'T5 5// 5T5' // 5'T6 6// 6T7
+					rotationMatrix <<	m_generalTransformationMatrices[i](0, 0), m_generalTransformationMatrices[i](0, 1), m_generalTransformationMatrices[i](0, 2),
+										m_generalTransformationMatrices[i](1, 0), m_generalTransformationMatrices[i](1, 1), m_generalTransformationMatrices[i](1, 2),
+										m_generalTransformationMatrices[i](2, 0), m_generalTransformationMatrices[i](2, 1), m_generalTransformationMatrices[i](2, 2);
+					float position[3] = { m_generalTransformationMatrices[i](0, 3), m_generalTransformationMatrices[i](1, 3), m_generalTransformationMatrices[i](2, 3) };
+					m_jointState[i].jointPose = pose(position, rotationMatrix);
+				}
+
+			}
+		}
+
+		return m_jointState->jointPose;
 	}
 	
-	//float** UR::inverseKinematics(const Eigen::Matrix<float, 1, 6>& targetTipPose)
+	/// <summary>Computes the eight inverse kinematics solutions for a given tip pose.</summary>
+	/// <param name="targetTipPose"></param>
+	/// <param name="outIkSols"></param>
 	void UR::inverseKinematics(const float(&targetTipPose)[], float (*outIkSols)[m_numIkSol][m_numDoF])
 	{
 		Eigen::Matrix4f T_07 = Eigen::Matrix4f::Identity(); // 0T7
@@ -269,15 +256,11 @@ namespace universalRobots
 			}
 		}
 	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	/// Operator overloading functions
-	/// 
-
-	/// operator <<
-	/// 
-	/// << overloading to be able to print a URtype enum.
-	/// 
+	
+	/// <summary>Operator overloading to be able to print a URtype enum.</summary>
+	/// <param name="stream"></param>
+	/// <param name="type"></param>
+	/// <returns>stream</returns>
 	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type)
 	{
 		switch (type)
@@ -297,10 +280,10 @@ namespace universalRobots
 		return stream;
 	}
 
-	/// operator <<
-	///
-	/// << overloading to be able to print a UR object.
-	/// 
+	/// <summary>Operator overloading to be able to print a UR object.</summary>
+	/// <param name="stream"></param>
+	/// <param name="robot"></param>
+	/// <returns>stream</returns>
 	std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot)
 	{
 		stream << "Robot type: " << robot.getRobotType() << std::endl
@@ -323,15 +306,11 @@ namespace universalRobots
 		//}
 		stream << "Joint values (degress)\n";
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
-			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta()[i]) << std::endl;
+			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta(i)) << std::endl;
 		stream << "Tip pose:\n";
-		stream << "x " << robot.getTipPose().m_pos.x() << " y " << robot.getTipPose().m_pos.y() << " z " << robot.getTipPose().m_pos.z() << " (meters)\nalpha "
-			<< mathLib::deg(robot.getTipPose().m_rpy.x()) << " beta " << mathLib::deg(robot.getTipPose().m_rpy.y()) << " gamma " << mathLib::deg(robot.getTipPose().m_rpy.z()) << " (degrees)" << std::endl;
+		stream << "x " << robot.getTipPose().m_pos[0] << " y " << robot.getTipPose().m_pos[1] << " z " << robot.getTipPose().m_pos[2] << " (meters)\nalpha "
+			<< mathLib::deg(robot.getTipPose().m_eulerAngles[0]) << " beta " << mathLib::deg(robot.getTipPose().m_eulerAngles[1]) << " gamma " << mathLib::deg(robot.getTipPose().m_eulerAngles[2]) << " (degrees)" << std::endl;
 		return stream;
 	}
 
 } // namespace universalRobots 
-
-
-
-
