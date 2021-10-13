@@ -18,7 +18,9 @@ namespace universalRobots
 		UR3, UR5, UR10 // 0, 1, 2
 	};
 
-
+	/// <summary>
+	/// Structure which holds a pose { x y z } { alpha beta gamma }
+	/// </summary>
 	struct pose
 	{
 		float m_pos[3] = {}; // x y z (meters)
@@ -34,25 +36,21 @@ namespace universalRobots
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(), rotationMatrix.eulerAngles(1, 2, 0).x() } {}
 	};
 
+	/// <summary>
+	/// Structure which holds the current value and pose of a joint.
+	/// </summary>
 	struct joint
 	{
-		pose jointPose = {};
-		float jointValue = 0.0f;
+		pose m_jointPose = {};
+		float m_jointValue = 0.0f;
+
+		joint()
+			: m_jointPose(pose()), m_jointValue(0.0f) {}
 	};
-
-
-	/////////////////////////////////////////////////////////////////////////////
-	/// UR
-	/// 
-	/// Implements 'UR robot type' object (with particular characteristics).
-	/// 
-	/// Example usage:
-	///		universalRobots::UR robot_one(); // Robot does not have an end-effector.
-	///		universalRobots::UR robot_one(true, 0.15f); // End-effector translated 0.15 meters from the robot's tip.
-	/// 
-	///		robot.setTipPose(robot.forwardKinematics(targetJointValues)); // Generate a forward kinematics solution and update the robot's tip pose.
-	/// 
 	
+	/// <summary>
+	/// Implements 'UR robot type' object.
+	/// </summary>
 	class UR
 	{
 	public:
@@ -86,8 +84,21 @@ namespace universalRobots
 		/// This boolean indicates whether a tool is/isnt attached to the robot.
 		/// Must be specified in the constructor, if not default is false.
 		/// </summary>
-		bool m_endEffector = false; 
+		bool m_endEffector = false;
 
+		/// <summary>
+		/// Modified Denavit-Hartenberg parameters matrix (9x4)
+		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
+		/// </summary>
+		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_jointState[0].m_jointValue},
+																	{mathLib::rad(-90),	0,			m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90)},
+																	{0,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue},
+																	{0,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue},
+																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},
+																	{mathLib::rad(90),	0,			0,				m_jointState[4].m_jointValue},
+																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},
+																	{0,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue},
+																	{0,					0,			m_d[6],			0} };
 	private:
 
 		/// <summary>
@@ -126,29 +137,9 @@ namespace universalRobots
 		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
 
 	public:
-		
-		/// <summary>
-		/// Modified Denavit-Hartenberg parameters matrix (9x4)
-		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
-		///		|_ alpha - rotation around the x axis of frame i (radians)
-		///		|_ a - translation along the x axis of frame i (meters)
-		///		|_ d - translation along the z axis of frame i (meters)
-		///		|_ theta - rotation around the z axis of frame i (radians)
-		/// </summary>
-		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_jointState[0].jointValue},					// 0T1
-																	{mathLib::rad(-90),	0,			m_d[1],			m_jointState[1].jointValue + mathLib::rad(-90)},// 1T2
-																	{0,					m_a[0],		m_d[2],			m_jointState[2].jointValue},					// 2T3
-																	{0,					m_a[1],		m_d[3],			m_jointState[3].jointValue},					// 3T4
-																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},				// 4T4'
-																	{mathLib::rad(90),	0,			0,				m_jointState[4].jointValue},					// 4'T5
-																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},				// 5T5'
-																	{0,					m_a[3],		m_d[5],			m_jointState[5].jointValue},					// 5'T6
-																	{0,					0,			m_d[6],			0} };							// 6T7
-
-	public:
 		UR(const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
-		pose forwardKinematics(const float(&targetJointVal)[]);
-		void inverseKinematics(const float(&targetTipPose)[], float(*outIkSols)[m_numIkSol][m_numDoF]);
+		pose forwardKinematics(const float (&targetJointVal)[]);
+		void inverseKinematics(const float (&targetTipPose)[], float (*outIkSols)[m_numIkSol][m_numDoF]);
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 	private:
 		void setMDHmatrix();
@@ -161,9 +152,7 @@ namespace universalRobots
 		const float* getTransX() const;
 		const float getTheta(const int& ix) const;
 		const pose getTipPose() const;
-		//const float** getMDHmatrix() const;
 	};
-
 
 	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type);
 

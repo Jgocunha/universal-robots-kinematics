@@ -4,8 +4,8 @@
 
 namespace universalRobots
 {
-	/// <summary> setRobotType
-	/// User is only allowed to specify whether there is an end-effector and its translation to the tip.
+	/// <summary>
+	/// Constructor. User is only allowed to specify whether there is an end-effector and its translation to the tip.
 	/// Example usage:
 	///		universalRobots::UR robot_one(); Robot does not have an end-effector.
 	///		universalRobots::UR robot_one(true, 0.15f); End-effector translated 0.15 meters from the robot's tip.
@@ -16,15 +16,15 @@ namespace universalRobots
 		: m_endEffector(endEffector)
 	{
 		m_d[m_numTransZ - 1] = endEffectorDimension;
-		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_jointState[0].jointValue,						// 0T1
-						mathLib::rad(-90),	0.0f,		m_d[1],			m_jointState[1].jointValue + mathLib::rad(-90) ,// 1T2
-						0.0f,				m_a[0],		m_d[2],			m_jointState[2].jointValue,						// 2T3
-						0.0f,				m_a[1],		m_d[3],			m_jointState[3].jointValue,						// 3T4
+		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_jointState[0].m_jointValue,						// 0T1
+						mathLib::rad(-90),	0.0f,		m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90) ,// 1T2
+						0.0f,				m_a[0],		m_d[2],			m_jointState[2].m_jointValue,						// 2T3
+						0.0f,				m_a[1],		m_d[3],			m_jointState[3].m_jointValue,						// 3T4
 						0.0f,				m_a[2],		m_d[4],			mathLib::rad(90) ,								// 4T4'
-						mathLib::rad(90),	0.0f,		0.0f,			m_jointState[4].jointValue,						// 4'T5
+						mathLib::rad(90),	0.0f,		0.0f,			m_jointState[4].m_jointValue,						// 4'T5
 						mathLib::rad(-90),	0.0f,		0.0f,			mathLib::rad(-90) ,								// 5T5'
-						0.0f,				m_a[3],		m_d[5],			m_jointState[5].jointValue,						// 5'T6
-						0.0f,				0,			m_d[6],			0 ;												// 6T7
+						0.0f,				m_a[3],		m_d[5],			m_jointState[5].m_jointValue,						// 5'T6
+						0.0f,				0,			m_d[6],			0 ;												// 6T7			
 	}
 	
 	/// <summary>setRobotType</summary>
@@ -51,14 +51,14 @@ namespace universalRobots
 	/// <summary>setMDHmatrix</summary>
 	void UR::setMDHmatrix()
 	{
-		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_jointState[0].jointValue,					// 0T1
-						mathLib::rad(-90),		0.0f,		m_d[1],			m_jointState[1].jointValue + mathLib::rad(-90) ,// 1T2
-						0.0f,					m_a[0],		m_d[2],			m_jointState[2].jointValue,					// 2T3
-						0.0f,					m_a[1],		m_d[3],			m_jointState[3].jointValue,					// 3T4
+		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_jointState[0].m_jointValue,					// 0T1
+						mathLib::rad(-90),		0.0f,		m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90) ,// 1T2
+						0.0f,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue,					// 2T3
+						0.0f,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue,					// 3T4
 						0.0f,					m_a[2],		m_d[4],			mathLib::rad(90) ,				// 4T4'
-						mathLib::rad(90),		0.0f,		0.0f,			m_jointState[4].jointValue,					// 4'T5
+						mathLib::rad(90),		0.0f,		0.0f,			m_jointState[4].m_jointValue,					// 4'T5
 						mathLib::rad(-90),		0.0f,		0.0f,			mathLib::rad(-90) ,				// 5T5'
-						0.0f,					m_a[3],		m_d[5],			m_jointState[5].jointValue,					// 5'T6
+						0.0f,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue,					// 5'T6
 						0.0f,					0,			m_d[6],			0 ;								// 6T7
 	}
 	
@@ -67,7 +67,7 @@ namespace universalRobots
 	void UR::setTheta(const float(&jointVal)[])
 	{
 		for (unsigned int i = 0; i < m_numDoF; i++)
-			m_jointState[i].jointValue = jointVal[i];
+			m_jointState[i].m_jointValue = jointVal[i];
 	} 
 	
 	/// <summary>Returns the enum URtype. Used for printing purposes.</summary>
@@ -95,14 +95,14 @@ namespace universalRobots
 	/// <returns>m_theta</returns>
 	const float UR::getTheta(const int &ix) const
 	{
-		return m_jointState[ix].jointValue;
+		return m_jointState[ix].m_jointValue;
 	}
 	
 	/// <summary>Returns the robot's current tip pose. Used for printing purposes.</summary>
 	/// <returns>m_tipPose</returns>
 	const pose UR::getTipPose() const
 	{
-		return m_jointState[m_numDoF-1].jointPose;
+		return m_jointState[m_numDoF-1].m_jointPose;
 	}
 	
 	/// <summary>Receives an array of target joint values and computes the pose of the robot's tip.</summary>
@@ -141,12 +141,12 @@ namespace universalRobots
 
 				float position[3] = { m_generalTransformationMatrices[i](0, 3), m_generalTransformationMatrices[i](1, 3), m_generalTransformationMatrices[i](2, 3) };
 
-				m_jointState[currentJoint].jointPose = pose(position, rotationMatrix);
+				m_jointState[currentJoint].m_jointPose = pose(position, rotationMatrix);
 				currentJoint++;
 			}
 		}
 
-		return m_jointState->jointPose;
+		return m_jointState->m_jointPose;
 	}
 	
 	/// <summary>Computes the eight inverse kinematics solutions for a given tip pose.</summary>
@@ -262,13 +262,13 @@ namespace universalRobots
 	{
 		switch (type)
 		{
-		case universalRobots::UR3:
+		case universalRobots::URtype::UR3:
 			stream << "UR3";
 			break;
-		case universalRobots::UR5:
+		case universalRobots::URtype::UR5:
 			stream << "UR5";
 			break;
-		case universalRobots::UR10:
+		case universalRobots::URtype::UR10:
 			stream << "UR10";
 			break;
 		default:
@@ -283,14 +283,14 @@ namespace universalRobots
 	/// <returns>stream</returns>
 	std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot)
 	{
-		stream << "Robot type: " << robot.getRobotType() << std::endl
+		stream << "Robot type: " << robot.m_type << std::endl
 			<< "Number of DoFs: " << robot.m_numDoF << std::endl
-			<< "Link dimensions\n" << "Translations in the z-axis (meters)\n";
+			<< "Link dimensions\n" << "Translations in the z-axis (meters):\n";
 		for (unsigned int i = 0; i < robot.m_numTransZ; i++)
-			stream << "d" << i + 1 << ": " << robot.getTransZ()[i] << std::endl;
-		stream << "Translations in the x-axis (meters)\n";
+			stream << "d" << i + 1 << ": " << robot.m_d[i] << std::endl;
+		stream << "Translations in the x-axis (meters):\n";
 		for (unsigned int i = 0; i < robot.m_numTransX; i++)
-			stream << "a" << i + 2 << ": " << robot.getTransX()[i] << std::endl;
+			stream << "a" << i + 2 << ": " << robot.m_a[i] << std::endl;
 		//stream << "Modified Denavit-Hartengerg Matrix\n";
 		//for (int x = 0; x < robot.m_numReferenceFrames; x++)  // loop lines
 		//{
@@ -301,12 +301,62 @@ namespace universalRobots
 		//	}
 		//	stream << endl;  
 		//}
-		stream << "Joint values (degress)\n";
+		stream << "Joint values (degrees):\n";
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
 			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta(i)) << std::endl;
 		stream << "Tip pose:\n";
 		stream << "x " << robot.getTipPose().m_pos[0] << " y " << robot.getTipPose().m_pos[1] << " z " << robot.getTipPose().m_pos[2] << " (meters)\nalpha "
 			<< mathLib::deg(robot.getTipPose().m_eulerAngles[0]) << " beta " << mathLib::deg(robot.getTipPose().m_eulerAngles[1]) << " gamma " << mathLib::deg(robot.getTipPose().m_eulerAngles[2]) << " (degrees)" << std::endl;
+		stream << "Individual Transformation Matrices:\n";
+		unsigned int counter = 0;
+		for (unsigned int i = 0; i < robot.m_numReferenceFrames; i++)
+		{
+			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 8)
+			{
+				stream << counter << "T" << counter + 1 << std::endl << robot.m_individualTransformationMatrices[i] << std::endl;
+				counter++;
+			}	
+			else
+			{
+				if(i == 4)
+					stream << counter << "T" << counter << "'" << std::endl << robot.m_individualTransformationMatrices[i] << std::endl;
+				if (i == 5)
+				{					
+					stream << counter << "'T" << counter + 1 << std::endl << robot.m_individualTransformationMatrices[i] << std::endl;
+					counter++;
+				}
+				if (i == 6)
+					stream << counter << "T" <<  counter << "'" <<std::endl << robot.m_individualTransformationMatrices[i] << std::endl;
+				if (i == 7)
+				{
+					stream << counter << "'T" << counter + 1 << std::endl << robot.m_individualTransformationMatrices[i] << std::endl;
+					counter++;
+				}
+			}
+		}
+		stream << "General Transformation Matrices:\n";
+		counter = 1;
+		for (unsigned int i = 0; i < robot.m_numReferenceFrames; i++)
+		{
+			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7 || i == 8)
+			{
+				stream << "0T" << counter << std::endl << robot.m_generalTransformationMatrices[i] << std::endl;
+				counter++;
+			}
+				
+			else
+			{
+				if (i == 4)
+					stream << "0T" << counter - 1 << "'" << std::endl << robot.m_generalTransformationMatrices[i] << std::endl;
+				if (i == 6)
+					stream << "0T" << counter - 1 << "'" << std::endl << robot.m_generalTransformationMatrices[i] << std::endl;
+			}
+		}
+		stream << "Joint poses: {x, y, z} metres {alpha, beta, gamma} degrees\n";
+		for (unsigned int i = 0; i < robot.m_numDoF; i++)
+			stream << "J" << i + 1	<< ": {" << robot.m_jointState[i].m_jointPose.m_pos[0]  << ", " << robot.m_jointState[i].m_jointPose.m_pos[1] << ", " << robot.m_jointState[i].m_jointPose.m_pos[2] << "}"
+									<< " {" << mathLib::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[0]) << ", " << mathLib::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[1]) << ", " << mathLib::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[2]) << "}" << std::endl;
+
 		return stream;
 	}
 

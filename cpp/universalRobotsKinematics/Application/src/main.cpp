@@ -18,8 +18,6 @@ int main()
 	// compute forward kinematics and update robot's tip pose
 	//robot.setTipPose(robot.forwardKinematics(targetJointValues));
 	robot.forwardKinematics(targetJointValues);
-
-	std::cout << robot << std::endl;
 	
 	// test different target tip poses
 	// 
@@ -30,12 +28,15 @@ int main()
 	// compute inverse kinematics 
 	float ikSols[robot.m_numIkSol][robot.m_numDoF] = {};
 	robot.inverseKinematics(targetTipPose, &ikSols);
-	
+
 	std::cout << "Inverse kinematics" << std::endl;
-	
+
 	for (unsigned int i = 0; i < robot.m_numIkSol; i++)
 		std::cout << "IK solution " << i << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
 		mathLib::deg(ikSols[i][3]) << " " << mathLib::deg(ikSols[i][4]) << " " << mathLib::deg(ikSols[i][5]) << std::endl;
+
+
+	std::cout << robot << std::endl;
 
 	std::cin.get();
 }
