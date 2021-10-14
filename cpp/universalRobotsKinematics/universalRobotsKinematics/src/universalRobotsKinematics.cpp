@@ -243,6 +243,9 @@ namespace universalRobots
 			{
 				// Computing theta3.
 				(*outIkSols)[i][2] = std::numbers::pi_v<float> - theta3_psi;
+				// Masking theta3 for CoppeliaSim(invert value for ang > 180).
+				if ((*outIkSols)[i][2] > std::numbers::pi_v<float>)
+					(*outIkSols)[i][2] = (*outIkSols)[i][2] - std::numbers::pi_v<float> * 2;
 				// Computing theta2.
 				(*outIkSols)[i][1] = std::numbers::pi_v<float> / 2 - atan2(T_14(2, 3), T_14(0, 3)) + asin((m_a[1] * sin(-theta3_psi)) / P_14_xz);
 				// Computing theta4.
@@ -259,6 +262,9 @@ namespace universalRobots
 			{
 				// Computing theta3.
 				(*outIkSols)[i][2] = std::numbers::pi_v<float> + theta3_psi;
+				// Masking theta3 for CoppeliaSim(invert value for ang > 180).
+				if ((*outIkSols)[i][2] > std::numbers::pi_v<float>)
+					(*outIkSols)[i][2] = (*outIkSols)[i][2] - std::numbers::pi_v<float> *2;
 				// Computing theta2.
 				(*outIkSols)[i][1] = std::numbers::pi_v<float> / 2 - atan2(T_14(2, 3), T_14(0, 3)) + asin(m_a[1] * sin(theta3_psi) / P_14_xz);
 				// Computing theta4.

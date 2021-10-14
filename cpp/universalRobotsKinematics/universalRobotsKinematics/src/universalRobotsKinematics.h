@@ -164,4 +164,6 @@ namespace universalRobots
 
 	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type);
 
+	std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
+
 } // namespace universalRobots 
