@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include "universalRobotsKinematics.h"
+#include "coppeliaSimTests.h"
+
 
 
 int main()
@@ -35,6 +37,8 @@ int main()
 	for (unsigned int i = 0; i < robot.m_numIkSol; i++)
 		std::cout << "IK solution " << i << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
 		mathLib::deg(ikSols[i][3]) << " " << mathLib::deg(ikSols[i][4]) << " " << mathLib::deg(ikSols[i][5]) << std::endl;
+
+	coppeliaSim::runCoppeliaSimTests(robot);
 
 	std::cin.get();
 }
