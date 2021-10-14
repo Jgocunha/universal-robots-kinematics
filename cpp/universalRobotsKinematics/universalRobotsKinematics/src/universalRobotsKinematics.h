@@ -6,6 +6,14 @@
 #include <Eigen/Dense>
 #include "mathLib.h"
 
+#define UR3_LINK_DIMENSIONS_d { 0.1089f, 0.1115f, 0.0f, 0.0f, 0.0007f, 0.0818f, 0.0f }
+#define UR3_LINK_DIMENSIONS_a { 0.2437f, 0.2132f, 0.0842f, 0.0011f }
+
+#define UR5_LINK_DIMENSIONS_d { 0.0746f, 0.0703f, 0.0f, 0.0f, 0.0397f, 0.0829f, 0.0f }
+#define UR5_LINK_DIMENSIONS_a { 0.4251f, 0.3922f, 0.0456f, 0.0492f }
+
+#define UR10_LINK_DIMENSIONS_d { 0.109f, 0.10122f, 0.01945f, -0.00661f, 0.0584f, 0.09372f, 0.0f }
+#define UR10_LINK_DIMENSIONS_a { 0.6121f, 0.5722f, 0.0573f, 0.0584f }
 
 namespace universalRobots
 {
@@ -111,13 +119,13 @@ namespace universalRobots
 		/// d - translation (meters) in the z-axis (the last translation d[6] is for an end-effector).
 		/// d_i is a nomeclature convention. 
 		/// </summary>
-		float m_d[m_numTransZ] = { 0.109f, 0.10122f, 0.01945f, -0.00661f, 0.0584f, 0.09372f, 0.0f };
+		float m_d[m_numTransZ] = UR10_LINK_DIMENSIONS_d;
 		
 		/// <summary>
 		/// a - translation (meters) in the x-axis.
 		/// a_i is a nomeclature convention.
 		/// </summary>
-		float m_a[m_numTransX] = { 0.6121f, 0.5722f, 0.0573f, 0.0584f };
+		float m_a[m_numTransX] = UR10_LINK_DIMENSIONS_a;
 		
 		/// <summary>
 		/// Position, Euler Angles, and Value of the robot's joints. {x, y, z} {alpha, beta, gamma} {jointValue}
@@ -137,7 +145,7 @@ namespace universalRobots
 		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
 
 	public:
-		UR(const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
+		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
 		pose forwardKinematics(const float (&targetJointVal)[]);
 		void inverseKinematics(const float (&targetTipPose)[], float (*outIkSols)[m_numIkSol][m_numDoF]);
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);

@@ -12,9 +12,29 @@ namespace universalRobots
 	/// </summary>
 	/// <param name="endEffector"></param>
 	/// <param name="endEffectorDimension"></param>
-	UR::UR(const bool& endEffector, const float& endEffectorDimension)
-		: m_endEffector(endEffector)
-	{
+	UR::UR(const URtype& robotType, const bool& endEffector, const float& endEffectorDimension)
+		: m_type(robotType), m_endEffector(endEffector)
+	{	
+		switch (robotType)
+		{
+		case universalRobots::URtype::UR3:
+			setTransZ(UR3_LINK_DIMENSIONS_d);
+			setTransX(UR3_LINK_DIMENSIONS_a);
+			break;
+		case universalRobots::URtype::UR5:
+			setTransZ(UR5_LINK_DIMENSIONS_d);
+			setTransX(UR5_LINK_DIMENSIONS_a);
+			break;
+		case universalRobots::URtype::UR10:
+			setTransZ(UR10_LINK_DIMENSIONS_d);
+			setTransX(UR10_LINK_DIMENSIONS_a);
+			break;
+		default:
+			setTransZ(UR10_LINK_DIMENSIONS_d);
+			setTransX(UR10_LINK_DIMENSIONS_a);
+			break;
+		}
+
 		m_d[m_numTransZ - 1] = endEffectorDimension;
 		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_jointState[0].m_jointValue,						// 0T1
 						mathLib::rad(-90),	0.0f,		m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90) ,// 1T2
