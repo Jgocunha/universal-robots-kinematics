@@ -146,6 +146,7 @@ namespace universalRobots
 
 	public:
 		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
+		const URtype getRobotType() const;
 		pose forwardKinematics(const float (&targetJointVal)[]);
 		void inverseKinematics(const float (&targetTipPose)[], float (*outIkSols)[m_numIkSol][m_numDoF]);
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
@@ -155,7 +156,6 @@ namespace universalRobots
 		void setTransZ(const float (&d)[]);
 		void setTransX(const float (&a)[]);
 		void setTheta(const float (&jointVal)[]);
-		const URtype getRobotType() const;
 		const float* getTransZ() const;
 		const float* getTransX() const;
 		const float getTheta(const int& ix) const;
