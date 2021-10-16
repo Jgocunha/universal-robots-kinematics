@@ -46,9 +46,9 @@ function sysCall_threadmain()
             local tip_pos=__getObjectPosition__(tip,-1)
             local tip_ori_aux=sim.getObjectOrientation(tip,-1)
             local tip_ori={-1,-1,-1}
-            tip_ori[1]=-tip_ori_aux[3]*180/math.pi
-            tip_ori[2]=-tip_ori_aux[2]*180/math.pi
-            tip_ori[3]=-tip_ori_aux[1]*180/math.pi
+            tip_ori[1]=tip_ori_aux[1]*180/math.pi
+            tip_ori[2]=tip_ori_aux[2]*180/math.pi
+            tip_ori[3]=tip_ori_aux[3]*180/math.pi
             -- print tip pose
             IKsol=IKsol+1
             print('_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')

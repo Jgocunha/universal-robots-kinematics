@@ -57,7 +57,7 @@ function joint=invKin8sol(d, a, eePosOri)
         
         %Wrist up or down 
         if(ismember(j,[1,2,5,6]))
-           joint(j,5)=((acos((P_16(2,1)-(d(2)+d(3)+d(4)+d(5)))/d(6))));
+           joint(j,5)=( (acos( (P_16(2,1)-(d(2)+d(3)+d(4)+d(5) ) ) / d(6)) ) );
         else
             joint(j,5)=(-(acos((P_16(2,1)-(d(2)+d(3)+d(4)+d(5)))/d(6))));
         end

@@ -30,7 +30,8 @@ switch robot
         d(4)=0.11406-0.12067;
         d(5)=0.17246-0.11406;
         d(6)=0.26612-0.17246;
-        d(7)=0.36474-0.26612;
+        %d(7)=0.36474-0.26612;
+        d(7)=0;
 
         a(2)=0.7211-0.109;
         a(3)=1.2933-0.7211;
@@ -44,7 +45,8 @@ switch robot
         d(4)=0.0703-0.0703;
         d(5)=0.11-0.0703;
         d(6)=0.1929-0.11;
-        d(7)=0.36474-0.26612;
+        %d(7)=0.36474-0.26612;
+        d(7)=0;
 
         a(2)=0.49965-0.07455;
         a(3)=0.8918-0.49965;
@@ -58,7 +60,8 @@ switch robot
         d(4)=0.11154-0.11154;
         d(5)=0.11223-0.11154;
         d(6)=0.194-0.11223;
-        d(7)=0.36474-0.26612;
+        %d(7)=0.36474-0.26612;
+        d(7)=0;
 
         a(2)=0.35252-0.10887;
         a(3)=0.56577-0.35252;
@@ -70,21 +73,21 @@ switch robot
 end
 
 % Target joint angles
-theta(1)=str2double(theta1);
-theta(2)=str2double(theta2);
-theta(3)=str2double(theta3);
-theta(4)=str2double(theta4);
-theta(5)=str2double(theta5);
-theta(6)=str2double(theta6);
+theta(1)=(str2double(theta1));
+theta(2)=(str2double(theta2));
+theta(3)=(str2double(theta3));
+theta(4)=(str2double(theta4));
+theta(5)=(str2double(theta5));
+theta(6)=(str2double(theta6));
 
 %Definition of the modified Denavit-Hartenberg matrix (Do not change!)
 DHMatrix = [ 0         0       d(1)   theta(1);    % 1  0T1 
-            -90        0       d(2)   theta(2)-90; % 2  1T2 
+            (-90)        0       d(2)   theta(2)-(90); % 2  1T2 
              0         a(2)    d(3)   theta(3);    % 3  2T3 
              0         a(3)    d(4)   theta(4);    % 4  3T4
-             0         a(4)    d(5)   90;          % 4' 4T4' 5
+             0         a(4)    d(5)   (90);          % 4' 4T4' 5
              90        0       0      theta(5);    % 5  4'T5 6
-            -90        0       0      -90;         % 5' 5T5' 7
+            -(90)        0       0      -(90);         % 5' 5T5' 7
              0         a(5)    d(6)   theta(6);    % 6  5'T6 8
              0         0       d(7)     0;];       % 7  6T7  9
 
