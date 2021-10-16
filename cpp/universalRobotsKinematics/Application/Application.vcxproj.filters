@@ -27,6 +27,9 @@
     <ClCompile Include="src\extApiPlatform.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\benchmarking.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\coppeliasimTests.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\extApiPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\benchmarking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

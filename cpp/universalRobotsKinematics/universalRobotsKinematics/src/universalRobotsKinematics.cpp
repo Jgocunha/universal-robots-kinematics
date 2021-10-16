@@ -1,6 +1,8 @@
 // universalRobotsKinematics.cpp
 
 #include "universalRobotsKinematics.h"
+#include <random>
+
 
 namespace universalRobots
 {
@@ -47,28 +49,36 @@ namespace universalRobots
 						0.0f,				0,			m_d[6],			0 ;												// 6T7			
 	}
 	
-	/// <summary>setRobotType</summary>
+	/// <summary>
+	/// setRobotType
+	/// </summary>
 	/// <param name="type"></param>
 	void UR::setRobotType(const URtype& type)
 	{
 		m_type = type;
 	}
 
-	/// <summary>setTransZ</summary>
+	/// <summary>
+	/// setTransZ
+	/// </summary>
 	/// <param name="d"></param>
 	void UR::setTransZ(const float(&d)[])
 	{
 		memcpy(m_d, d, sizeof(m_d));
 	}
 	
-	/// <summary>setTransX </summary>
+	/// <summary>
+	/// setTransX
+	/// </summary>
 	/// <param name="a"></param>
 	void UR::setTransX(const float(&a)[])
 	{
 		memcpy(m_a, a, sizeof(m_a));
 	}
 
-	/// <summary>setMDHmatrix</summary>
+	/// <summary>
+	/// setMDHmatrix
+	///	</summary>
 	void UR::setMDHmatrix()
 	{
 		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_jointState[0].m_jointValue,					// 0T1
@@ -82,7 +92,9 @@ namespace universalRobots
 						0.0f,					0,			m_d[6],			0 ;								// 6T7
 	}
 	
-	/// <summary>setTheta</summary>
+	/// <summary>
+	/// setTheta
+	/// </summary>
 	/// <param name="jointVal"></param>
 	void UR::setTheta(const float(&jointVal)[])
 	{
@@ -90,42 +102,54 @@ namespace universalRobots
 			m_jointState[i].m_jointValue = jointVal[i];
 	} 
 	
-	/// <summary>Returns the enum URtype. Used for printing purposes.</summary>
+	/// <summary>
+	/// Returns the enum URtype. Used for printing purposes.
+	/// </summary>
 	/// <returns>m_type</returns>
 	const URtype UR::getRobotType() const
 	{
 		return m_type;
 	}
 	
-	/// <summary>Returns the values of the z-axis translations (d array). Used for printing purposes.</summary>
+	/// <summary>
+	/// Returns the values of the z-axis translations (d array). Used for printing purposes.
+	/// </summary>
 	/// <returns>m_d</returns>
 	const float* UR::getTransZ() const
 	{
 		return m_d;
 	}
 	
-	/// <summary>Returns the values of the x-axis translations (a array). Used for printing purposes.</summary>
+	/// <summary>
+	/// Returns the values of the x-axis translations (a array). Used for printing purposes.
+	/// </summary>
 	/// <returns>m_a</returns>
 	const float* UR::getTransX() const
 	{
 		return m_a;
 	}
 	
-	/// <summary>Returns the robot's current joint values. Used for printing purposes.</summary>
+	/// <summary>
+	/// Returns the robot's current joint values. Used for printing purposes.
+	/// </summary>
 	/// <returns>m_theta</returns>
 	const float UR::getTheta(const int &ix) const
 	{
 		return m_jointState[ix].m_jointValue;
 	}
 	
-	/// <summary>Returns the robot's current tip pose. Used for printing purposes.</summary>
+	/// <summary>
+	/// Returns the robot's current tip pose. Used for printing purposes.
+	/// </summary>
 	/// <returns>m_tipPose</returns>
 	const pose UR::getTipPose() const
 	{
 		return m_jointState[m_numDoF-1].m_jointPose;
 	}
 	
-	/// <summary>Receives an array of target joint values and computes the pose of the robot's tip.</summary>
+	/// <summary>
+	/// Receives an array of target joint values and computes the pose of the robot's tip.
+	/// </summary>
 	/// <param name="targetJointVal"></param>
 	/// <returns>tipPose</returns>
 	pose UR::forwardKinematics(const float(&targetJointVal)[])
@@ -141,6 +165,7 @@ namespace universalRobots
 		// Determine the general transformation matrices.		
 		Eigen::Matrix3f rotationMatrix;
 		unsigned int currentJoint = 0;
+		pose tipPose = {};
 		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
 		{
 			if(!i)
@@ -151,8 +176,8 @@ namespace universalRobots
 
 			// Obtaining the joint pose
 			// Since we have more reference frames than joints only some represent a joint pose
-			// 0T1 J1 // 1T2 J2// 2T3 J3// 3T4 J4// 4T4' XX// 4'T5 J5// 5T5' XX// 5'T6 J6// 6T7 XX
-			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7)
+			// 0T1 J1 // 1T2 J2// 2T3 J3// 3T4 J4// 4T4' XX// 4'T5 J5// 5T5' XX// 5'T6 J6// 6T7 tipPose
+			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7 || i == 8)
 			{
 				// 0T1 1 // 1T2 2// 2T3 3// 3T4 4// 4T4' // 4'T5 5// 5T5' // 5'T6 6// 6T7
 				rotationMatrix << m_generalTransformationMatrices[i](0, 0), m_generalTransformationMatrices[i](0, 1), m_generalTransformationMatrices[i](0, 2),
@@ -161,29 +186,38 @@ namespace universalRobots
 
 				float position[3] = { m_generalTransformationMatrices[i](0, 3), m_generalTransformationMatrices[i](1, 3), m_generalTransformationMatrices[i](2, 3) };
 
-				m_jointState[currentJoint].m_jointPose = pose(position, rotationMatrix);
-				currentJoint++;
+				// Tip pose
+				if (i == 8)
+					tipPose = pose(position, rotationMatrix);
+				else
+				{
+					m_jointState[currentJoint].m_jointPose = pose(position, rotationMatrix);
+					currentJoint++;
+				}
 			}
 		}
 
-		return m_jointState->m_jointPose;
+		//return m_jointState[m_numDoF-1].m_jointPose;
+		return tipPose;
 	}
 	
-	/// <summary>Computes the eight inverse kinematics solutions for a given tip pose.</summary>
+	/// <summary>
+	/// Computes the eight inverse kinematics solutions for a given tip pose.
+	/// </summary>
 	/// <param name="targetTipPose"></param>
 	/// <param name="outIkSols"></param>
-	void UR::inverseKinematics(const float(&targetTipPose)[], float (*outIkSols)[m_numIkSol][m_numDoF])
+	void UR::inverseKinematics(const pose &targetTipPose, float (*outIkSols)[m_numIkSol][m_numDoF])
 	{
 		Eigen::Matrix4f T_07 = Eigen::Matrix4f::Identity(); // 0T7
 
 		// Get translation matrix.
-		const Eigen::Vector3f translation = { targetTipPose[0], targetTipPose[1], targetTipPose[2] };
+		const Eigen::Vector3f translation = { targetTipPose.m_pos[0], targetTipPose.m_pos[1], targetTipPose.m_pos[2] };
 
 		// Calculate rotation matrix.
 		Eigen::Matrix3f rotation;
-		rotation = Eigen::AngleAxisf(targetTipPose[3], Eigen::Vector3f::UnitX())
-				*Eigen::AngleAxisf(targetTipPose[4], Eigen::Vector3f::UnitY())
-				*Eigen::AngleAxisf(targetTipPose[5], Eigen::Vector3f::UnitZ());
+		rotation = Eigen::AngleAxisf(targetTipPose.m_eulerAngles[0], Eigen::Vector3f::UnitX())
+				*Eigen::AngleAxisf(targetTipPose.m_eulerAngles[1], Eigen::Vector3f::UnitY())
+				*Eigen::AngleAxisf(targetTipPose.m_eulerAngles[2], Eigen::Vector3f::UnitZ());
 
 		T_07.block<3, 3>(0, 0) = rotation;
 		T_07.block<3, 1>(0, 3) = translation;
@@ -280,7 +314,49 @@ namespace universalRobots
 		}
 	}
 	
-	/// <summary>Operator overloading to be able to print a URtype enum.</summary>
+	/// <summary>
+	/// Generates a valid tip pose by running forward kinematics with random target joint values.
+	/// </summary>
+	/// <returns>randomValidTargetPose</returns>
+	pose UR::generateRandomReachablePose() 
+	{
+		//// https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> distrib(-360, 360); // URs joints limits [-360; 360]
+
+		float randomTargetJointValue[m_numDoF] = {};
+		
+		for (unsigned int i = 0; i < m_numDoF; i++)
+		{
+			randomTargetJointValue[i] = mathLib::rad(distrib(gen));
+		}
+
+		return forwardKinematics(randomTargetJointValue);
+
+		 
+	}
+
+
+	/// <summary>
+	/// Check the reachability of a target tip pose.
+	/// </summary>
+	/// <param name="targetTipPose"></param>
+	/// <returns>bool</returns>
+	bool UR::checkPoseReachability(const float(&ikSol)[]) const
+	{
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			if(isnan(ikSol[i]))
+				return false;
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Operator overloading to be able to print a URtype enum.
+	/// </summary>
 	/// <param name="stream"></param>
 	/// <param name="type"></param>
 	/// <returns>stream</returns>
@@ -303,7 +379,9 @@ namespace universalRobots
 		return stream;
 	}
 
-	/// <summary>Operator overloading to be able to print a UR object.</summary>
+	/// <summary>
+	/// Operator overloading to be able to print a UR object.
+	/// </summary>
 	/// <param name="stream"></param>
 	/// <param name="robot"></param>
 	/// <returns>stream</returns>

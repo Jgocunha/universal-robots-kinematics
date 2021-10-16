@@ -37,11 +37,35 @@ namespace universalRobots
 		pose()
 			: m_pos{ 0.0f, 0.0f, 0.0f }, m_eulerAngles{ 0.0f, 0.0f, 0.0f } {}
 
+		pose(const float& pos1, const float& pos2, const float& pos3, const float& eulerAngles1, const float& eulerAngles2, const float& eulerAngles3)
+			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles1, eulerAngles1 } {}
+
 		pose(const float(&pos)[], const float(&eulerAngles)[])
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ eulerAngles[0], eulerAngles[1], eulerAngles[2] } {}
 
 		pose(const float(&pos)[], const Eigen::Matrix3f& rotationMatrix)
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(), rotationMatrix.eulerAngles(1, 2, 0).x() } {}
+
+		pose divideByConst(const float& constant) const
+		{
+			return pose(m_pos[0]/ constant, m_pos[1] / constant, m_pos[2] / constant, m_eulerAngles[0] / constant, m_eulerAngles[1] / constant, m_eulerAngles[2] / constant );
+		}
+
+		pose subtract(const pose& other) const
+		{
+			return pose(m_pos[0] - other.m_pos[0], m_pos[1] - other.m_pos[1], m_pos[2] - other.m_pos[2], m_eulerAngles[0] - other.m_eulerAngles[0], m_eulerAngles[1] - other.m_eulerAngles[1], m_eulerAngles[2] - other.m_eulerAngles[2]);
+		}
+
+		pose operator/(const float& constant) const
+		{
+			return divideByConst(constant);
+		}
+
+		pose operator-(const pose& other) const
+		{
+			return subtract(other);
+		}
+
 	};
 
 	/// <summary>
@@ -148,7 +172,9 @@ namespace universalRobots
 		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
 		const URtype getRobotType() const;
 		pose forwardKinematics(const float (&targetJointVal)[]);
-		void inverseKinematics(const float (&targetTipPose)[], float (*outIkSols)[m_numIkSol][m_numDoF]);
+		void inverseKinematics(const pose& targetTipPose, float(*outIkSols)[m_numIkSol][m_numDoF]);
+		pose generateRandomReachablePose();
+		bool checkPoseReachability(const float(&targetTipPose)[]) const;
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 	private:
 		void setMDHmatrix();

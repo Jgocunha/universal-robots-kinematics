@@ -1,6 +1,7 @@
 // coppeliasimTests.h
 
 #pragma once
+#ifndef _DEBUG
 
 #include <windows.h>
 #include "universalRobotsKinematics.h"
@@ -34,7 +35,7 @@ namespace coppeliaSim
 	/// 4th actuates the target solutions in CoppeliaSim.
 	/// </summary>
 	/// <param name="robot"></param>
-	void runCoppeliaSimTests(universalRobots::UR& robot, const float(&targetTipPose)[]);
+	void runCoppeliaSimTests(universalRobots::UR& robot, const universalRobots::pose& targetTipPose);
 
 	/// <summary>
 	/// Returns URtype + _joint
@@ -63,4 +64,6 @@ namespace coppeliaSim
 	/// <param name="waitTime"></param>
 	void sendRobotTargetJointValues(const int& clientID, const universalRobots::UR& robot, const int(&robotJointHandles)[], const float(&jointValue)[], const unsigned int& waitTime = 500);
 
-} // namespace coppeliaSim 
+} // namespace coppeliaSim
+
+#endif
