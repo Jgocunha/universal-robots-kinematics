@@ -3,11 +3,7 @@
 #include <iostream>
 #include "universalRobotsKinematics.h"
 #include "coppeliaSimTests.h"
-<<<<<<< HEAD
-
-=======
 #include "benchmarking.h"
->>>>>>> cpp-test
 
 
 int main()
@@ -25,21 +21,12 @@ int main()
 	robot.forwardKinematics(targetJointValues);
 	
 	std::cout << robot << std::endl;
-<<<<<<< HEAD
-	
-	// test different target tip poses
-	// 
-	//const float targetTipPose[robot.m_numDoF] = { 0.3835f, 0.3730f, 0.9581f, mathLib::rad(-30.5348f), mathLib::rad(28.4603f), mathLib::rad(47.5405f) }; // UR10
-	const float targetTipPose[robot.m_numDoF] = { 0.2847f, 0.2606f, 0.6663f, mathLib::rad(-30.5348f), mathLib::rad(28.4603f), mathLib::rad(47.5405f) }; // UR5
-	//const float targetTipPose[robot.m_numDoF] = { 0.1730f, 0.2153f, 0.4492f, mathLib::rad(-30.5348f), mathLib::rad(28.4603f), mathLib::rad(47.5405f) }; // UR3
-=======
 
 	// test different target tip poses
 	// 
 	//const universalRobots::pose targetTipPose( 0.3835f, 0.3730f, 0.9581f, mathLib::rad(-30.5348f), mathLib::rad(28.4603f), mathLib::rad(47.5405f) ); // UR10
 	const universalRobots::pose targetTipPose = robot.forwardKinematics(targetJointValues); // UR5
 	//const universalRobots::pose targetTipPose( 0.1730f, 0.2153f, 0.4492f, mathLib::rad(-30.5348f), mathLib::rad(28.4603f), mathLib::rad(47.5405f) ); // UR3
->>>>>>> cpp-test
 
 	// compute inverse kinematics
 	//
@@ -48,13 +35,6 @@ int main()
 
 	std::cout << "Inverse kinematics" << std::endl;
 	for (unsigned int i = 0; i < robot.m_numIkSol; i++)
-<<<<<<< HEAD
-		std::cout << "IK solution " << i << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
-		mathLib::deg(ikSols[i][3]) << " " << mathLib::deg(ikSols[i][4]) << " " << mathLib::deg(ikSols[i][5]) << std::endl;
-
-	coppeliaSim::runCoppeliaSimTests(robot, targetTipPose);
-
-=======
 		std::cout << "IK solution " << i + 1 << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
 		mathLib::deg(ikSols[i][3]) << " " << mathLib::deg(ikSols[i][4]) << " " << mathLib::deg(ikSols[i][5]) << std::endl;
 
@@ -66,6 +46,5 @@ int main()
 	//
 	benchmark::runBenchmarkTests(robot);
 
->>>>>>> cpp-test
 	std::cin.get();
 }

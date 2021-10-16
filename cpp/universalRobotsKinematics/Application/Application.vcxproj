@@ -100,10 +100,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\CoppeliaSim\remoteApi;$(SolutionDir)Dependencies\CoppeliaSim\include;C:\Work\Eigen;$(SolutionDir)mathLib\src;$(SolutionDir)universalRobotsKinematics\src</AdditionalIncludeDirectories>
-<<<<<<< HEAD
-=======
       <WholeProgramOptimization>false</WholeProgramOptimization>
->>>>>>> cpp-test
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,10 +117,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\CoppeliaSim\remoteApi;$(SolutionDir)Dependencies\CoppeliaSim\include;C:\Work\Eigen;$(SolutionDir)mathLib\src;$(SolutionDir)universalRobotsKinematics\src</AdditionalIncludeDirectories>
-<<<<<<< HEAD
-=======
       <WholeProgramOptimization>false</WholeProgramOptimization>
->>>>>>> cpp-test
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -140,10 +134,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\CoppeliaSim\remoteApi;$(SolutionDir)Dependencies\CoppeliaSim\include;C:\Work\Eigen;$(SolutionDir)mathLib\src;$(SolutionDir)universalRobotsKinematics\src</AdditionalIncludeDirectories>
-<<<<<<< HEAD
-=======
       <WholeProgramOptimization>false</WholeProgramOptimization>
->>>>>>> cpp-test
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,10 +151,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\CoppeliaSim\remoteApi;$(SolutionDir)Dependencies\CoppeliaSim\include;C:\Work\Eigen;$(SolutionDir)mathLib\src;$(SolutionDir)universalRobotsKinematics\src</AdditionalIncludeDirectories>
-<<<<<<< HEAD
-=======
       <WholeProgramOptimization>false</WholeProgramOptimization>
->>>>>>> cpp-test
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -173,10 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-<<<<<<< HEAD
-=======
     <ClCompile Include="src\benchmarking.cpp" />
->>>>>>> cpp-test
     <ClCompile Include="src\coppeliasimTests.cpp" />
     <ClCompile Include="src\extApi.c" />
     <ClCompile Include="src\extApiPlatform.c" />
@@ -191,10 +176,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
-=======
     <ClInclude Include="src\benchmarking.h" />
->>>>>>> cpp-test
     <ClInclude Include="src\coppeliasimTests.h" />
     <ClInclude Include="src\extApi.h" />
     <ClInclude Include="src\extApiPlatform.h" />

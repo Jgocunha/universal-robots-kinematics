@@ -1,10 +1,7 @@
 // coppeliasimTests.cpp
 
-<<<<<<< HEAD
-=======
 #ifndef _DEBUG
 
->>>>>>> cpp-test
 #include <iostream>
 #include "coppeliasimTests.h"
 
@@ -38,11 +35,7 @@ namespace coppeliaSim
 		}
 	}
 
-<<<<<<< HEAD
-	void runCoppeliaSimTests(universalRobots::UR& robot, const float (&targetTipPose)[])
-=======
 	void runCoppeliaSimTests(universalRobots::UR& robot, const universalRobots::pose& targetTipPose)
->>>>>>> cpp-test
 	{
 		simxFinish(-1); // Just in case, close all opened connections
 		const int clientID = simxStart((simxChar*)"127.0.0.1", 19999, true, true, 5000, 5); // start connection
@@ -64,11 +57,7 @@ namespace coppeliaSim
 			// send joint values to CoppeliaSim
 			for (unsigned int i = 0; i < robot.m_numIkSol; i++)
 			{
-<<<<<<< HEAD
-				std::cout << "IK solution " << i << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
-=======
 				std::cout << "IK solution " << i + 1 << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
->>>>>>> cpp-test
 					mathLib::deg(ikSols[i][3]) << " " << mathLib::deg(ikSols[i][4]) << " " << mathLib::deg(ikSols[i][5]) << std::endl;
 				sendRobotTargetJointValues(clientID, robot, robotJointHandles, ikSols[i], 500);
 			}
@@ -84,10 +73,6 @@ namespace coppeliaSim
 		simxFinish(clientID);
 	}
 
-<<<<<<< HEAD
-} // namespace coppeliaSim
-=======
 } // namespace coppeliaSim
 
 #endif
->>>>>>> cpp-test

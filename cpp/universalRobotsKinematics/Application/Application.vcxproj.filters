@@ -27,12 +27,9 @@
     <ClCompile Include="src\extApiPlatform.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-<<<<<<< HEAD
-=======
     <ClCompile Include="src\benchmarking.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
->>>>>>> cpp-test
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\coppeliasimTests.h">
@@ -44,11 +41,8 @@
     <ClInclude Include="src\extApiPlatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-<<<<<<< HEAD
-=======
     <ClInclude Include="src\benchmarking.h">
       <Filter>Header Files</Filter>
     </ClInclude>
->>>>>>> cpp-test
   </ItemGroup>
 </Project>
