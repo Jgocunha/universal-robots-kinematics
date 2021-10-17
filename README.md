@@ -69,7 +69,7 @@ MATLAB's compute times are 10x slower than with C++, so **the C++ solution is ob
 
 To compute the average error the following flowchart was followed:
 
-![How to get the errors](.\Resources\errorSolsFlow.png)
+![How to get the errors](/Resources/errorSolsFlow.png)
 
 ||*x*|*y*|*z*|*alpha*|*beta*|*gamma*|
 |-|--|---|---|-------|------|-------|
