@@ -2,7 +2,7 @@
 
 #pragma once
 
-#define ITERATIONS 5000
+#define ITERATIONS 100000
 
 #include <chrono>
 #include "universalRobotsKinematics.h"
