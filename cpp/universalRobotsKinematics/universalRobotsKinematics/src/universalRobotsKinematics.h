@@ -38,7 +38,7 @@ namespace universalRobots
 			: m_pos{ 0.0f, 0.0f, 0.0f }, m_eulerAngles{ 0.0f, 0.0f, 0.0f } {}
 
 		pose(const float& pos1, const float& pos2, const float& pos3, const float& eulerAngles1, const float& eulerAngles2, const float& eulerAngles3)
-			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles1, eulerAngles1 } {}
+			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles2, eulerAngles3 } {}
 
 		pose(const float(&pos)[], const float(&eulerAngles)[])
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ eulerAngles[0], eulerAngles[1], eulerAngles[2] } {}
@@ -176,6 +176,7 @@ namespace universalRobots
 		pose generateRandomReachablePose();
 		bool checkPoseReachability(const float(&targetTipPose)[]) const;
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
+		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
 	private:
 		void setMDHmatrix();
 		void setRobotType(const URtype& type);
@@ -188,7 +189,7 @@ namespace universalRobots
 		const pose getTipPose() const;
 	};
 
-	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type);
+	std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
 
 	std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 

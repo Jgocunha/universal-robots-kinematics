@@ -7,7 +7,7 @@ namespace benchmark
 {
 	void runBenchmarkTests(universalRobots::UR& robot)
 	{
-		std::cout << "Benchmarking..." << std::endl << std::endl;
+		std::cout << "____________________________\nBenchmarking..." << std::endl << std::endl;
 
 		float ikSols[robot.m_numIkSol][robot.m_numDoF] = {};
 		universalRobots::pose tipPoseInput = {};

@@ -252,7 +252,12 @@ namespace universalRobots
 			if ((*outIkSols)[i][4] == 0 || (*outIkSols)[i][4] == 2 * std::numbers::pi_v<float>) // If theta5 is equal to zero.
 				(*outIkSols)[i][5] = 0.0f; // Give arbitrary value to theta6
 			else
-				(*outIkSols)[i][5] = std::numbers::pi_v<float> / 2 + atan2(-T_16.inverse()(1, 1) / sin((*outIkSols)[i][4]), T_16.inverse()(0, 1) / sin((*outIkSols)[i][4]));
+			{
+				const float sinTheta5 = sin((*outIkSols)[i][4]);
+				(*outIkSols)[i][5] = std::numbers::pi_v<float> / 2 + atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
+
+			}
+				
 
 			// Computing theta3, theta2, and theta4.
 
@@ -360,7 +365,7 @@ namespace universalRobots
 	/// <param name="stream"></param>
 	/// <param name="type"></param>
 	/// <returns>stream</returns>
-	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype& type)
+	std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type)
 	{
 		switch (type)
 		{
@@ -409,8 +414,9 @@ namespace universalRobots
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
 			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta(i)) << std::endl;
 		stream << "Tip pose:\n";
-		stream << "x " << robot.getTipPose().m_pos[0] << " y " << robot.getTipPose().m_pos[1] << " z " << robot.getTipPose().m_pos[2] << " (meters)\nalpha "
-			<< mathLib::deg(robot.getTipPose().m_eulerAngles[0]) << " beta " << mathLib::deg(robot.getTipPose().m_eulerAngles[1]) << " gamma " << mathLib::deg(robot.getTipPose().m_eulerAngles[2]) << " (degrees)" << std::endl;
+		const pose tipPose = robot.getTipPose();
+		stream << "x " << tipPose.m_pos[0] << " y " << tipPose.m_pos[1] << " z " << tipPose.m_pos[2] << " (meters)\nalpha "
+				<< mathLib::deg(tipPose.m_eulerAngles[0]) << " beta " << mathLib::deg(tipPose.m_eulerAngles[1]) << " gamma " << mathLib::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << std::endl;
 		stream << "Individual Transformation Matrices:\n";
 		unsigned int counter = 0;
 		for (unsigned int i = 0; i < robot.m_numReferenceFrames; i++)
