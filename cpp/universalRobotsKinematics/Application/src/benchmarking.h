@@ -15,6 +15,19 @@
 
 namespace benchmark
 {
+	class timer
+	{
+	private:
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_startTimePoint;
+		std::chrono::time_point<std::chrono::high_resolution_clock> m_endTimePoint;
+	public:
+		timer()
+		{
+			m_startTimePoint = std::chrono::high_resolution_clock::now();
+		}
+		std::chrono::microseconds stop();
+	};
+
 	void runBenchmarkTests(universalRobots::UR& robot);
 
 } // namespace benchmark
