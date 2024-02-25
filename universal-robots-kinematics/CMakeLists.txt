@@ -41,11 +41,15 @@ include(${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake)
 # Set header files
 set(header
 	"include/ur.h" 
+	"include/ur_parameters.h" 
+    "include/my_math.h"
 )
 
 # Set source files
 set(src 
    "src/ur.cpp"
+   "src/ur_parameters.cpp"
+   "src/my_math.cpp"
 )
 
 # Define library target
@@ -61,6 +65,8 @@ target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
 )
 
 # Setup dependencies
+find_package(Eigen3 CONFIG REQUIRED)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Eigen3::Eigen)
 
 target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC
     DNF_COMPOSER=1
@@ -98,21 +104,24 @@ install(EXPORT ${CMAKE_PROJECT_NAME}Targets DESTINATION ${UR_KIN_CMAKE_CONFIG_IN
 set(EXE_PROJECT ${CMAKE_PROJECT_NAME}-exe)
 add_executable(${EXE_PROJECT} "main.cpp")
 target_include_directories(${EXE_PROJECT} PRIVATE include)
-target_link_libraries(${EXE_PROJECT} PRIVATE ${CMAKE_PROJECT_NAME} )
+target_link_libraries(${EXE_PROJECT} PRIVATE ${CMAKE_PROJECT_NAME} Eigen3::Eigen)
 
 
-## Setup Catch2
-#enable_testing()
-#find_package(Catch2 CONFIG REQUIRED)
-#include(CTest)
-#include(Catch)
-#
-## Add test project
-#set(TEST_PROJECT ${CMAKE_PROJECT_NAME}-test)
-#add_executable(${TEST_PROJECT} 
-#    tests/test.cpp 
-#)
-#target_include_directories(${TEST_PROJECT} PRIVATE include)
-#target_link_libraries(${TEST_PROJECT} PRIVATE Catch2::Catch2 Catch2::Catch2WithMain ${CMAKE_PROJECT_NAME})
-## Automatically discover and add tests
-#catch_discover_tests(${TEST_PROJECT})
+# Setup Catch2
+enable_testing()
+find_package(Catch2 CONFIG REQUIRED)
+include(CTest)
+include(Catch)
+
+# Add test project
+set(TEST_PROJECT ${CMAKE_PROJECT_NAME}-test)
+add_executable(${TEST_PROJECT} 
+    tests/test.cpp
+	tests/test_ur.cpp
+	tests/test_ur_parameters.cpp
+	tests/test_math.cpp
+)
+target_include_directories(${TEST_PROJECT} PRIVATE include)
+target_link_libraries(${TEST_PROJECT} PRIVATE Catch2::Catch2 Catch2::Catch2WithMain ${CMAKE_PROJECT_NAME})
+# Automatically discover and add tests
+catch_discover_tests(${TEST_PROJECT})

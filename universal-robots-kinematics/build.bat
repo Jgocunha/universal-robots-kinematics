@@ -12,6 +12,12 @@ IF NOT DEFINED VCPKG_ROOT (
     exit /b 1
 )
 
+:: Install catch2 using Vcpkg
+"%VCPKG_ROOT%\vcpkg.exe" install catch2:x64-windows
+
+:: Install eigen3 using vcpkg#quick-start-windows
+"%VCPKG_ROOT%\vcpkg.exe" install eigen3:x64-windows
+
 :: Using MSBuild may require elevation
 "%VCPKG_ROOT%\vcpkg.exe" integrate install
 
