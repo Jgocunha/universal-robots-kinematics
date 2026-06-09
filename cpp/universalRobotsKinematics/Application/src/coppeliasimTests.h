@@ -1,22 +1,14 @@
 // coppeliasimTests.h
 
 #pragma once
-#ifndef _DEBUG
+#ifdef WITH_COPPELIASIM
 
-#include <windows.h>
 #include "universalRobotsKinematics.h"
 
 extern "C"
 {
 	#include "extApi.h"
 }
-
-// https://www.coppeliarobotics.com/helpFiles/en/remoteApiClientSide.htm
-// This is not enough!!! You need to include additional directories { remoteApi and include folder }
-// and also https://stackoverflow.com/questions/14386/fopen-deprecated-warning
-// It looks like Microsoft has deprecated lots of calls which use buffers to improve code security.However, the solutions they're providing aren't portable. Anyway, 
-// if you aren't interested in using the secure version of their calls (like fopen_s), you need to place a definition of _CRT_SECURE_NO_DEPRECATE before your included header files. 
-// For example:
 
 #ifdef _WIN32
 #define _CRT_SECURE_NO_DEPRECATE
@@ -66,4 +58,4 @@ namespace coppeliaSim
 
 } // namespace coppeliaSim
 
-#endif
+#endif // WITH_COPPELIASIM

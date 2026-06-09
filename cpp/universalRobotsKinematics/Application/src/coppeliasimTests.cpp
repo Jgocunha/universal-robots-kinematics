@@ -1,8 +1,11 @@
 // coppeliasimTests.cpp
 
-#ifndef _DEBUG
+#ifdef WITH_COPPELIASIM
 
 #include <iostream>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include "coppeliasimTests.h"
 
 namespace coppeliaSim
@@ -17,7 +20,11 @@ namespace coppeliaSim
 	{
 			for (unsigned int j = 0; j < robot.m_numDoF; j++)
 				simxSetJointTargetPosition(clientID, robotJointHandles[j], jointValue[j], simx_opmode_blocking);
+#ifdef _WIN32
 			Sleep(waitTime);
+#else
+			usleep(waitTime * 1000);
+#endif
 	}
 
 	std::string getJointHandleName(const universalRobots::UR& robot)
@@ -64,7 +71,11 @@ namespace coppeliaSim
 
 			// allow Coppelia to display tip pose
 			simxSetIntegerSignal(clientID, "showPos", 1, simx_opmode_blocking);
+#ifdef _WIN32
 			Sleep(1);
+#else
+			usleep(1000);
+#endif
 			simxSetIntegerSignal(clientID, "showPos", 0, simx_opmode_blocking);
 		}
 		else
@@ -75,4 +86,4 @@ namespace coppeliaSim
 
 } // namespace coppeliaSim
 
-#endif
+#endif // WITH_COPPELIASIM
