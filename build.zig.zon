@@ -1,0 +1,12 @@
+.{
+    .name = .lib_zurk,
+    .fingerprint = 0x92e6dc07c0011071,
+    .version = "0.0.1",
+    .minimum_zig_version = "0.15.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
+

@@ -24,7 +24,7 @@ The solution was built using Microsoft Visual Studio 2019, and C++ 20 standard.
 
 ## Dependencies
 
-### Eigen
+### Eigen v3.4.0
 
 [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page) is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms.
 
@@ -36,6 +36,14 @@ To use Eigen:
 3. On your project properties:
     - C/C++ -> Additional Include Directories -> *your Eigen directory e.g. C:\Eigen*;
     - now you can include `#include <Eigen\Dense>`.
+
+The `build.zig` expects eigen in the root of the project so you can just :
+
+```
+git clone -b 3.4.0 --depth 1 https://gitlab.com/libeigen/eigen.git
+```
+
+Or you can clone the `zurk` branch ( -b ) of this repo.
 
 ### CoppeliaSim
 
