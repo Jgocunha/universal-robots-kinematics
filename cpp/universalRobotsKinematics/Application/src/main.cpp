@@ -2,8 +2,10 @@
 
 #include <iostream>
 #include "universalRobotsKinematics.h"
-#include "coppeliaSimTests.h"
 #include "benchmarking.h"
+#ifdef WITH_COPPELIASIM
+#include "coppeliasimTests.h"
+#endif
 
 
 int main()
@@ -38,7 +40,9 @@ int main()
 
 	// coppeliasim test
 	//
+#ifdef WITH_COPPELIASIM
 	coppeliaSim::runCoppeliaSimTests(robot, targetTipPose);
+#endif
 
 	// benchmarking
 	//

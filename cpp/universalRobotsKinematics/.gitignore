@@ -377,6 +377,13 @@ FodyWeavers.xsd
 !.vscode/extensions.json
 *.code-workspace
 
+# CMake build artifacts
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+_deps/
+
 # Local History for Visual Studio Code
 .history/
 
