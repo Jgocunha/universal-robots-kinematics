@@ -2,6 +2,7 @@
 
 #include "universalRobotsKinematics.h"
 #include <random>
+#include <cmath>
 
 
 namespace universalRobots
@@ -352,7 +353,7 @@ namespace universalRobots
 	{
 		for (unsigned int i = 0; i < 6; i++)
 		{
-			if(isnan(ikSol[i]))
+			if(std::isnan(ikSol[i]))
 				return false;
 		}
 
