@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test:
+    name: ${{ matrix.os }} / ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Debug, Release]
+        include:
+          - build_type: Debug
+            preset: debug
+          - build_type: Release
+            preset: release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Cache the FetchContent source downloads (Eigen, GoogleTest) so runs stay fast.
+      # Keyed on OS + build type + the pinned dependency tags; bump the tags here when
+      # they change in the CMakeLists files.
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.deps
+          key: deps-${{ matrix.os }}-${{ matrix.build_type }}-eigen-3.4.0-gtest-v1.15.2-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            deps-${{ matrix.os }}-${{ matrix.build_type }}-
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }} -D FETCHCONTENT_BASE_DIR=${{ github.workspace }}/.deps
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test (golden characterization suite)
+        run: ctest --test-dir build/${{ matrix.preset }} --build-config ${{ matrix.build_type }} --output-on-failure
+
+      # Smoke test: the demo app must run to completion on its own. Locate the binary
+      # (path differs between single-config and multi-config generators) and feed it an
+      # empty stdin so it can never block.
+      - name: Smoke test (run ur_app once)
+        shell: bash
+        run: |
+          BIN=$(find "build/${{ matrix.preset }}" -type f \( -name ur_app -o -name ur_app.exe \) | head -n 1)
+          if [ -z "$BIN" ]; then
+            echo "::error::ur_app executable not found under build/${{ matrix.preset }}"
+            exit 1
+          fi
+          echo "Running $BIN"
+          "$BIN" < /dev/null
