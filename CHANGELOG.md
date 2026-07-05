@@ -7,7 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `docs/REFERENCES.md` — full citations (with DOIs/links) for the literature previously vendored as PDFs under `Articles/`, plus the project dissertations, Jazar's textbook, and UR manufacturer docs.
 - `tests/` — golden characterization suite (GoogleTest via FetchContent, CTest-discovered): FK/IK/round-trip parity tests replaying frozen v1.0 reference data in `tests/golden/*.json`, a one-shot `golden_generator`, and a dependency-free JSON reader. Zero changes to library code under `cpp/`.
+
+### Changed
+- Repository slimmed to the C++ library only. The MATLAB reference implementation, CoppeliaSim scenes/models, and `LAUNCH.md` moved to the archive repo [`Jgocunha/universal-robots-kinematics-matlab`](https://github.com/Jgocunha/universal-robots-kinematics-matlab); README updated to state the new scope and link the archive.
+- Moved `Resources/errorSolsFlow.png` → `docs/images/errorSolsFlow.png`.
+- `.gitignore` replaced with a proper C++/CMake/IDE ignore set (`build*/`, `out/`, `.vs/`, `.vscode/`, `*.user`, `CMakeUserPresets.json`, OS junk); `.claude/` kept ignored.
+
+### Removed
+- `MATLAB files/`, `CoppeliaSim files/`, `LAUNCH.md` (relocated to the archive repo) and `Articles/` (copyrighted PDFs; replaced by `docs/REFERENCES.md`).
 - `.github/ISSUE_TEMPLATE/bug_report.md` — bug report template
 - `.github/ISSUE_TEMPLATE/feature_request.md` — feature request template
 - `.github/PULL_REQUEST_TEMPLATE.md` — pull request template

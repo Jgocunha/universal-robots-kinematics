@@ -1,1 +1,16 @@
+# Local-only project roadmap / agent workspace
 .claude/
+
+# Build directories
+build*/
+out/
+
+# IDE / editor
+.vs/
+.vscode/
+*.user
+CMakeUserPresets.json
+
+# OS junk
+Thumbs.db
+.DS_Store
