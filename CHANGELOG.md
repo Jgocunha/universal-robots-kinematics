@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `tests/` — golden characterization suite (GoogleTest via FetchContent, CTest-discovered): FK/IK/round-trip parity tests replaying frozen v1.0 reference data in `tests/golden/*.json`, a one-shot `golden_generator`, and a dependency-free JSON reader. Zero changes to library code under `cpp/`.
 - `.github/ISSUE_TEMPLATE/bug_report.md` — bug report template
 - `.github/ISSUE_TEMPLATE/feature_request.md` — feature request template
 - `.github/PULL_REQUEST_TEMPLATE.md` — pull request template
