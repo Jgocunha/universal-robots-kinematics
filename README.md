@@ -2,11 +2,13 @@
 
 This work was developed in the context of our MSc dissertations: *A Collaborative Work Cell to Improve Ergonomics and Productivity* by João Cunha, and *Human-Like Motion Generation through Waypoints for Collaborative Robots in Industry 4.0* by João Pereira, in which we got to work with the collaborative robotic arm **UR10 e-series**. 
 
-Before producing our kinematics solution, we conducted a comprehensive literature review on the UR robots’ kinematics (which can be consulted in the *"Articles"* folder of this repository) and realised there was a lack of thorough and detailed analysis of their kinematics. Additionally, we found the [Universal Robots’ documentation](https://www.universal-robots.com/articles/ur/parameters-for-calculations-of-kinematics-and-dynamics/) confusing and unclear (at that time). 
+Before producing our kinematics solution, we conducted a comprehensive literature review on the UR robots’ kinematics (see [`docs/REFERENCES.md`](docs/REFERENCES.md)) and realised there was a lack of thorough and detailed analysis of their kinematics. Additionally, we found the [Universal Robots’ documentation](https://www.universal-robots.com/articles/ur/parameters-for-calculations-of-kinematics-and-dynamics/) confusing and unclear (at that time). 
 
 Thus, the main goal of this work is to provide an **explicit and transparent guide into the UR robots kinematics** (using by reference the UR10 e-series) by expanding on the literature we found and describing every part of our analysis. 
 
-We present a **forward kinematic solution based on the Modified Denavit-Hartenberg convention** and an **inverse kinematic solution based on a geometric analysis**. The code is available in C++ and MATLAB, both with integration with CoppeliaSim.
+We present a **forward kinematic solution based on the Modified Denavit-Hartenberg convention** and an **inverse kinematic solution based on a geometric analysis**.
+
+This repository is the **C++ library** (UR3/UR5/UR10, C++20, CMake). The original MATLAB reference implementation and the CoppeliaSim scenes/models — both with CoppeliaSim integration — now live in a linked archive repository: [**Jgocunha/universal-robots-kinematics-matlab**](https://github.com/Jgocunha/universal-robots-kinematics-matlab).
 
 ***
 
@@ -102,7 +104,7 @@ MATLAB's compute times are 10x slower than with C++, so **the C++ solution is ob
 
 To compute the average error the following flowchart was followed:
 
-![How to get the errors](/Resources/errorSolsFlow.png)
+![How to get the errors](docs/images/errorSolsFlow.png)
 
 ||*x*|*y*|*z*|*alpha*|*beta*|*gamma*|
 |-|--|---|---|-------|------|-------|
