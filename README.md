@@ -44,42 +44,41 @@ Supported robot types: `URtype::UR3`, `URtype::UR5`, `URtype::UR10`.
 
 [Eigen 3.4.0](https://eigen.tuxfamily.org/) is fetched automatically by CMake at configure time — no manual installation required.
 
-### CoppeliaSim (optional)
+### GoogleTest (automatic)
 
-Only needed for the CoppeliaSim integration. The CoppeliaSim remote API files are already bundled under `cpp/universalRobotsKinematics/Dependencies/CoppeliaSim/`. Enable it at configure time with `-DWITH_COPPELIASIM=ON`.
+[GoogleTest v1.15.2](https://github.com/google/googletest) is fetched automatically by CMake at configure time to build the test suite — no manual installation required.
+
+> **CoppeliaSim integration** was removed from this repository. It now lives in the archive repo, [Jgocunha/universal-robots-kinematics-matlab](https://github.com/Jgocunha/universal-robots-kinematics-matlab).
 
 ***
 
 ## Building
 
-**Requirements:** CMake 3.20+, a C++20 compiler (GCC 10+, Clang 12+, MSVC 19.29+), Git (for Eigen fetch).
+**Requirements:** CMake 3.21+ (for presets; the build itself needs 3.20+), a C++20 compiler (GCC 10+, Clang 12+, MSVC 19.29+), Git (Eigen and GoogleTest are fetched from GitHub at configure time).
+
+The build uses CMake presets (`debug`, `release`) with the default generator on each platform.
 
 ```bash
 # Clone
 git clone https://github.com/Jgocunha/universal-robots-kinematics.git
 cd universal-robots-kinematics
 
-# Configure and build (Eigen is downloaded automatically)
-cmake -B build -S .
-cmake --build build
+# Configure and build (Eigen and GoogleTest are downloaded automatically)
+cmake --preset release
+cmake --build --preset release
 
-# Run
-./build/cpp/universalRobotsKinematics/Application/ur_app   # Linux/macOS
-build\cpp\universalRobotsKinematics\Application\Debug\ur_app.exe  # Windows
+# Run the demo
+./build/release/cpp/universalRobotsKinematics/Application/ur_app          # Linux/macOS
+build\release\cpp\universalRobotsKinematics\Application\Release\ur_app.exe # Windows
 ```
 
-### With CoppeliaSim
+Swap `release` for `debug` to build the debug configuration under `build/debug`.
+
+### Tests
 
 ```bash
-cmake -B build -S . -DWITH_COPPELIASIM=ON
-cmake --build build
+ctest --test-dir build/release --output-on-failure   # add -C Release on Windows/multi-config
 ```
-
-### Build options
-
-| Option | Default | Description |
-|---|---|---|
-| `WITH_COPPELIASIM` | `OFF` | Include CoppeliaSim remote API integration |
 
 ***
 

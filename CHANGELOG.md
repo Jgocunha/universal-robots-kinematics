@@ -9,13 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 - `docs/REFERENCES.md` — full citations (with DOIs/links) for the literature previously vendored as PDFs under `Articles/`, plus the project dissertations, Jazar's textbook, and UR manufacturer docs.
 - `tests/` — golden characterization suite (GoogleTest via FetchContent, CTest-discovered): FK/IK/round-trip parity tests replaying frozen v1.0 reference data in `tests/golden/*.json`, a one-shot `golden_generator`, and a dependency-free JSON reader. Zero changes to library code under `cpp/`.
+- `CMakePresets.json` — `debug` and `release` presets (default generators, no toolchain files) making CMake the single, cross-platform build entry point.
 
 ### Changed
+- `main.cpp` — removed the trailing `std::cin.get()` so `ur_app` runs to completion without keyboard input (required for CI smoke-running the demo). Console FK/IK output is otherwise unchanged.
 - Repository slimmed to the C++ library only. The MATLAB reference implementation, CoppeliaSim scenes/models, and `LAUNCH.md` moved to the archive repo [`Jgocunha/universal-robots-kinematics-matlab`](https://github.com/Jgocunha/universal-robots-kinematics-matlab); README updated to state the new scope and link the archive.
 - Moved `Resources/errorSolsFlow.png` → `docs/images/errorSolsFlow.png`.
 - `.gitignore` replaced with a proper C++/CMake/IDE ignore set (`build*/`, `out/`, `.vs/`, `.vscode/`, `*.user`, `CMakeUserPresets.json`, OS junk); `.claude/` kept ignored.
 
 ### Removed
+- CoppeliaSim remote-API integration: `Dependencies/CoppeliaSim/`, `Application/src/coppeliasimTests.{h,cpp}`, the vendored `extApi*`/`extApiPlatform*` sources, the `WITH_COPPELIASIM` CMake option, and the `#ifdef WITH_COPPELIASIM` blocks in `main.cpp`. The simulator integration lives in the archive repo [`Jgocunha/universal-robots-kinematics-matlab`](https://github.com/Jgocunha/universal-robots-kinematics-matlab).
+- Visual Studio project artifacts (`*.vcxproj.filters`); CMake (via `CMakePresets.json`) is now the only build system. Removes the last of the hardcoded `C:\Work\Eigen` include paths that lived in the VS project files.
 - `MATLAB files/`, `CoppeliaSim files/`, `LAUNCH.md` (relocated to the archive repo) and `Articles/` (copyrighted PDFs; replaced by `docs/REFERENCES.md`).
 - `.github/ISSUE_TEMPLATE/bug_report.md` — bug report template
 - `.github/ISSUE_TEMPLATE/feature_request.md` — feature request template
