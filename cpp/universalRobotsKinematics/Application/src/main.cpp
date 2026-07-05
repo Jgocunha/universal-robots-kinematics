@@ -3,9 +3,6 @@
 #include <iostream>
 #include "universalRobotsKinematics.h"
 #include "benchmarking.h"
-#ifdef WITH_COPPELIASIM
-#include "coppeliasimTests.h"
-#endif
 
 
 int main()
@@ -38,18 +35,10 @@ int main()
 		std::cout << "IK solution " << i + 1 << ": " << mathLib::deg(ikSols[i][0]) << " " << mathLib::deg(ikSols[i][1]) << " " << mathLib::deg(ikSols[i][2]) << " " <<
 		mathLib::deg(ikSols[i][3]) << " " << mathLib::deg(ikSols[i][4]) << " " << mathLib::deg(ikSols[i][5]) << std::endl;
 
-	// coppeliasim test
-	//
-#ifdef WITH_COPPELIASIM
-	coppeliaSim::runCoppeliaSimTests(robot, targetTipPose);
-#endif
-
 	// benchmarking
 	//
 	universalRobots::UR benchmarkRobot(universalRobots::URtype::UR5);
 	benchmark::runBenchmarkTests(benchmarkRobot);
-
-	std::cin.get();
 
 	return 0;
 }
