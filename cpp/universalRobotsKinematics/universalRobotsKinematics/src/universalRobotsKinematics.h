@@ -111,25 +111,6 @@ namespace universalRobots
 			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
 		};
 
-		/// <summary>
-		/// This boolean indicates whether a tool is/isnt attached to the robot.
-		/// Must be specified in the constructor, if not default is false.
-		/// </summary>
-		bool m_endEffector = false;
-
-		/// <summary>
-		/// Modified Denavit-Hartenberg parameters matrix (9x4)
-		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
-		/// </summary>
-		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_jointState[0].m_jointValue},
-																	{mathLib::rad(-90),	0,			m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90)},
-																	{0,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue},
-																	{0,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue},
-																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},
-																	{mathLib::rad(90),	0,			0,				m_jointState[4].m_jointValue},
-																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},
-																	{0,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue},
-																	{0,					0,			m_d[6],			0} };
 	private:
 
 		/// <summary>
@@ -166,6 +147,26 @@ namespace universalRobots
 		/// Array of (general) transformation matrices 0Ti
 		/// </summary>
 		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
+
+		/// <summary>
+		/// This boolean indicates whether a tool is/isnt attached to the robot.
+		/// Must be specified in the constructor, if not default is false.
+		/// </summary>
+		bool m_endEffector = false;
+
+		/// <summary>
+		/// Modified Denavit-Hartenberg parameters matrix (9x4)
+		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
+		/// </summary>
+		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_jointState[0].m_jointValue},
+																	{mathLib::rad(-90),	0,			m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90)},
+																	{0,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue},
+																	{0,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue},
+																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},
+																	{mathLib::rad(90),	0,			0,				m_jointState[4].m_jointValue},
+																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},
+																	{0,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue},
+																	{0,					0,			m_d[6],			0} };
 
 	public:
 		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
