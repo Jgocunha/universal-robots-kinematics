@@ -9,7 +9,7 @@ namespace benchmark
 	{
 		std::cout << "____________________________\nBenchmarking..." << std::endl << std::endl;
 
-		float ikSols[universalRobots::UR::m_numIkSol][universalRobots::UR::m_numDoF] = {};
+		universalRobots::UR::IkSolutions ikSols = {};
 		universalRobots::pose tipPoseInput = {};
 		universalRobots::pose tipPoseOutput = {};
 		universalRobots::pose poseError = {};
@@ -29,7 +29,7 @@ namespace benchmark
 			// generate a random pose
 			{
 				timer ikTimer;
-				robot.inverseKinematics(tipPoseInput, &ikSols);
+				ikSols = robot.inverseKinematics(tipPoseInput);
 				invKin_us = ikTimer.stop(); // Getting number of microseconds as a double.
 			}
 			sumInvKin_us = sumInvKin_us + invKin_us;
@@ -38,7 +38,7 @@ namespace benchmark
 			{
 				{
 					timer fkTimer;
-					tipPoseOutput = robot.forwardKinematics(ikSols[j]);
+					tipPoseOutput = robot.forwardKinematics(ikSols.solutions[j]);
 					fwdKin_us = fkTimer.stop(); // Getting number of microseconds as a double.
 				}
 				sumFwdKin_us = sumFwdKin_us + fwdKin_us;

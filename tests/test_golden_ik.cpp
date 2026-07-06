@@ -50,8 +50,7 @@ namespace
 
 			const universalRobots::pose target = poseFromArray(tc["targetPose"]);
 
-			float sols[8][6] = {};
-			robot.inverseKinematics(target, &sols);
+			const universalRobots::UR::IkSolutions sols = robot.inverseKinematics(target);
 
 			const jsonmini::Value& expected = tc["solutions"];
 			ASSERT_EQ(expected.size(), 8u);
@@ -63,7 +62,7 @@ namespace
 				for (int k = 0; k < 6; ++k)
 				{
 					const jsonmini::Value& e = row[k];
-					const float actual = sols[s][k];
+					const float actual = sols.solutions[s][k];
 					if (e.isNull())
 					{
 						EXPECT_TRUE(std::isnan(actual))
@@ -83,9 +82,7 @@ namespace
 				// Round-trip only for reachable targets with a fully finite solution row.
 				if (reachable && rowFinite)
 				{
-					float j[6] = {};
-					for (int k = 0; k < 6; ++k) j[k] = sols[s][k];
-					const universalRobots::pose fk = robot.forwardKinematics(j);
+					const universalRobots::pose fk = robot.forwardKinematics(sols.solutions[s]);
 					for (int i = 0; i < 3; ++i)
 						EXPECT_NEAR(fk.m_pos[i], target.m_pos[i], rtTol)
 							<< "round-trip sol " << s << " pos[" << i << "]";
