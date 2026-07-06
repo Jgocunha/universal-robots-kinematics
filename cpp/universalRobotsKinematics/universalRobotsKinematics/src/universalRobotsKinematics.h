@@ -22,7 +22,7 @@ namespace universalRobots
 		pose()
 			: m_pos{ 0.0f, 0.0f, 0.0f }, m_eulerAngles{ 0.0f, 0.0f, 0.0f } {}
 
-		pose(const float& pos1, const float& pos2, const float& pos3, const float& eulerAngles1, const float& eulerAngles2, const float& eulerAngles3)
+		pose(float pos1, float pos2, float pos3, float eulerAngles1, float eulerAngles2, float eulerAngles3)
 			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles2, eulerAngles3 } {}
 
 		pose(const float(&pos)[3], const float(&eulerAngles)[3])
@@ -31,7 +31,7 @@ namespace universalRobots
 		pose(const float(&pos)[3], const Eigen::Matrix3f& rotationMatrix)
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(), rotationMatrix.eulerAngles(1, 2, 0).x() } {}
 
-		pose divideByConst(const float& constant) const
+		pose divideByConst(float constant) const
 		{
 			return pose(m_pos[0]/ constant, m_pos[1] / constant, m_pos[2] / constant, m_eulerAngles[0] / constant, m_eulerAngles[1] / constant, m_eulerAngles[2] / constant );
 		}
@@ -41,7 +41,7 @@ namespace universalRobots
 			return pose(m_pos[0] - other.m_pos[0], m_pos[1] - other.m_pos[1], m_pos[2] - other.m_pos[2], m_eulerAngles[0] - other.m_eulerAngles[0], m_eulerAngles[1] - other.m_eulerAngles[1], m_eulerAngles[2] - other.m_eulerAngles[2]);
 		}
 
-		pose operator/(const float& constant) const
+		pose operator/(float constant) const
 		{
 			return divideByConst(constant);
 		}
@@ -162,25 +162,25 @@ namespace universalRobots
 		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix;
 
 	public:
-		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
+		UR(URtype robotType = UR10, bool endEffector = false, float endEffectorDimension = 0.0f);
 		const URtype getRobotType() const;
 		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
 		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose);
 		pose generateRandomReachablePose();
 		[[nodiscard]] bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution) const;
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
-		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
+		friend std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type);
 	private:
 		void setMDHmatrix();
-		void setRobotType(const URtype& type);
+		void setRobotType(URtype type);
 		void setTheta(const JointVector& jointVal);
 		const float* getTransZ() const;
 		const float* getTransX() const;
-		const float getTheta(const int& ix) const;
+		const float getTheta(int ix) const;
 		const pose getTipPose() const;
 	};
 
-	std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
+	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type);
 
 	std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 

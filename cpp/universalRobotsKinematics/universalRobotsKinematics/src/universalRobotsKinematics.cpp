@@ -15,7 +15,7 @@ namespace universalRobots
 	/// </summary>
 	/// <param name="endEffector"></param>
 	/// <param name="endEffectorDimension"></param>
-	UR::UR(const URtype& robotType, const bool& endEffector, const float& endEffectorDimension)
+	UR::UR(URtype robotType, bool endEffector, float endEffectorDimension)
 		: m_type(robotType), m_endEffector(endEffector)
 	{
 		const RobotParameters& params = parametersFor(robotType);
@@ -30,7 +30,7 @@ namespace universalRobots
 	/// setRobotType
 	/// </summary>
 	/// <param name="type"></param>
-	void UR::setRobotType(const URtype& type)
+	void UR::setRobotType(URtype type)
 	{
 		m_type = type;
 	}
@@ -92,7 +92,7 @@ namespace universalRobots
 	/// Returns the robot's current joint values. Used for printing purposes.
 	/// </summary>
 	/// <returns>m_theta</returns>
-	const float UR::getTheta(const int &ix) const
+	const float UR::getTheta(int ix) const
 	{
 		return m_jointState[ix].m_jointValue;
 	}
@@ -328,7 +328,7 @@ namespace universalRobots
 	/// <param name="stream"></param>
 	/// <param name="type"></param>
 	/// <returns>stream</returns>
-	std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type)
+	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type)
 	{
 		switch (type)
 		{
