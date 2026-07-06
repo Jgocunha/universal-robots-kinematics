@@ -114,13 +114,10 @@ namespace
 		body += "  \"cases\": [\n";
 		for (std::size_t c = 0; c < inputs.size(); ++c)
 		{
-			// FK binds to a reference-to-array-of-unknown-bound: pass a real C array.
-			float j[6];
-			for (int i = 0; i < 6; ++i) j[i] = inputs[c].joints[i];
-			const universalRobots::pose tip = robot.forwardKinematics(j);
+			const universalRobots::pose tip = robot.forwardKinematics(inputs[c].joints);
 
 			body += "    { \"name\": \"" + inputs[c].name + "\", ";
-			body += "\"joints\": " + arr6(j) + ", ";
+			body += "\"joints\": " + arr6(inputs[c].joints.data()) + ", ";
 			body += "\"tip\": " + poseArr(tip) + " }";
 			body += (c + 1 < inputs.size()) ? ",\n" : "\n";
 		}
@@ -143,12 +140,12 @@ namespace
 		std::printf("wrote %s (%zu cases)\n", path.c_str(), inputs.size());
 	}
 
-	std::string solutionsArr(const float sols[8][6])
+	std::string solutionsArr(const universalRobots::UR::IkSolutions& sols)
 	{
 		std::string s = "[";
 		for (int i = 0; i < 8; ++i)
 		{
-			s += arr6(sols[i]);
+			s += arr6(sols.solutions[i].data());
 			if (i != 7) s += ", ";
 		}
 		s += "]";
@@ -170,11 +167,8 @@ namespace
 		const int reach = goldencfg::kIkReachableCount;
 		for (int c = 0; c < reach; ++c)
 		{
-			float j[6];
-			for (int i = 0; i < 6; ++i) j[i] = fkInputs[c].joints[i];
-			const universalRobots::pose tip = robot.forwardKinematics(j);
-			float sols[8][6] = {};
-			robot.inverseKinematics(tip, &sols);
+			const universalRobots::pose tip = robot.forwardKinematics(fkInputs[c].joints);
+			const universalRobots::UR::IkSolutions sols = robot.inverseKinematics(tip);
 
 			std::string rec;
 			rec += "    { \"name\": \"reachable_" + std::to_string(c) + "\", ";
@@ -192,8 +186,7 @@ namespace
 			universalRobots::pose far;
 			far.m_pos[0] = base; far.m_pos[1] = base; far.m_pos[2] = base;
 			far.m_eulerAngles[0] = 0.1f * c; far.m_eulerAngles[1] = 0.0f; far.m_eulerAngles[2] = 0.0f;
-			float sols[8][6] = {};
-			robot.inverseKinematics(far, &sols);
+			const universalRobots::UR::IkSolutions sols = robot.inverseKinematics(far);
 
 			std::string rec;
 			rec += "    { \"name\": \"unreachable_" + std::to_string(c) + "\", ";

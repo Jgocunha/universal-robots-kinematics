@@ -25,10 +25,10 @@ namespace universalRobots
 		pose(const float& pos1, const float& pos2, const float& pos3, const float& eulerAngles1, const float& eulerAngles2, const float& eulerAngles3)
 			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles2, eulerAngles3 } {}
 
-		pose(const float(&pos)[], const float(&eulerAngles)[])
+		pose(const float(&pos)[3], const float(&eulerAngles)[3])
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ eulerAngles[0], eulerAngles[1], eulerAngles[2] } {}
 
-		pose(const float(&pos)[], const Eigen::Matrix3f& rotationMatrix)
+		pose(const float(&pos)[3], const Eigen::Matrix3f& rotationMatrix)
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(), rotationMatrix.eulerAngles(1, 2, 0).x() } {}
 
 		pose divideByConst(const float& constant) const
@@ -98,6 +98,20 @@ namespace universalRobots
 		static constexpr unsigned int m_numIkSol = 8;
 
 		/// <summary>
+		/// Six joint angles (radians), in joint order 1..6.
+		/// </summary>
+		using JointVector = std::array<float, m_numDoF>;
+
+		/// <summary>
+		/// The eight inverse-kinematics solutions, each a full joint vector.
+		/// Same layout/order as the historical float[8][6] out-parameter.
+		/// </summary>
+		struct IkSolutions
+		{
+			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
+		};
+
+		/// <summary>
 		/// This boolean indicates whether a tool is/isnt attached to the robot.
 		/// Must be specified in the constructor, if not default is false.
 		/// </summary>
@@ -156,16 +170,16 @@ namespace universalRobots
 	public:
 		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
 		const URtype getRobotType() const;
-		pose forwardKinematics(const float (&targetJointVal)[]);
-		void inverseKinematics(const pose& targetTipPose, float(*outIkSols)[m_numIkSol][m_numDoF]);
+		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
+		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose);
 		pose generateRandomReachablePose();
-		bool checkPoseReachability(const float(&targetTipPose)[]) const;
+		[[nodiscard]] bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution) const;
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
 	private:
 		void setMDHmatrix();
 		void setRobotType(const URtype& type);
-		void setTheta(const float (&jointVal)[]);
+		void setTheta(const JointVector& jointVal);
 		const float* getTransZ() const;
 		const float* getTransX() const;
 		const float getTheta(const int& ix) const;

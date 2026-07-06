@@ -32,7 +32,7 @@ namespace
 			const jsonmini::Value& tc = cases[c];
 			SCOPED_TRACE(fileName + " case " + tc["name"].asString());
 
-			float joints[6] = {};
+			universalRobots::UR::JointVector joints = {};
 			const jsonmini::Value& jArr = tc["joints"];
 			for (int i = 0; i < 6; ++i)
 				joints[i] = jArr[i].asFloat();
@@ -68,7 +68,7 @@ TEST(GoldenFk, Ur5MainDemoFixture)
 	ASSERT_NE(demo, nullptr) << "main_demo fixture missing from UR5 golden data";
 
 	universalRobots::UR robot(universalRobots::URtype::UR5);
-	float joints[6] = {};
+	universalRobots::UR::JointVector joints = {};
 	for (int i = 0; i < 6; ++i)
 		joints[i] = (*demo)["joints"][i].asFloat();
 
