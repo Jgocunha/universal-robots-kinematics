@@ -23,17 +23,16 @@ The C++ solution uses **C++20** and builds on **Windows, Linux, and macOS** via 
 Instantiate a robot and call `forwardKinematics` or `inverseKinematics`:
 
 ```cpp
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
 
 universalRobots::UR robot(universalRobots::URtype::UR5);
 
 // Forward kinematics
-const float joints[6] = { 0.4f, -1.0f, 1.2f, 0.3f, 0.8f, 0.2f }; // radians
+const universalRobots::UR::JointVector joints = { 0.4f, -1.0f, 1.2f, 0.3f, 0.8f, 0.2f }; // radians
 universalRobots::pose tip = robot.forwardKinematics(joints);
 
 // Inverse kinematics (up to 8 solutions)
-float ikSols[robot.m_numIkSol][robot.m_numDoF] = {};
-robot.inverseKinematics(tip, &ikSols);
+const universalRobots::UR::IkSolutions ikSols = robot.inverseKinematics(tip);
 ```
 
 Supported robot types: `URtype::UR3`, `URtype::UR5`, `URtype::UR10`.
@@ -70,8 +69,8 @@ cmake --preset release
 cmake --build --preset release
 
 # Run the demo
-./build/release/cpp/universalRobotsKinematics/Application/ur_app          # Linux/macOS
-build\release\cpp\universalRobotsKinematics\Application\Release\ur_app.exe # Windows
+./build/release/ur_demo          # Linux/macOS
+build\release\Release\ur_demo.exe # Windows
 ```
 
 Swap `release` for `debug` to build the debug configuration under `build/debug`.

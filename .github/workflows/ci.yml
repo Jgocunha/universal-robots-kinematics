@@ -48,12 +48,12 @@ jobs:
       # Smoke test: the demo app must run to completion on its own. Locate the binary
       # (path differs between single-config and multi-config generators) and feed it an
       # empty stdin so it can never block.
-      - name: Smoke test (run ur_app once)
+      - name: Smoke test (run ur_demo once)
         shell: bash
         run: |
-          BIN=$(find "build/${{ matrix.preset }}" -type f \( -name ur_app -o -name ur_app.exe \) | head -n 1)
+          BIN=$(find "build/${{ matrix.preset }}" -type f \( -name ur_demo -o -name ur_demo.exe \) | head -n 1)
           if [ -z "$BIN" ]; then
-            echo "::error::ur_app executable not found under build/${{ matrix.preset }}"
+            echo "::error::ur_demo executable not found under build/${{ matrix.preset }}"
             exit 1
           fi
           echo "Running $BIN"

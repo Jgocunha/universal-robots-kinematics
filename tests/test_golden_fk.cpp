@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
 #include "golden_config.hpp"
 #include "golden_load.hpp"
 

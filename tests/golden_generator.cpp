@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
 #include "golden_config.hpp"
 
 #ifndef GOLDEN_DIR
@@ -80,8 +80,8 @@ namespace
 		auto add = [&](std::string n, Joints j) { in.push_back({ std::move(n), j }); };
 
 		// The demo fixture from Application/src/main.cpp (UR5 {23,345,78,66,77,12} deg).
-		add("main_demo", { mathLib::rad(23), mathLib::rad(345), mathLib::rad(78),
-						   mathLib::rad(66), mathLib::rad(77), mathLib::rad(12) });
+		add("main_demo", { universalRobots::rad(23), universalRobots::rad(345), universalRobots::rad(78),
+						   universalRobots::rad(66), universalRobots::rad(77), universalRobots::rad(12) });
 
 		// Hand-picked edge cases.
 		add("zeros", { 0, 0, 0, 0, 0, 0 });

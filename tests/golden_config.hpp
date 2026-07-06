@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
 
 namespace goldencfg
 {
