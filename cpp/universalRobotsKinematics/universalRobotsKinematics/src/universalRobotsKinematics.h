@@ -19,8 +19,7 @@ namespace universalRobots
 		float m_pos[3] = {}; // x y z (meters)
 		float m_eulerAngles[3] = {}; // alpha beta gamma (radians)
 
-		pose()
-			: m_pos{ 0.0f, 0.0f, 0.0f }, m_eulerAngles{ 0.0f, 0.0f, 0.0f } {}
+		pose() = default;
 
 		pose(float pos1, float pos2, float pos3, float eulerAngles1, float eulerAngles2, float eulerAngles3)
 			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles2, eulerAngles3 } {}
@@ -60,9 +59,6 @@ namespace universalRobots
 	{
 		pose m_jointPose = {};
 		float m_jointValue = 0.0f;
-
-		joint()
-			: m_jointPose(pose()), m_jointValue(0.0f) {}
 	};
 	
 	/// <summary>
