@@ -5,6 +5,31 @@
 #include <random>
 #include <cmath>
 
+namespace
+{
+	// Membership test for the small frame/solution index sets below.
+	template <std::size_t N>
+	constexpr bool contains(const std::array<unsigned int, N>& set, unsigned int value)
+	{
+		for (const unsigned int element : set)
+			if (element == value)
+				return true;
+		return false;
+	}
+
+	// Of the 9 Modified-DH reference frames, these are the ones whose general
+	// transform yields a joint pose (frames 0..5 -> joints 1..6) or the tip pose
+	// (frame 8). Frames 4 and 6 are the intermediate 4'/5' frames with no pose.
+	constexpr std::array<unsigned int, 7> kPoseBearingFrames{ 0, 1, 2, 3, 5, 7, 8 };
+
+	// The IK solutions whose wrist is in the "up" configuration; these take
+	// +acos for theta5, the others take -acos.
+	constexpr std::array<unsigned int, 4> kWristUpSolutionIndices{ 0, 1, 4, 5 };
+
+	// Solutions alternate elbow configuration; these (odd) indices take the
+	// theta3 = pi - psi branch, the even indices take theta3 = pi + psi.
+	constexpr std::array<unsigned int, 4> kSecondElbowSolutionIndices{ 1, 3, 5, 7 };
+}
 
 namespace universalRobots
 {
@@ -137,7 +162,7 @@ namespace universalRobots
 			// Obtaining the joint pose
 			// Since we have more reference frames than joints only some represent a joint pose
 			// 0T1 J1 // 1T2 J2// 2T3 J3// 3T4 J4// 4T4' XX// 4'T5 J5// 5T5' XX// 5'T6 J6// 6T7 tipPose
-			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7 || i == 8)
+			if (contains(kPoseBearingFrames, i))
 			{
 				// 0T1 1 // 1T2 2// 2T3 3// 3T4 4// 4T4' // 4'T5 5// 5T5' // 5'T6 6// 6T7
 				rotationMatrix << m_generalTransformationMatrices[i](0, 0), m_generalTransformationMatrices[i](0, 1), m_generalTransformationMatrices[i](0, 2),
@@ -205,7 +230,7 @@ namespace universalRobots
 			 Eigen::Matrix4f T_01 = mathLib::calcTransformationMatrix(Eigen::RowVector4f{ 0.0f, 0.0f, m_d[0], outIkSols.solutions[i][0] }); // Knowing theta1 it is possible to know 0T1
 			 Eigen::Matrix4f T_16 = T_01.inverse() * T_06; // 1T6 = 1T0 * 0T6
 			// There are two possible solutions for theta5, that depend on whether the wrist joint is up or down.
-			if (i == 0 || i == 1 || i == 4 || i == 5) //(0, 1, 4, 5)
+			if (contains(kWristUpSolutionIndices, i))
 				outIkSols.solutions[i][4] =  acos( (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5] );
 			else
 				outIkSols.solutions[i][4] = - acos( (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5] );
@@ -240,7 +265,7 @@ namespace universalRobots
 			 float theta3_psi = acos((pow(P_14_xz, 2) - pow(m_a[1], 2) - pow(m_a[0], 2)) / (-2 * m_a[0] * m_a[1]));
 
 			// Elbow up or down
-			if ((i + 1) % 2 == 0)
+			if (contains(kSecondElbowSolutionIndices, i))
 			{
 				// Computing theta3.
 				outIkSols.solutions[i][2] = std::numbers::pi_v<float> - theta3_psi;
