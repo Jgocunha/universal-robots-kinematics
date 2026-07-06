@@ -2,10 +2,8 @@
 
 #pragma once
 
-#define ITERATIONS 100000
-
 #include <chrono>
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
 
 // Benchmarking consists of:
 // 1. getting compute times of forward and inverse kinematics functions
@@ -15,6 +13,8 @@
 
 namespace benchmark
 {
+	constexpr unsigned int ITERATIONS = 100000;
+
 	class timer
 	{
 	private:

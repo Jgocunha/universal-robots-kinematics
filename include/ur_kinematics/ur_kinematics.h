@@ -1,15 +1,24 @@
-// universalRobotsKinematics.h
+// ur_kinematics.h
 
 #pragma once
 
 #include <iosfwd>
 #include <array>
 #include <Eigen/Dense>
-#include "mathLib.h"
-#include "robotParameters.h"
+#include "robot_parameters.h"
 
 namespace universalRobots
 {
+
+	/// <summary>
+	/// Converts an angle in degrees to radians.
+	/// </summary>
+	float rad(float degree);
+
+	/// <summary>
+	/// Converts an angle in radians to degrees.
+	/// </summary>
+	float deg(float rad);
 
 	/// <summary>
 	/// Structure which holds a pose { x y z } { alpha beta gamma }

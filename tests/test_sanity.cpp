@@ -1,7 +1,7 @@
 // test_sanity.cpp — trivial checks that the harness links and the API is callable.
 #include <gtest/gtest.h>
 
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
 
 TEST(Sanity, HarnessLinks)
 {

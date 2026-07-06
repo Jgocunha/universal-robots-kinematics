@@ -1,9 +1,11 @@
-// universalRobotsKinematics.cpp
+// ur_kinematics.cpp
 
-#include "universalRobotsKinematics.h"
+#include <ur_kinematics/ur_kinematics.h>
+#include "math_utils.h"
 #include <ostream>
 #include <random>
 #include <cmath>
+#include <numbers>
 
 namespace
 {
@@ -67,12 +69,12 @@ namespace universalRobots
 	void UR::setMDHmatrix()
 	{
 		m_MDHmatrix << 0.0f,					0.0f,		m_d[0],			m_jointState[0].m_jointValue,					// 0T1
-						mathLib::rad(-90),		0.0f,		m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90) ,// 1T2
+						universalRobots::rad(-90),		0.0f,		m_d[1],			m_jointState[1].m_jointValue + universalRobots::rad(-90) ,// 1T2
 						0.0f,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue,					// 2T3
 						0.0f,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue,					// 3T4
-						0.0f,					m_a[2],		m_d[4],			mathLib::rad(90) ,				// 4T4'
-						mathLib::rad(90),		0.0f,		0.0f,			m_jointState[4].m_jointValue,					// 4'T5
-						mathLib::rad(-90),		0.0f,		0.0f,			mathLib::rad(-90) ,				// 5T5'
+						0.0f,					m_a[2],		m_d[4],			universalRobots::rad(90) ,				// 4T4'
+						universalRobots::rad(90),		0.0f,		0.0f,			m_jointState[4].m_jointValue,					// 4'T5
+						universalRobots::rad(-90),		0.0f,		0.0f,			universalRobots::rad(-90) ,				// 5T5'
 						0.0f,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue,					// 5'T6
 						0.0f,					0,			m_d[6],			0 ;								// 6T7
 	}
@@ -145,7 +147,7 @@ namespace universalRobots
 
 		// Determine the indiviual transformation matrices.
 		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
-			m_individualTransformationMatrices[i] = mathLib::calcTransformationMatrix(m_MDHmatrix.row(i));
+			m_individualTransformationMatrices[i] = universalRobots::calcTransformationMatrix(m_MDHmatrix.row(i));
 
 		// Determine the general transformation matrices.		
 		Eigen::Matrix3f rotationMatrix;
@@ -227,7 +229,7 @@ namespace universalRobots
 		for (unsigned int i = 0; i < m_numIkSol; i++)
 		{
 			// Computing theta5.
-			 Eigen::Matrix4f T_01 = mathLib::calcTransformationMatrix(Eigen::RowVector4f{ 0.0f, 0.0f, m_d[0], outIkSols.solutions[i][0] }); // Knowing theta1 it is possible to know 0T1
+			 Eigen::Matrix4f T_01 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f{ 0.0f, 0.0f, m_d[0], outIkSols.solutions[i][0] }); // Knowing theta1 it is possible to know 0T1
 			 Eigen::Matrix4f T_16 = T_01.inverse() * T_06; // 1T6 = 1T0 * 0T6
 			// There are two possible solutions for theta5, that depend on whether the wrist joint is up or down.
 			if (contains(kWristUpSolutionIndices, i))
@@ -249,13 +251,13 @@ namespace universalRobots
 			// Computing theta3, theta2, and theta4.
 
 			// T_45 = T_44'*T_4'5
-			 Eigen::Matrix4f T_44_ = mathLib::calcTransformationMatrix(Eigen::RowVector4f (0.0f, m_a[2], m_d[4], std::numbers::pi_v<float> / 2));
-			 Eigen::Matrix4f T_4_5 = mathLib::calcTransformationMatrix(Eigen::RowVector4f(std::numbers::pi_v<float> / 2, 0.0f, 0.0f, outIkSols.solutions[i][4]));
+			 Eigen::Matrix4f T_44_ = universalRobots::calcTransformationMatrix(Eigen::RowVector4f (0.0f, m_a[2], m_d[4], std::numbers::pi_v<float> / 2));
+			 Eigen::Matrix4f T_4_5 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(std::numbers::pi_v<float> / 2, 0.0f, 0.0f, outIkSols.solutions[i][4]));
 			 Eigen::Matrix4f T_45 = T_44_ * T_4_5;
 
 			// T_56 = T_55'*T_5'6
-			 Eigen::Matrix4f T_55_ = mathLib::calcTransformationMatrix(Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, 0.0f, -std::numbers::pi_v<float> / 2));
-			 Eigen::Matrix4f T_5_6 = mathLib::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[3], m_d[5], outIkSols.solutions[i][5]));
+			 Eigen::Matrix4f T_55_ = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, 0.0f, -std::numbers::pi_v<float> / 2));
+			 Eigen::Matrix4f T_5_6 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[3], m_d[5], outIkSols.solutions[i][5]));
 			 Eigen::Matrix4f T_56 = T_55_ * T_5_6;
 
 			 Eigen::Matrix4f T_46 = T_45 * T_56;
@@ -275,8 +277,8 @@ namespace universalRobots
 				// Computing theta2.
 				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - atan2(T_14(2, 3), T_14(0, 3)) + asin((m_a[1] * sin(-theta3_psi)) / P_14_xz);
 				// Computing theta4.
-				 Eigen::Matrix4f T_12 = mathLib::calcTransformationMatrix(Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1], outIkSols.solutions[i][1] - std::numbers::pi_v<float> / 2));
-				 Eigen::Matrix4f T_23 = mathLib::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
+				 Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1], outIkSols.solutions[i][1] - std::numbers::pi_v<float> / 2));
+				 Eigen::Matrix4f T_23 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
 				 Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
 
 				 Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
@@ -294,8 +296,8 @@ namespace universalRobots
 				// Computing theta2.
 				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - atan2(T_14(2, 3), T_14(0, 3)) + asin(m_a[1] * sin(theta3_psi) / P_14_xz);
 				// Computing theta4.
-				 Eigen::Matrix4f T_12 = mathLib::calcTransformationMatrix(Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1], outIkSols.solutions[i][1] - std::numbers::pi_v<float> / 2));
-				 Eigen::Matrix4f T_23 = mathLib::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
+				 Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1], outIkSols.solutions[i][1] - std::numbers::pi_v<float> / 2));
+				 Eigen::Matrix4f T_23 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
 				 Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
 
 				 Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
@@ -323,7 +325,7 @@ namespace universalRobots
 
 		for (unsigned int i = 0; i < m_numDoF; i++)
 		{
-			randomTargetJointValue[i] = mathLib::rad(distrib(gen));
+			randomTargetJointValue[i] = universalRobots::rad(distrib(gen));
 		}
 
 		return forwardKinematics(randomTargetJointValue);
@@ -391,11 +393,11 @@ namespace universalRobots
 			stream << "a" << i + 2 << ": " << robot.m_a[i] << std::endl;
 		stream << "Joint values (degrees):\n";
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
-			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta(i)) << std::endl;
+			stream << "Theta" << i + 1 << ": " << universalRobots::deg(robot.getTheta(i)) << std::endl;
 		stream << "Tip pose:\n";
 		const pose tipPose = robot.getTipPose();
 		stream << "x " << tipPose.m_pos[0] << " y " << tipPose.m_pos[1] << " z " << tipPose.m_pos[2] << " (meters)\nalpha "
-				<< mathLib::deg(tipPose.m_eulerAngles[0]) << " beta " << mathLib::deg(tipPose.m_eulerAngles[1]) << " gamma " << mathLib::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << std::endl;
+				<< universalRobots::deg(tipPose.m_eulerAngles[0]) << " beta " << universalRobots::deg(tipPose.m_eulerAngles[1]) << " gamma " << universalRobots::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << std::endl;
 		stream << "Individual Transformation Matrices:\n";
 		unsigned int counter = 0;
 		for (unsigned int i = 0; i < robot.m_numReferenceFrames; i++)
@@ -444,7 +446,7 @@ namespace universalRobots
 		stream << "Joint poses: {x, y, z} metres {alpha, beta, gamma} degrees\n";
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
 			stream << "J" << i + 1	<< ": {" << robot.m_jointState[i].m_jointPose.m_pos[0]  << ", " << robot.m_jointState[i].m_jointPose.m_pos[1] << ", " << robot.m_jointState[i].m_jointPose.m_pos[2] << "}"
-									<< " {" << mathLib::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[0]) << ", " << mathLib::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[1]) << ", " << mathLib::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[2]) << "}" << std::endl;
+									<< " {" << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[0]) << ", " << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[1]) << ", " << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[2]) << "}" << std::endl;
 
 		return stream;
 	}

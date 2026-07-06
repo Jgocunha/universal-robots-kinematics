@@ -1,4 +1,4 @@
-// robotParameters.h
+// robot_parameters.h
 
 #pragma once
 

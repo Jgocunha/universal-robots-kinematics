@@ -1,9 +1,11 @@
-// mathLib.cpp
+// math_utils.cpp
 
-#include "mathLib.h"
+#include "math_utils.h"
+#include <ur_kinematics/ur_kinematics.h>
+#include <numbers>
 
 
-namespace mathLib
+namespace universalRobots
 {
 	float rad(float degree)
 	{
@@ -30,4 +32,4 @@ namespace mathLib
 	}
 
 
-} //namespace mathLib
+} // namespace universalRobots

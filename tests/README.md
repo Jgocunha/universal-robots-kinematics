@@ -26,7 +26,7 @@ consumed through its public API only.
 
 **Forward kinematics** — `fk_<MODEL>_<eeTag>.json` for UR3/UR5/UR10 ×
 end-effector dimension ∈ {`d0` = 0.0 m, `d015` = 0.15 m}. Each file holds 1009 cases:
-- the `main_demo` fixture (UR5 `{23,345,78,66,77,12}`° from `Application/src/main.cpp`),
+- the `main_demo` fixture (UR5 `{23,345,78,66,77,12}`° from `apps/demo/main.cpp`),
 - hand-picked edge cases: all-zeros, all ±π/2, all ±π, and θ5 ∈ {0, ±1e-4} (near the
   wrist singularity, quirk Q3),
 - 1000 random joint vectors from `std::mt19937` seed **42**, uniform in [−2π, 2π] per joint.
