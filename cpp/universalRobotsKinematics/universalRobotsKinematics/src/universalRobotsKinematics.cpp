@@ -17,26 +17,10 @@ namespace universalRobots
 	/// <param name="endEffectorDimension"></param>
 	UR::UR(const URtype& robotType, const bool& endEffector, const float& endEffectorDimension)
 		: m_type(robotType), m_endEffector(endEffector)
-	{	
-		switch (robotType)
-		{
-		case universalRobots::URtype::UR3:
-			setTransZ(UR3_LINK_DIMENSIONS_d);
-			setTransX(UR3_LINK_DIMENSIONS_a);
-			break;
-		case universalRobots::URtype::UR5:
-			setTransZ(UR5_LINK_DIMENSIONS_d);
-			setTransX(UR5_LINK_DIMENSIONS_a);
-			break;
-		case universalRobots::URtype::UR10:
-			setTransZ(UR10_LINK_DIMENSIONS_d);
-			setTransX(UR10_LINK_DIMENSIONS_a);
-			break;
-		default:
-			setTransZ(UR10_LINK_DIMENSIONS_d);
-			setTransX(UR10_LINK_DIMENSIONS_a);
-			break;
-		}
+	{
+		const RobotParameters& params = parametersFor(robotType);
+		m_d = params.d;
+		m_a = params.a;
 
 		m_d[m_numTransZ - 1] = endEffectorDimension;
 		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_jointState[0].m_jointValue,						// 0T1
@@ -57,24 +41,6 @@ namespace universalRobots
 	void UR::setRobotType(const URtype& type)
 	{
 		m_type = type;
-	}
-
-	/// <summary>
-	/// setTransZ
-	/// </summary>
-	/// <param name="d"></param>
-	void UR::setTransZ(const float(&d)[])
-	{
-		memcpy(m_d, d, sizeof(m_d));
-	}
-	
-	/// <summary>
-	/// setTransX
-	/// </summary>
-	/// <param name="a"></param>
-	void UR::setTransX(const float(&a)[])
-	{
-		memcpy(m_a, a, sizeof(m_a));
 	}
 
 	/// <summary>
@@ -118,7 +84,7 @@ namespace universalRobots
 	/// <returns>m_d</returns>
 	const float* UR::getTransZ() const
 	{
-		return m_d;
+		return m_d.data();
 	}
 	
 	/// <summary>
@@ -127,7 +93,7 @@ namespace universalRobots
 	/// <returns>m_a</returns>
 	const float* UR::getTransX() const
 	{
-		return m_a;
+		return m_a.data();
 	}
 	
 	/// <summary>
