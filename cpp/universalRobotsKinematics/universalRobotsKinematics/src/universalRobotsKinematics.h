@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <iostream>
+#include <iosfwd>
 #include <array>
 #include <Eigen/Dense>
 #include "mathLib.h"
@@ -19,10 +19,9 @@ namespace universalRobots
 		float m_pos[3] = {}; // x y z (meters)
 		float m_eulerAngles[3] = {}; // alpha beta gamma (radians)
 
-		pose()
-			: m_pos{ 0.0f, 0.0f, 0.0f }, m_eulerAngles{ 0.0f, 0.0f, 0.0f } {}
+		pose() = default;
 
-		pose(const float& pos1, const float& pos2, const float& pos3, const float& eulerAngles1, const float& eulerAngles2, const float& eulerAngles3)
+		pose(float pos1, float pos2, float pos3, float eulerAngles1, float eulerAngles2, float eulerAngles3)
 			: m_pos{ pos1, pos2, pos3 }, m_eulerAngles{ eulerAngles1, eulerAngles2, eulerAngles3 } {}
 
 		pose(const float(&pos)[3], const float(&eulerAngles)[3])
@@ -31,7 +30,7 @@ namespace universalRobots
 		pose(const float(&pos)[3], const Eigen::Matrix3f& rotationMatrix)
 			: m_pos{ pos[0],  pos[1],  pos[2] }, m_eulerAngles{ rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(), rotationMatrix.eulerAngles(1, 2, 0).x() } {}
 
-		pose divideByConst(const float& constant) const
+		pose divideByConst(float constant) const
 		{
 			return pose(m_pos[0]/ constant, m_pos[1] / constant, m_pos[2] / constant, m_eulerAngles[0] / constant, m_eulerAngles[1] / constant, m_eulerAngles[2] / constant );
 		}
@@ -41,7 +40,7 @@ namespace universalRobots
 			return pose(m_pos[0] - other.m_pos[0], m_pos[1] - other.m_pos[1], m_pos[2] - other.m_pos[2], m_eulerAngles[0] - other.m_eulerAngles[0], m_eulerAngles[1] - other.m_eulerAngles[1], m_eulerAngles[2] - other.m_eulerAngles[2]);
 		}
 
-		pose operator/(const float& constant) const
+		pose operator/(float constant) const
 		{
 			return divideByConst(constant);
 		}
@@ -60,9 +59,6 @@ namespace universalRobots
 	{
 		pose m_jointPose = {};
 		float m_jointValue = 0.0f;
-
-		joint()
-			: m_jointPose(pose()), m_jointValue(0.0f) {}
 	};
 	
 	/// <summary>
@@ -83,7 +79,7 @@ namespace universalRobots
 		static constexpr unsigned int m_numTransZ = 7; 
 		
 		/// <summary>
-		/// Number of translations in the z-axis is always 4.
+		/// Number of translations in the x-axis is always 4.
 		/// </summary>
 		static constexpr unsigned int m_numTransX = 4;
 		
@@ -111,25 +107,6 @@ namespace universalRobots
 			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
 		};
 
-		/// <summary>
-		/// This boolean indicates whether a tool is/isnt attached to the robot.
-		/// Must be specified in the constructor, if not default is false.
-		/// </summary>
-		bool m_endEffector = false;
-
-		/// <summary>
-		/// Modified Denavit-Hartenberg parameters matrix (9x4)
-		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
-		/// </summary>
-		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_jointState[0].m_jointValue},
-																	{mathLib::rad(-90),	0,			m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90)},
-																	{0,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue},
-																	{0,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue},
-																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},
-																	{mathLib::rad(90),	0,			0,				m_jointState[4].m_jointValue},
-																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},
-																	{0,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue},
-																	{0,					0,			m_d[6],			0} };
 	private:
 
 		/// <summary>
@@ -167,26 +144,39 @@ namespace universalRobots
 		/// </summary>
 		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
 
+		/// <summary>
+		/// This boolean indicates whether a tool is/isnt attached to the robot.
+		/// Must be specified in the constructor, if not default is false.
+		/// </summary>
+		bool m_endEffector = false;
+
+		/// <summary>
+		/// Modified Denavit-Hartenberg parameters matrix (9x4)
+		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
+		/// Populated by setMDHmatrix() from the constructor.
+		/// </summary>
+		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix;
+
 	public:
-		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);
-		const URtype getRobotType() const;
+		UR(URtype robotType = UR10, bool endEffector = false, float endEffectorDimension = 0.0f);
+		URtype getRobotType() const;
 		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
 		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose);
 		pose generateRandomReachablePose();
 		[[nodiscard]] bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution) const;
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
-		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
+		friend std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type);
 	private:
 		void setMDHmatrix();
-		void setRobotType(const URtype& type);
+		void setRobotType(URtype type);
 		void setTheta(const JointVector& jointVal);
 		const float* getTransZ() const;
 		const float* getTransX() const;
-		const float getTheta(const int& ix) const;
-		const pose getTipPose() const;
+		float getTheta(int ix) const;
+		pose getTipPose() const;
 	};
 
-	std::ostream& operator <<(std::ostream& stream, const universalRobots::URtype& type);
+	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type);
 
 	std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);
 
