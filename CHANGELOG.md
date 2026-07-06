@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `.github/workflows/ci.yml` — cross-platform GitHub Actions CI: builds and runs the golden characterization suite on {ubuntu, windows, macos} × {Debug, Release} (6 jobs, `fail-fast: false`), smoke-runs `ur_app`, and caches FetchContent downloads. CI status badge added to the README.
 - `docs/REFERENCES.md` — full citations (with DOIs/links) for the literature previously vendored as PDFs under `Articles/`, plus the project dissertations, Jazar's textbook, and UR manufacturer docs.
 - `tests/` — golden characterization suite (GoogleTest via FetchContent, CTest-discovered): FK/IK/round-trip parity tests replaying frozen v1.0 reference data in `tests/golden/*.json`, a one-shot `golden_generator`, and a dependency-free JSON reader. Zero changes to library code under `cpp/`.
 - `CMakePresets.json` — `debug` and `release` presets (default generators, no toolchain files) making CMake the single, cross-platform build entry point.

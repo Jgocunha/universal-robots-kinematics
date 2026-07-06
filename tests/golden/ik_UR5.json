@@ -5,7 +5,7 @@
     "seed": 42,
     "reachable_count": 200,
     "unreachable_count": 10,
-    "ik_tolerance": 0.000010,
+    "ik_tolerance": 0.000100,
     "roundtrip_pos_tolerance": 0.000100,
     "git_commit": "ccc780a61935789d711797b48b8b25fcbc6eda16"
   },

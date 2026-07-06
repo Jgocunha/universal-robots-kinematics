@@ -1,5 +1,7 @@
 # universal-robots-kinematics
 
+[![CI](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml/badge.svg)](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml)
+
 This work was developed in the context of our MSc dissertations: *A Collaborative Work Cell to Improve Ergonomics and Productivity* by João Cunha, and *Human-Like Motion Generation through Waypoints for Collaborative Robots in Industry 4.0* by João Pereira, in which we got to work with the collaborative robotic arm **UR10 e-series**. 
 
 Before producing our kinematics solution, we conducted a comprehensive literature review on the UR robots’ kinematics (see [`docs/REFERENCES.md`](docs/REFERENCES.md)) and realised there was a lack of thorough and detailed analysis of their kinematics. Additionally, we found the [Universal Robots’ documentation](https://www.universal-robots.com/articles/ur/parameters-for-calculations-of-kinematics-and-dynamics/) confusing and unclear (at that time). 
