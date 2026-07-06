@@ -7,8 +7,6 @@
 
 namespace mathLib
 {
-	//const double PI = std::atan(1.0) * 4;
-
 	float rad(float degree);
 	float deg(float rad);
 

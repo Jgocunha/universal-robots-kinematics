@@ -1,6 +1,7 @@
 // universalRobotsKinematics.cpp
 
 #include "universalRobotsKinematics.h"
+#include <ostream>
 #include <random>
 #include <cmath>
 
@@ -363,16 +364,6 @@ namespace universalRobots
 		stream << "Translations in the x-axis (meters):\n";
 		for (unsigned int i = 0; i < robot.m_numTransX; i++)
 			stream << "a" << i + 2 << ": " << robot.m_a[i] << std::endl;
-		//stream << "Modified Denavit-Hartengerg Matrix\n";
-		//for (int x = 0; x < robot.m_numReferenceFrames; x++)  // loop lines
-		//{
-		//	for (int y = 0; y < 4; y++)  // loop columns
-		//	{
-		//		//stream << robot.getMDHmatrix()[x][y];
-		//		stream << (robot.m_MDHmatrix[x][y]) << "				";
-		//	}
-		//	stream << endl;  
-		//}
 		stream << "Joint values (degrees):\n";
 		for (unsigned int i = 0; i < robot.m_numDoF; i++)
 			stream << "Theta" << i + 1 << ": " << mathLib::deg(robot.getTheta(i)) << std::endl;

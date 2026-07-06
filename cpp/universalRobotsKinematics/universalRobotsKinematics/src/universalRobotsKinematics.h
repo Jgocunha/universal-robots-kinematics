@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <iostream>
+#include <iosfwd>
 #include <array>
 #include <Eigen/Dense>
 #include "mathLib.h"
