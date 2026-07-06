@@ -66,7 +66,7 @@ namespace universalRobots
 	/// Returns the enum URtype. Used for printing purposes.
 	/// </summary>
 	/// <returns>m_type</returns>
-	const URtype UR::getRobotType() const
+	URtype UR::getRobotType() const
 	{
 		return m_type;
 	}
@@ -93,7 +93,7 @@ namespace universalRobots
 	/// Returns the robot's current joint values. Used for printing purposes.
 	/// </summary>
 	/// <returns>m_theta</returns>
-	const float UR::getTheta(int ix) const
+	float UR::getTheta(int ix) const
 	{
 		return m_jointState[ix].m_jointValue;
 	}
@@ -102,7 +102,7 @@ namespace universalRobots
 	/// Returns the robot's current tip pose. Used for printing purposes.
 	/// </summary>
 	/// <returns>m_tipPose</returns>
-	const pose UR::getTipPose() const
+	pose UR::getTipPose() const
 	{
 		return m_jointState[m_numDoF-1].m_jointPose;
 	}

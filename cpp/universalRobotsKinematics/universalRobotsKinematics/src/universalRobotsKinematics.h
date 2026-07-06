@@ -83,7 +83,7 @@ namespace universalRobots
 		static constexpr unsigned int m_numTransZ = 7; 
 		
 		/// <summary>
-		/// Number of translations in the z-axis is always 4.
+		/// Number of translations in the x-axis is always 4.
 		/// </summary>
 		static constexpr unsigned int m_numTransX = 4;
 		
@@ -163,7 +163,7 @@ namespace universalRobots
 
 	public:
 		UR(URtype robotType = UR10, bool endEffector = false, float endEffectorDimension = 0.0f);
-		const URtype getRobotType() const;
+		URtype getRobotType() const;
 		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
 		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose);
 		pose generateRandomReachablePose();
@@ -176,8 +176,8 @@ namespace universalRobots
 		void setTheta(const JointVector& jointVal);
 		const float* getTransZ() const;
 		const float* getTransX() const;
-		const float getTheta(int ix) const;
-		const pose getTipPose() const;
+		float getTheta(int ix) const;
+		pose getTipPose() const;
 	};
 
 	std::ostream& operator <<(std::ostream& stream, universalRobots::URtype type);
