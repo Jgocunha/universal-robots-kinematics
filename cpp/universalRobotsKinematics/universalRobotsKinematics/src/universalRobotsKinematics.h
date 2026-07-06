@@ -157,16 +157,9 @@ namespace universalRobots
 		/// <summary>
 		/// Modified Denavit-Hartenberg parameters matrix (9x4)
 		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
+		/// Populated by setMDHmatrix() from the constructor.
 		/// </summary>
-		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix { {0,					0,			m_d[0],			m_jointState[0].m_jointValue},
-																	{mathLib::rad(-90),	0,			m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90)},
-																	{0,					m_a[0],		m_d[2],			m_jointState[2].m_jointValue},
-																	{0,					m_a[1],		m_d[3],			m_jointState[3].m_jointValue},
-																	{0,					m_a[2],		m_d[4],			mathLib::rad(90)},
-																	{mathLib::rad(90),	0,			0,				m_jointState[4].m_jointValue},
-																	{mathLib::rad(-90),	0,			0,				mathLib::rad(-90)},
-																	{0,					m_a[3],		m_d[5],			m_jointState[5].m_jointValue},
-																	{0,					0,			m_d[6],			0} };
+		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix;
 
 	public:
 		UR(const URtype& robotType = UR10, const bool& endEffector = false, const float& endEffectorDimension = 0.0f);

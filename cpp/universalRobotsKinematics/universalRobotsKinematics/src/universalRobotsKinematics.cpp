@@ -23,15 +23,7 @@ namespace universalRobots
 		m_a = params.a;
 
 		m_d[m_numTransZ - 1] = endEffectorDimension;
-		m_MDHmatrix <<  0.0f,				0.0f,		m_d[0],			m_jointState[0].m_jointValue,						// 0T1
-						mathLib::rad(-90),	0.0f,		m_d[1],			m_jointState[1].m_jointValue + mathLib::rad(-90) ,// 1T2
-						0.0f,				m_a[0],		m_d[2],			m_jointState[2].m_jointValue,						// 2T3
-						0.0f,				m_a[1],		m_d[3],			m_jointState[3].m_jointValue,						// 3T4
-						0.0f,				m_a[2],		m_d[4],			mathLib::rad(90) ,								// 4T4'
-						mathLib::rad(90),	0.0f,		0.0f,			m_jointState[4].m_jointValue,						// 4'T5
-						mathLib::rad(-90),	0.0f,		0.0f,			mathLib::rad(-90) ,								// 5T5'
-						0.0f,				m_a[3],		m_d[5],			m_jointState[5].m_jointValue,						// 5'T6
-						0.0f,				0,			m_d[6],			0 ;												// 6T7			
+		setMDHmatrix();
 	}
 	
 	/// <summary>
