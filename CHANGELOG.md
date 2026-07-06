@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CMakePresets.json` — `debug` and `release` presets (default generators, no toolchain files) making CMake the single, cross-platform build entry point.
 
 ### Changed
+- DH link dimensions moved from `#define UR*_LINK_DIMENSIONS_*` macros into a typed, single source of truth: `robotParameters.h` (`struct RobotParameters` + `constexpr kUR3/kUR5/kUR10` + `parametersFor()`). The `UR` constructor now copies `m_d`/`m_a` (now `std::array`) from `parametersFor(robotType)` instead of `memcpy` from macros. Values are bit-identical (same `float` literals); golden results unchanged.
 - `main.cpp` — removed the trailing `std::cin.get()` so `ur_app` runs to completion without keyboard input (required for CI smoke-running the demo). Console FK/IK output is otherwise unchanged.
 - Repository slimmed to the C++ library only. The MATLAB reference implementation, CoppeliaSim scenes/models, and `LAUNCH.md` moved to the archive repo [`Jgocunha/universal-robots-kinematics-matlab`](https://github.com/Jgocunha/universal-robots-kinematics-matlab); README updated to state the new scope and link the archive.
 - Moved `Resources/errorSolsFlow.png` → `docs/images/errorSolsFlow.png`.
