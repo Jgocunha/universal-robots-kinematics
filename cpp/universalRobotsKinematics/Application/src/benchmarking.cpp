@@ -9,7 +9,7 @@ namespace benchmark
 	{
 		std::cout << "____________________________\nBenchmarking..." << std::endl << std::endl;
 
-		float ikSols[robot.m_numIkSol][robot.m_numDoF] = {};
+		float ikSols[universalRobots::UR::m_numIkSol][universalRobots::UR::m_numDoF] = {};
 		universalRobots::pose tipPoseInput = {};
 		universalRobots::pose tipPoseOutput = {};
 		universalRobots::pose poseError = {};
