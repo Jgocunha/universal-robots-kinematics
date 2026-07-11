@@ -12,7 +12,7 @@ TEST(Sanity, HarnessLinks)
 TEST(Sanity, ForwardKinematicsRuns)
 {
 	universalRobots::UR robot(universalRobots::URtype::UR5);
-	const universalRobots::UR::JointVector zeros = { 0, 0, 0, 0, 0, 0 };
+	const universalRobots::UR::JointVector zeros = {0, 0, 0, 0, 0, 0};
 	const universalRobots::pose tip = robot.forwardKinematics(zeros);
 	// The zero-configuration tip must be finite.
 	for (float p : tip.m_pos)

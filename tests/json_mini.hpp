@@ -23,7 +23,15 @@ namespace jsonmini
 
 	struct Value
 	{
-		enum class Type { Null, Bool, Number, String, Array, Object };
+		enum class Type
+		{
+			Null,
+			Bool,
+			Number,
+			String,
+			Array,
+			Object
+		};
 
 		Type type = Type::Null;
 		bool boolean = false;
@@ -32,13 +40,34 @@ namespace jsonmini
 		std::shared_ptr<Array> array;
 		std::shared_ptr<Object> object;
 
-		bool isNull() const { return type == Type::Null; }
-		float asFloat() const { return static_cast<float>(number); }
-		double asDouble() const { return number; }
-		int asInt() const { return static_cast<int>(number); }
-		bool asBool() const { return boolean; }
-		const std::string& asString() const { return string; }
-		const Array& asArray() const { return *array; }
+		bool isNull() const
+		{
+			return type == Type::Null;
+		}
+		float asFloat() const
+		{
+			return static_cast<float>(number);
+		}
+		double asDouble() const
+		{
+			return number;
+		}
+		int asInt() const
+		{
+			return static_cast<int>(number);
+		}
+		bool asBool() const
+		{
+			return boolean;
+		}
+		const std::string& asString() const
+		{
+			return string;
+		}
+		const Array& asArray() const
+		{
+			return *array;
+		}
 
 		// Object member access by key (throws if absent).
 		const Value& operator[](const std::string& key) const
@@ -50,15 +79,23 @@ namespace jsonmini
 		}
 
 		// Array element access by index.
-		const Value& operator[](std::size_t i) const { return (*array)[i]; }
+		const Value& operator[](std::size_t i) const
+		{
+			return (*array)[i];
+		}
 
-		std::size_t size() const { return array ? array->size() : 0; }
+		std::size_t size() const
+		{
+			return array ? array->size() : 0;
+		}
 	};
 
 	class Parser
 	{
-	public:
-		explicit Parser(const std::string& text) : m_text(text) {}
+	  public:
+		explicit Parser(const std::string& text) : m_text(text)
+		{
+		}
 
 		Value parse()
 		{
@@ -70,7 +107,7 @@ namespace jsonmini
 			return v;
 		}
 
-	private:
+	  private:
 		const std::string& m_text;
 		std::size_t m_pos = 0;
 
@@ -79,8 +116,14 @@ namespace jsonmini
 			throw std::runtime_error("json_mini: parse error at " + std::to_string(m_pos) + ": " + msg);
 		}
 
-		char peek() const { return m_pos < m_text.size() ? m_text[m_pos] : '\0'; }
-		char get() { return m_text[m_pos++]; }
+		char peek() const
+		{
+			return m_pos < m_text.size() ? m_text[m_pos] : '\0';
+		}
+		char get()
+		{
+			return m_text[m_pos++];
+		}
 
 		void skipWs()
 		{
@@ -106,12 +149,19 @@ namespace jsonmini
 			skipWs();
 			switch (peek())
 			{
-			case '{': return parseObject();
-			case '[': return parseArray();
-			case '"': return parseString();
-			case 't': case 'f': return parseBool();
-			case 'n': return parseNull();
-			default:  return parseNumber();
+			case '{':
+				return parseObject();
+			case '[':
+				return parseArray();
+			case '"':
+				return parseString();
+			case 't':
+			case 'f':
+				return parseBool();
+			case 'n':
+				return parseNull();
+			default:
+				return parseNumber();
 			}
 		}
 
@@ -122,7 +172,11 @@ namespace jsonmini
 			v.object = std::make_shared<Object>();
 			expect('{');
 			skipWs();
-			if (peek() == '}') { ++m_pos; return v; }
+			if (peek() == '}')
+			{
+				++m_pos;
+				return v;
+			}
 			for (;;)
 			{
 				skipWs();
@@ -135,8 +189,10 @@ namespace jsonmini
 				v.object->emplace_back(std::move(key), std::move(val));
 				skipWs();
 				const char c = get();
-				if (c == ',') continue;
-				if (c == '}') break;
+				if (c == ',')
+					continue;
+				if (c == '}')
+					break;
 				fail("expected ',' or '}' in object");
 			}
 			return v;
@@ -149,14 +205,20 @@ namespace jsonmini
 			v.array = std::make_shared<Array>();
 			expect('[');
 			skipWs();
-			if (peek() == ']') { ++m_pos; return v; }
+			if (peek() == ']')
+			{
+				++m_pos;
+				return v;
+			}
 			for (;;)
 			{
 				v.array->push_back(parseValue());
 				skipWs();
 				const char c = get();
-				if (c == ',') continue;
-				if (c == ']') break;
+				if (c == ',')
+					continue;
+				if (c == ']')
+					break;
 				fail("expected ',' or ']' in array");
 			}
 			return v;
@@ -171,21 +233,39 @@ namespace jsonmini
 				if (m_pos >= m_text.size())
 					fail("unterminated string");
 				char c = get();
-				if (c == '"') break;
+				if (c == '"')
+					break;
 				if (c == '\\')
 				{
 					char e = get();
 					switch (e)
 					{
-					case '"':  out.push_back('"'); break;
-					case '\\': out.push_back('\\'); break;
-					case '/':  out.push_back('/'); break;
-					case 'n':  out.push_back('\n'); break;
-					case 't':  out.push_back('\t'); break;
-					case 'r':  out.push_back('\r'); break;
-					case 'b':  out.push_back('\b'); break;
-					case 'f':  out.push_back('\f'); break;
-					default:   fail("unsupported escape");
+					case '"':
+						out.push_back('"');
+						break;
+					case '\\':
+						out.push_back('\\');
+						break;
+					case '/':
+						out.push_back('/');
+						break;
+					case 'n':
+						out.push_back('\n');
+						break;
+					case 't':
+						out.push_back('\t');
+						break;
+					case 'r':
+						out.push_back('\r');
+						break;
+					case 'b':
+						out.push_back('\b');
+						break;
+					case 'f':
+						out.push_back('\f');
+						break;
+					default:
+						fail("unsupported escape");
 					}
 				}
 				else
@@ -208,9 +288,18 @@ namespace jsonmini
 		{
 			Value v;
 			v.type = Value::Type::Bool;
-			if (m_text.compare(m_pos, 4, "true") == 0) { v.boolean = true; m_pos += 4; }
-			else if (m_text.compare(m_pos, 5, "false") == 0) { v.boolean = false; m_pos += 5; }
-			else fail("invalid literal");
+			if (m_text.compare(m_pos, 4, "true") == 0)
+			{
+				v.boolean = true;
+				m_pos += 4;
+			}
+			else if (m_text.compare(m_pos, 5, "false") == 0)
+			{
+				v.boolean = false;
+				m_pos += 5;
+			}
+			else
+				fail("invalid literal");
 			return v;
 		}
 
@@ -226,14 +315,23 @@ namespace jsonmini
 		Value parseNumber()
 		{
 			const std::size_t start = m_pos;
-			if (peek() == '-') ++m_pos;
-			while (std::isdigit(static_cast<unsigned char>(peek()))) ++m_pos;
-			if (peek() == '.') { ++m_pos; while (std::isdigit(static_cast<unsigned char>(peek()))) ++m_pos; }
+			if (peek() == '-')
+				++m_pos;
+			while (std::isdigit(static_cast<unsigned char>(peek())))
+				++m_pos;
+			if (peek() == '.')
+			{
+				++m_pos;
+				while (std::isdigit(static_cast<unsigned char>(peek())))
+					++m_pos;
+			}
 			if (peek() == 'e' || peek() == 'E')
 			{
 				++m_pos;
-				if (peek() == '+' || peek() == '-') ++m_pos;
-				while (std::isdigit(static_cast<unsigned char>(peek()))) ++m_pos;
+				if (peek() == '+' || peek() == '-')
+					++m_pos;
+				while (std::isdigit(static_cast<unsigned char>(peek())))
+					++m_pos;
 			}
 			if (m_pos == start)
 				fail("invalid number");
@@ -244,5 +342,8 @@ namespace jsonmini
 		}
 	};
 
-	inline Value parse(const std::string& text) { return Parser(text).parse(); }
-}
+	inline Value parse(const std::string& text)
+	{
+		return Parser(text).parse();
+	}
+} // namespace jsonmini

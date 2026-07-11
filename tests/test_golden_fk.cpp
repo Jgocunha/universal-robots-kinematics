@@ -46,7 +46,7 @@ namespace
 				EXPECT_NEAR(tip.m_eulerAngles[i], expected[i + 3].asFloat(), tol) << "euler[" << i << "]";
 		}
 	}
-}
+} // namespace
 
 TEST(GoldenFk, AllModelsAndEndEffectors)
 {

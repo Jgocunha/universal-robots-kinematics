@@ -22,9 +22,9 @@ namespace goldencfg
 	inline const std::vector<ModelSpec>& models()
 	{
 		static const std::vector<ModelSpec> m = {
-			{ universalRobots::URtype::UR3,  "UR3"  },
-			{ universalRobots::URtype::UR5,  "UR5"  },
-			{ universalRobots::URtype::UR10, "UR10" },
+			{universalRobots::URtype::UR3, "UR3"},
+			{universalRobots::URtype::UR5, "UR5"},
+			{universalRobots::URtype::UR10, "UR10"},
 		};
 		return m;
 	}
@@ -39,8 +39,8 @@ namespace goldencfg
 	inline const std::vector<EeSpec>& endEffectorDims()
 	{
 		static const std::vector<EeSpec> e = {
-			{ 0.00f, "d0"   },
-			{ 0.15f, "d015" },
+			{0.00f, "d0"},
+			{0.15f, "d015"},
 		};
 		return e;
 	}
@@ -52,8 +52,8 @@ namespace goldencfg
 	inline constexpr int kIkUnreachableCount = 10;
 
 	// Tolerances (documented per-suite; also written into each JSON header).
-	inline constexpr double kFkTolerance = 1e-5;        // abs, meters / radians
-	inline constexpr double kIkTolerance = 1e-4;        // abs, radians per joint
+	inline constexpr double kFkTolerance = 1e-5; // abs, meters / radians
+	inline constexpr double kIkTolerance = 1e-4; // abs, radians per joint
 	// 1e-4: cross-platform float determinism floor for the 6-DOF IK chain; matches rev1/main.
 	inline constexpr double kRoundTripPosTolerance = 1e-4; // abs, meters
 
@@ -66,4 +66,4 @@ namespace goldencfg
 	{
 		return "ik_" + model + ".json";
 	}
-}
+} // namespace goldencfg
