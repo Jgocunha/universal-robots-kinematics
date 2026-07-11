@@ -4,6 +4,9 @@
 # Build directories
 build*/
 out/
+doxygen-build/
+/Doxyfile
+/.deps/
 
 # IDE / editor
 .vs/

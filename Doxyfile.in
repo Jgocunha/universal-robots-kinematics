@@ -1,0 +1,47 @@
+PROJECT_NAME           = "universal-robots-kinematics"
+PROJECT_BRIEF          = "Forward and inverse kinematics library for Universal Robots (UR3/UR5/UR10) manipulators."
+PROJECT_NUMBER         = @UR_KINEMATICS_VERSION@
+
+OUTPUT_DIRECTORY       = doxygen-build
+
+USE_MDFILE_AS_MAINPAGE = README.md
+
+PROJECT_LOGO           = docs/images/ur-kin-cpp-logo.png
+
+INPUT                  = README.md include/
+IMAGE_PATH             = docs/images
+RECURSIVE              = YES
+FILE_PATTERNS          = *.h *.hpp
+
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+HTML_OUTPUT            = html
+
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+UML_LOOK               = YES
+CALL_GRAPH             = YES
+CALLER_GRAPH           = YES
+CLASS_DIAGRAMS         = YES
+COLLABORATION_GRAPH    = YES
+
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = YES
+
+QUIET                  = NO
+WARNINGS               = YES
+
+JAVADOC_AUTOBRIEF      = NO
+QT_AUTOBRIEF           = NO
+
+BUILTIN_STL_SUPPORT    = YES
+
+SHOW_NAMESPACES        = YES
+SHOW_INCLUDE_FILES     = YES
+INLINE_SOURCES         = NO
+
+ALPHABETICAL_INDEX     = YES
