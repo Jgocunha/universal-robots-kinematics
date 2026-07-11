@@ -136,7 +136,7 @@ namespace universalRobots
 		/// </summary>
 		struct IkSolutions
 		{
-			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
+			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions = {};
 			/// false where the geometric solution does not exist
 			std::array<bool, m_numIkSol> valid = {};
 			[[nodiscard]] bool anyValid() const

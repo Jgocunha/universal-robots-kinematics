@@ -19,6 +19,7 @@ Checks: >
   clang-analyzer-*,
   performance-*,
   -performance-enum-size,
+  -performance-type-promotion-in-math-fn,
   cppcoreguidelines-*,
   -cppcoreguidelines-narrowing-conversions,
   -cppcoreguidelines-avoid-c-arrays,
@@ -56,6 +57,14 @@ Checks: >
 #   scope here (non-goal: no functional changes).
 # - performance-enum-size: URtype is a public API enum; shrinking its
 #   underlying type is an ABI-affecting change out of scope for a lint task.
+# - performance-type-promotion-in-math-fn: fires on unqualified sin/cos/atan2/asin
+#   calls throughout the IK/FK solver and calcTransformationMatrix — but only on
+#   Linux/libstdc++ (clang-tidy-18), not on the Windows/MSVC STL toolchain used to
+#   author this config, which is itself the exact kind of platform-dependent libm
+#   overload-resolution difference task 04f already had to work around. Qualifying
+#   these calls (or adding casts) to silence it risks nudging which overload gets
+#   selected on one platform vs. the other; not something to do as a drive-by lint
+#   fix without a dedicated cross-platform numerical review.
 # - cppcoreguidelines-pro-bounds-constant-array-index: fires ~74 times on
 #   ordinary compile-time-constant indexing into fixed-size DH-parameter and
 #   joint arrays (m_d[i], m_a[i], ...) — the normal, safe way to write this
