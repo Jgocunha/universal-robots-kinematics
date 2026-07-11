@@ -329,13 +329,13 @@ namespace
 		header += "    \"unreachable_count\": " + std::to_string(goldencfg::kIkUnreachableCount) + ",\n";
 		header += "    \"ik_tolerance\": " + std::to_string(goldencfg::kIkTolerance) + ",\n";
 		header += "    \"roundtrip_pos_tolerance\": " + std::to_string(goldencfg::kRoundTripPosTolerance) + ",\n";
-		header += "    \"golden_revision\": 2,\n";
+		header += "    \"golden_revision\": 3,\n";
 		header += "    \"git_commit\": \"" + std::string(GIT_COMMIT) + "\"\n";
 		header += "  },\n";
 
 		std::ofstream os(path, std::ios::binary);
 		os << header << body << "}\n";
-		std::printf("wrote %s (%d reachable + %d unreachable, rev2 with valid flags)\n",
+		std::printf("wrote %s (%d reachable + %d unreachable, rev3 with valid flags)\n",
 					path.c_str(), reach, goldencfg::kIkUnreachableCount);
 	}
 }
