@@ -1,7 +1,7 @@
 language: en-US
 
 reviews:
-  # Review all PRs automatically, including from first-time contributors
+  # Review all non-draft PRs automatically, including from first-time contributors
   auto_review:
     enabled: true
     drafts: false
