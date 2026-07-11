@@ -6,6 +6,7 @@
 #include <array>
 #include <Eigen/Dense>
 #include "robot_parameters.h"
+#include <stdexcept>
 
 namespace universalRobots
 {
@@ -109,11 +110,22 @@ namespace universalRobots
 
 		/// <summary>
 		/// The eight inverse-kinematics solutions, each a full joint vector.
-		/// Same layout/order as the historical float[8][6] out-parameter.
+		/// valid[i] is true when solution i is geometrically feasible (no NaN angles).
+		/// anyValid() returns true when at least one solution exists.
+		/// For invalid rows, angle values are NaN — old-style consumers checking
+		/// std::isnan() continue to work; valid[] is the authoritative flag.
 		/// </summary>
 		struct IkSolutions
 		{
 			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
+			/// false where the geometric solution does not exist
+			std::array<bool, m_numIkSol> valid;
+			bool anyValid() const
+			{
+				for (bool v : valid)
+					if (v) return true;
+				return false;
+			}
 		};
 
 	private:
@@ -169,8 +181,12 @@ namespace universalRobots
 	public:
 		UR(URtype robotType = UR10, bool endEffector = false, float endEffectorDimension = 0.0f);
 		URtype getRobotType() const;
+		/// Precondition: every joint value must be finite and in [-2π, 2π].
+		/// Throws std::invalid_argument otherwise.
 		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
 		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose);
+		/// Returns true iff inverseKinematics(targetPose).anyValid().
+		[[nodiscard]] bool isPoseReachable(const pose& targetPose);
 		pose generateRandomReachablePose();
 		[[nodiscard]] bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution) const;
 		friend std::ostream& operator <<(std::ostream& stream, const universalRobots::UR& robot);

@@ -24,6 +24,8 @@ namespace benchmark
 		std::chrono::duration<double, std::micro> sumFwdKin_us;
 		std::chrono::duration<double, std::micro> avgFwdKin_us;
 
+		unsigned int fkCalls = 0;
+
 		for (unsigned int i = 0; i < ITERATIONS; i++)
 		{
 			universalRobots::pose tipPoseInput = robot.generateRandomReachablePose();
@@ -37,23 +39,26 @@ namespace benchmark
 
 			for (unsigned int j = 0; j < robot.m_numIkSol; j++)
 			{
+				if (!ikSols.valid[j]) continue;
+
 				{
 					timer fkTimer;
 					tipPoseOutput = robot.forwardKinematics(ikSols.solutions[j]);
 					fwdKin_us = fkTimer.stop(); // Getting number of microseconds as a double.
 				}
+				++fkCalls;
 				sumFwdKin_us = sumFwdKin_us + fwdKin_us;
 				poseError = tipPoseInput - tipPoseOutput;
 			}
 		}
 		avgInvKin_us = sumInvKin_us / ITERATIONS;
-		avgFwdKin_us = sumFwdKin_us / (ITERATIONS * robot.m_numIkSol);
+		avgFwdKin_us = fkCalls > 0 ? sumFwdKin_us / fkCalls : std::chrono::duration<double, std::micro>::zero();
 		avgPoseError = poseError / (ITERATIONS * robot.m_numIkSol);
 
 		std::cout << "Generated " << ITERATIONS << " random valid tip poses for " << robot.getRobotType() << "..." << std::endl;
 		std::cout << "Generated eight inverse kinematic solutions for each tip pose..." << std::endl;
 		std::cout << "Average IK function execution time: " << avgInvKin_us.count() << "us" << std::endl;
-		std::cout << "Each IK sol (" << ITERATIONS * robot.m_numIkSol << ") has been run through forward kinematics..." << std::endl;
+		std::cout << "Each IK sol (" << fkCalls << ") has been run through forward kinematics..." << std::endl;
 		std::cout << "Average FK function execution time: " << avgFwdKin_us.count() << "us" << std::endl;
 		std::cout << "error = [tip_pose_input - tip_pose_output]" << std::endl;
 		std::cout << "average error = " << avgPoseError.m_pos[0] << " " << avgPoseError.m_pos[1] << " " << avgPoseError.m_pos[2] << " "

@@ -6,6 +6,9 @@
 #include <random>
 #include <cmath>
 #include <numbers>
+#include <algorithm>
+#include <limits>
+#include <stdexcept>
 
 namespace
 {
@@ -141,6 +144,16 @@ namespace universalRobots
 	/// <returns>tipPose</returns>
 	pose UR::forwardKinematics(const JointVector& targetJointVal)
 	{
+		constexpr float kTwoPi = 2.0f * std::numbers::pi_v<float>;
+		for (unsigned int i = 0; i < m_numDoF; ++i)
+		{
+			const float j = targetJointVal[i];
+			if (!std::isfinite(j))
+				throw std::invalid_argument("joint " + std::to_string(i) + " is not finite");
+			if (j < -kTwoPi || j > kTwoPi)
+				throw std::invalid_argument("joint " + std::to_string(i) + " out of range [-2pi, 2pi]");
+		}
+
 		// Assign joint values to compute MDH matrix.
 		setTheta(targetJointVal);
 		setMDHmatrix();
@@ -196,6 +209,10 @@ namespace universalRobots
 	UR::IkSolutions UR::inverseKinematics(const pose &targetTipPose)
 	{
 		IkSolutions outIkSols = {};
+		outIkSols.valid.fill(true); // start optimistic; mark false at each failed acos site
+
+		constexpr float kAcosEps = 1e-6f; // clamp when |arg| in (1, 1+eps]; invalid beyond
+		constexpr float kWristSingularityEps = 1e-3f; // |sin(theta5)| below this = theta5≈0/pi wrist singularity
 
 		Eigen::Matrix4f T_07 = Eigen::Matrix4f::Identity(); // 0T7
 
@@ -216,13 +233,25 @@ namespace universalRobots
 		const float theta1_psi = atan2(P_05(0, 1), P_05(0, 0));
 
 		// There are two possible solutions for theta1, that depend on whether the shoulder joint (joint 2) is left or right.
-		const float theta1_phi = acos( (m_d[1] + m_d[2] + m_d[3] + m_d[4]) / (sqrt( pow(P_05(0, 1), 2) + pow(P_05(0, 0), 2) ) ) );
+		// acos site 1: theta1_phi — if |arg| > 1+eps, all 8 solutions are invalid.
+		// NOTE: the domain check below uses its own copy of the acos argument rather than a
+		// shared named variable. Routing the in-domain acos() call through a materialized
+		// float intermediate (instead of the original inline expression) forces an extra
+		// float32 rounding step that, right at this near-singular domain edge (|arg|≈1, where
+		// d(acos)/dx diverges), measurably shifts the result vs the golden baseline. Keeping the
+		// acos() call on the untouched inline expression preserves bit-identical valid-row output.
+		const bool phi_inDomain = std::abs((m_d[1] + m_d[2] + m_d[3] + m_d[4]) / (sqrt( pow(P_05(0, 1), 2) + pow(P_05(0, 0), 2) ) )) <= 1.0 + kAcosEps;
+		if (!phi_inDomain)
+			outIkSols.valid.fill(false);
+		const float theta1_phi = phi_inDomain
+			? acos(std::clamp((m_d[1] + m_d[2] + m_d[3] + m_d[4]) / (sqrt( pow(P_05(0, 1), 2) + pow(P_05(0, 0), 2) ) ), -1.0, 1.0))
+			: std::numeric_limits<float>::quiet_NaN();
 
 		for (int i = -4; i < int (m_numIkSol) - 4 ; i++)
 		{
 			outIkSols.solutions[i + 4][0] = (std::numbers::pi_v<float> / 2 + theta1_psi + (i < 0 ? 1 : -1)* theta1_phi) - std::numbers::pi_v<float>; // (i < 0 ? 1 : -1) first 4 theta1 values have positive phi
 		}
-		
+
 		Eigen::Matrix4f T_06 = T_07;
 		T_06(2, 3) = T_07(2, 3) - m_d[m_numTransZ - 1]; // 0T6
 
@@ -231,11 +260,28 @@ namespace universalRobots
 			// Computing theta5.
 			 Eigen::Matrix4f T_01 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f{ 0.0f, 0.0f, m_d[0], outIkSols.solutions[i][0] }); // Knowing theta1 it is possible to know 0T1
 			 Eigen::Matrix4f T_16 = T_01.inverse() * T_06; // 1T6 = 1T0 * 0T6
-			// There are two possible solutions for theta5, that depend on whether the wrist joint is up or down.
-			if (contains(kWristUpSolutionIndices, i))
-				outIkSols.solutions[i][4] =  acos( (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5] );
+
+			// acos site 2: theta5 — if |arg| > 1+eps, solution i is invalid.
+			const float t5_arg = (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5];
+			if (std::abs(t5_arg) <= 1.0f + kAcosEps)
+			{
+				const float t5 = acos(std::clamp(t5_arg, -1.0f, 1.0f));
+				outIkSols.solutions[i][4] = contains(kWristUpSolutionIndices, i) ? t5 : -t5;
+			}
 			else
-				outIkSols.solutions[i][4] = - acos( (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5] );
+			{
+				outIkSols.solutions[i][4] = std::numeric_limits<float>::quiet_NaN();
+				outIkSols.valid[i] = false;
+			}
+
+			// theta5≈0/pi is a wrist singularity (theta3/theta4 become non-unique); handling
+			// that properly is deferred to task 04f, so such rows stay invalid here, exactly as
+			// they were before this task (they were previously NaN via the unclamped acos call).
+			if (std::abs(sin(outIkSols.solutions[i][4])) < kWristSingularityEps)
+			{
+				outIkSols.solutions[i][4] = std::numeric_limits<float>::quiet_NaN();
+				outIkSols.valid[i] = false;
+			}
 
 			// Computing theta6.
 			if (outIkSols.solutions[i][4] == 0 || outIkSols.solutions[i][4] == 2 * std::numbers::pi_v<float>) // If theta5 is equal to zero.
@@ -244,9 +290,8 @@ namespace universalRobots
 			{
 				const float sinTheta5 = sin(outIkSols.solutions[i][4]);
 				outIkSols.solutions[i][5] = std::numbers::pi_v<float> / 2 + atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
-
 			}
-				
+
 
 			// Computing theta3, theta2, and theta4.
 
@@ -264,7 +309,17 @@ namespace universalRobots
 			 Eigen::Matrix4f T_14 = T_16 * T_46.inverse();
 
 			 float P_14_xz = sqrtf( pow(T_14(0, 3), 2) + pow(T_14(2, 3), 2));
-			 float theta3_psi = acos((pow(P_14_xz, 2) - pow(m_a[1], 2) - pow(m_a[0], 2)) / (-2 * m_a[0] * m_a[1]));
+
+			// acos site 3: theta3_psi — if |arg| > 1+eps, solution i is invalid.
+			// See the site-1 note above: acos() is called on the untouched inline expression
+			// (clamped with double bounds) rather than a materialized float intermediate, to
+			// avoid an extra precision-losing rounding step right at this near-singular edge.
+			const bool psi_inDomain = std::abs((pow(P_14_xz, 2) - pow(m_a[1], 2) - pow(m_a[0], 2)) / (-2 * m_a[0] * m_a[1])) <= 1.0 + kAcosEps;
+			if (!psi_inDomain)
+				outIkSols.valid[i] = false;
+			const float theta3_psi = psi_inDomain
+				? acos(std::clamp((pow(P_14_xz, 2) - pow(m_a[1], 2) - pow(m_a[0], 2)) / (-2 * m_a[0] * m_a[1]), -1.0, 1.0))
+				: std::numeric_limits<float>::quiet_NaN();
 
 			// Elbow up or down
 			if (contains(kSecondElbowSolutionIndices, i))
@@ -308,6 +363,11 @@ namespace universalRobots
 		}
 
 		return outIkSols;
+	}
+
+	bool UR::isPoseReachable(const pose& targetPose)
+	{
+		return inverseKinematics(targetPose).anyValid();
 	}
 
 	/// <summary>
