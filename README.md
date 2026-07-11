@@ -103,6 +103,15 @@ Swap `release` for `debug` to build the debug configuration under `build/debug`.
 ctest --test-dir build/release --output-on-failure   # add -C Release on Windows/multi-config
 ```
 
+Coverage (GCC/Clang only, via `UR_KINEMATICS_COVERAGE`):
+
+```bash
+cmake -B build/coverage -DCMAKE_BUILD_TYPE=Debug -DUR_KINEMATICS_COVERAGE=ON
+cmake --build build/coverage
+ctest --test-dir build/coverage --output-on-failure
+gcovr --root . --filter 'include/.*' --filter 'src/.*' --object-directory build/coverage
+```
+
 ***
 
 ## Benchmarking
