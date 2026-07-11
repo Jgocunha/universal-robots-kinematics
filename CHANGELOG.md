@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `docs/REFERENCES.md` — full citations (with DOIs/links) for the literature previously vendored as PDFs under `Articles/`, plus the project dissertations, Jazar's textbook, and UR manufacturer docs.
 - `tests/` — golden characterization suite (GoogleTest via FetchContent, CTest-discovered): FK/IK/round-trip parity tests replaying frozen v1.0 reference data in `tests/golden/*.json`, a one-shot `golden_generator`, and a dependency-free JSON reader. Zero changes to library code under `cpp/`.
 - `CMakePresets.json` — `debug` and `release` presets (default generators, no toolchain files) making CMake the single, cross-platform build entry point.
+- `.clang-format` — Microsoft-based style (Allman braces, tab indent, 120 col) applied once to `include/ src/ apps/ tests/` in a dedicated commit (`.git-blame-ignore-revs` entry included); enforced in CI via `clang-format --dry-run -Werror`.
+- cppcheck (`--enable=warning,performance,portability --error-exitcode=1 --inline-suppr`) added to the static-analysis CI job.
+- Warnings-as-errors (`-Wall -Wextra -Wpedantic` on GCC/Clang, `/W4` on MSVC) for `ur_kinematics`, `ur_demo`, and the test executables only, via `target_compile_options` on a `project_warnings` interface target — never applied globally, so FetchContent'd Eigen/GoogleTest are unaffected.
 
 ### Changed
 - Project layout reorganized to a conventional `include/` / `src/` / `apps/` structure (behavior-preserving; golden results byte-identical): public headers live in `include/ur_kinematics/` (`ur_kinematics.h`, `robot_parameters.h`) and are consumed as `#include <ur_kinematics/ur_kinematics.h>`; the library implementation and the private `math_utils` helper (ex-`mathLib`, folded into the `universalRobots` namespace) live in `src/`; the demo app moved to `apps/demo/`. The build is now a single `ur_kinematics` static library plus the `ur_demo` executable (renamed from `ur_app`); the separate `math_lib` target and the nested `cpp/` tree are gone. The `ITERATIONS` benchmark macro became a `constexpr`. The `universalRobots` namespace is unchanged (any rename is a one-line follow-up).
@@ -21,6 +24,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Repository slimmed to the C++ library only. The MATLAB reference implementation, CoppeliaSim scenes/models, and `LAUNCH.md` moved to the archive repo [`Jgocunha/universal-robots-kinematics-matlab`](https://github.com/Jgocunha/universal-robots-kinematics-matlab); README updated to state the new scope and link the archive.
 - Moved `Resources/errorSolsFlow.png` → `docs/images/errorSolsFlow.png`.
 - `.gitignore` replaced with a proper C++/CMake/IDE ignore set (`build*/`, `out/`, `.vs/`, `.vscode/`, `*.user`, `CMakeUserPresets.json`, OS junk); `.claude/` kept ignored.
+- `.clang-tidy` reconciled from a blanket 16-category disable to a curated `bugprone-*`/`modernize-*`/`readability-*`/`performance-*`/`cppcoreguidelines-*` set: every finding is fixed in-code, `NOLINT`'d with a justification, or its check is disabled with a documented reason. The fragile IK/FK solver math (task 04f) is protected from behavior-changing tidy fixes.
+
+### Fixed
+- `IkSolutions::valid` left uninitialized when default-constructed without `= {}` (cppcheck `uninitMemberVarNoCtor`).
+- Benchmark demo: `std::chrono::duration` accumulators (`sumInvKin_us`, `sumFwdKin_us`, ...) were left uninitialized before their first `+=`, and an outer `tipPoseInput` was fully shadowed (and thus dead) by an inner loop-scoped variable of the same name — both caught by `-Wall`/`/W4` and cppcheck while wiring up warnings-as-errors.
 
 ### Removed
 - CoppeliaSim remote-API integration: `Dependencies/CoppeliaSim/`, `Application/src/coppeliasimTests.{h,cpp}`, the vendored `extApi*`/`extApiPlatform*` sources, the `WITH_COPPELIASIM` CMake option, and the `#ifdef WITH_COPPELIASIM` blocks in `main.cpp`. The simulator integration lives in the archive repo [`Jgocunha/universal-robots-kinematics-matlab`](https://github.com/Jgocunha/universal-robots-kinematics-matlab).

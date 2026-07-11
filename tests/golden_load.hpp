@@ -30,4 +30,4 @@ namespace goldenload
 	{
 		return jsonmini::parse(readFile(name));
 	}
-}
+} // namespace goldenload

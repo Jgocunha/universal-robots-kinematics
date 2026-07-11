@@ -21,8 +21,10 @@ namespace
 	universalRobots::pose poseFromArray(const jsonmini::Value& arr)
 	{
 		universalRobots::pose p;
-		for (int i = 0; i < 3; ++i) p.m_pos[i] = arr[i].asFloat();
-		for (int i = 0; i < 3; ++i) p.m_eulerAngles[i] = arr[i + 3].asFloat();
+		for (int i = 0; i < 3; ++i)
+			p.m_pos[i] = arr[i].asFloat();
+		for (int i = 0; i < 3; ++i)
+			p.m_eulerAngles[i] = arr[i + 3].asFloat();
 		return p;
 	}
 
@@ -39,7 +41,14 @@ namespace
 		// "valid" array was added in golden revision 2.
 		// Check if this is a rev-2 file by probing for the key (throws if absent).
 		bool hasValidFlags = false;
-		try { header["golden_revision"]; hasValidFlags = true; } catch (...) {}
+		try
+		{
+			header["golden_revision"];
+			hasValidFlags = true;
+		}
+		catch (...)
+		{
+		}
 
 		const jsonmini::Value& cases = doc["cases"];
 		ASSERT_GT(cases.size(), 0u);
@@ -70,17 +79,15 @@ namespace
 					const float actual = sols.solutions[s][k];
 					if (e.isNull())
 					{
-						EXPECT_TRUE(std::isnan(actual))
-							<< "sol " << s << " joint " << k << ": expected NaN";
+						EXPECT_TRUE(std::isnan(actual)) << "sol " << s << " joint " << k << ": expected NaN";
 						rowFinite = false;
 					}
 					else
 					{
-						EXPECT_FALSE(std::isnan(actual))
-							<< "sol " << s << " joint " << k << ": unexpected NaN";
-						EXPECT_NEAR(actual, e.asFloat(), ikTol)
-							<< "sol " << s << " joint " << k;
-						if (std::isnan(actual)) rowFinite = false;
+						EXPECT_FALSE(std::isnan(actual)) << "sol " << s << " joint " << k << ": unexpected NaN";
+						EXPECT_NEAR(actual, e.asFloat(), ikTol) << "sol " << s << " joint " << k;
+						if (std::isnan(actual))
+							rowFinite = false;
 					}
 				}
 
@@ -90,8 +97,7 @@ namespace
 					const jsonmini::Value& validArr = tc["valid"];
 					ASSERT_EQ(validArr.size(), 8u);
 					const bool goldenValid = validArr[static_cast<std::size_t>(s)].asBool();
-					EXPECT_EQ(sols.valid[s], goldenValid)
-						<< "sol " << s << " valid flag mismatch";
+					EXPECT_EQ(sols.valid[s], goldenValid) << "sol " << s << " valid flag mismatch";
 				}
 
 				// Round-trip only for reachable targets with a fully finite solution row.
@@ -105,7 +111,7 @@ namespace
 			}
 		}
 	}
-}
+} // namespace
 
 TEST(GoldenIk, AllModels)
 {
@@ -123,12 +129,16 @@ TEST(GoldenIk, UnreachableProducesNaN)
 	for (std::size_t c = 0; c < cases.size(); ++c)
 	{
 		const jsonmini::Value& tc = cases[c];
-		if (tc["reachable"].asBool()) continue;
+		if (tc["reachable"].asBool())
+			continue;
 		const jsonmini::Value& sols = tc["solutions"];
 		for (int s = 0; s < 8 && !sawUnreachableNaN; ++s)
 			for (int k = 0; k < 6; ++k)
-				if (sols[s][k].isNull()) { sawUnreachableNaN = true; break; }
+				if (sols[s][k].isNull())
+				{
+					sawUnreachableNaN = true;
+					break;
+				}
 	}
-	EXPECT_TRUE(sawUnreachableNaN)
-		<< "expected at least one NaN entry among unreachable UR5 targets";
+	EXPECT_TRUE(sawUnreachableNaN) << "expected at least one NaN entry among unreachable UR5 targets";
 }

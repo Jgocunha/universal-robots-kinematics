@@ -1,0 +1,12 @@
+# Base style chosen to match the existing code (Allman braces, tab indentation,
+# indented namespace bodies, left-aligned reference/pointer) as closely as
+# possible, to minimize the diff of the one-time reformat commit.
+BasedOnStyle: Microsoft
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+ColumnLimit: 120
+NamespaceIndentation: All
+PointerAlignment: Left
+ReferenceAlignment: Left
+SortIncludes: false

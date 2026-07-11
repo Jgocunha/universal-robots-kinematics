@@ -16,7 +16,23 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang clang-tidy cmake
+          sudo apt-get install -y clang clang-tidy cppcheck cmake
+          # Pin clang-format to the exact version used to author .clang-format and
+          # generate the one-time reformat commit — the distro package drifts
+          # (e.g. Ubuntu ships 18.x) and produces different line-wrapping decisions.
+          pip install --user clang-format==19.1.5
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Check formatting
+        run: |
+          clang-format --version
+          find include src apps tests \( -name '*.h' -o -name '*.hpp' -o -name '*.cpp' \) -print0 | \
+            xargs -0 clang-format --dry-run -Werror
+
+      - name: Run cppcheck
+        run: |
+          cppcheck --enable=warning,performance,portability --error-exitcode=1 \
+            --inline-suppr -I include -I src --std=c++20 --language=c++ src apps
 
       - name: Cache FetchContent dependencies
         uses: actions/cache@v4

@@ -4,6 +4,15 @@ project(universal_robots_kinematics LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Warnings-as-errors for our own targets only. Applied per-target via
+# target_compile_options (never add_compile_options), so FetchContent'd
+# dependencies (Eigen, GoogleTest) are unaffected.
+add_library(project_warnings INTERFACE)
+target_compile_options(project_warnings INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -16,6 +25,12 @@ set(EIGEN_BUILD_DOC OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING   OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(Eigen3)
 
+# Eigen's own headers trip our -Wall/-Wextra/-Wpedantic /-W4 (its CMakeLists
+# doesn't mark its include dirs SYSTEM). Re-add them as SYSTEM on our targets
+# so warnings-as-errors only applies to our own code, not template
+# instantiations that originate inside Eigen headers.
+get_target_property(EIGEN_INCLUDE_DIRS Eigen3::Eigen INTERFACE_INCLUDE_DIRECTORIES)
+
 # --- ur_kinematics: the kinematics library (public headers in include/) ----------
 add_library(ur_kinematics STATIC
     src/ur_kinematics.cpp
@@ -25,7 +40,8 @@ target_include_directories(ur_kinematics
     PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(ur_kinematics PUBLIC Eigen3::Eigen)
+target_include_directories(ur_kinematics SYSTEM PUBLIC ${EIGEN_INCLUDE_DIRS})
+target_link_libraries(ur_kinematics PUBLIC Eigen3::Eigen PRIVATE project_warnings)
 
 # --- ur_demo: the console demo application ----------------------------------------
 add_executable(ur_demo
@@ -33,7 +49,7 @@ add_executable(ur_demo
     apps/demo/benchmarking.cpp
 )
 target_include_directories(ur_demo PRIVATE apps/demo)
-target_link_libraries(ur_demo PRIVATE ur_kinematics)
+target_link_libraries(ur_demo PRIVATE ur_kinematics project_warnings)
 
 enable_testing()
 add_subdirectory(tests)

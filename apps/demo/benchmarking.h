@@ -17,13 +17,13 @@ namespace benchmark
 
 	class timer
 	{
-	private:
+	  private:
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_startTimePoint;
 		std::chrono::time_point<std::chrono::high_resolution_clock> m_endTimePoint;
-	public:
-		timer()
+
+	  public:
+		timer() : m_startTimePoint(std::chrono::high_resolution_clock::now())
 		{
-			m_startTimePoint = std::chrono::high_resolution_clock::now();
 		}
 		std::chrono::microseconds stop();
 	};

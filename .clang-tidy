@@ -1,36 +1,75 @@
-# This codebase predates clang-tidy adoption, so checks that would flag purely
-# pre-existing style (not a correctness risk) across most of the file are disabled
-# below rather than forcing a bulk unrelated rewrite. bugprone-narrowing-conversions
-# is disabled too: the flagged sites are float<->double interop inside the IK/FK
-# solver, which is fragile floating-point code (see task 04f) — not something to
-# touch casually as a side effect of a static-analysis setup change.
+# Curated check set (task 05). Every finding below is either fixed in-code,
+# NOLINT'd with a one-line justification at the call site, or its whole check
+# is disabled here with a comment explaining why re-enabling it repo-wide
+# wouldn't be worth the diff/risk. See task 05 for the reconciliation from
+# #40's blanket per-category disables to this curated list.
 Checks: >
   -*,
   bugprone-*,
-  -bugprone-easily-swappable-parameters,
-  -bugprone-branch-clone,
   -bugprone-narrowing-conversions,
   modernize-*,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
-  -modernize-use-nodiscard,
-  -modernize-return-braced-init-list,
   readability-*,
   -readability-magic-numbers,
   -readability-identifier-length,
   -readability-uppercase-literal-suffix,
   -readability-braces-around-statements,
-  -readability-static-accessed-through-instance,
   -readability-function-cognitive-complexity,
-  -readability-convert-member-functions-to-static,
-  -readability-use-anyofallof,
-  -readability-redundant-member-init,
-  -readability-implicit-bool-conversion,
   clang-analyzer-*,
   performance-*,
   -performance-enum-size,
-  -performance-avoid-endl,
-  -performance-type-promotion-in-math-fn
+  -performance-type-promotion-in-math-fn,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-avoid-c-arrays,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-pro-bounds-constant-array-index
+
+# Disabled-check rationale:
+# - {bugprone,cppcoreguidelines}-narrowing-conversions: sites are float<->double
+#   interop inside the fragile IK/FK solver (see task 04f, wrist-singularity
+#   theta5 sign flip from a sub-ULP libm difference). Not to be touched as a
+#   side effect of a lint pass; fix or NOLINT case-by-case only with a real
+#   numerical-stability review, not here.
+# - modernize-use-trailing-return-type: pure style preference, not used
+#   anywhere in this codebase; would rewrite ~40 signatures for no safety
+#   or readability gain.
+# - {modernize,cppcoreguidelines}-avoid-c-arrays: flags pose::m_pos/m_eulerAngles
+#   and the (const float(&)[3], ...) constructor params. These are public API
+#   read directly by tests/demo/benchmarking code; switching to std::array
+#   would be an API-breaking redesign, out of scope for a no-functional-change
+#   lint task.
+# - readability-magic-numbers / cppcoreguidelines-avoid-magic-numbers: this is
+#   DH-parameter and joint-index-heavy geometry code; nearly every literal
+#   would need a named constant with no real readability win.
+# - readability-identifier-length: short math-notation names (i, j, a, d, T_01,
+#   theta*, ...) are the domain convention here.
+# - readability-uppercase-literal-suffix: repo consistently uses lowercase `f`
+#   suffix (69 sites); flipping the convention is a pure-style, zero-benefit
+#   diff across the whole codebase.
+# - readability-braces-around-statements: repo convention is brace-less
+#   single-statement bodies; enabling would force braces on ~27 sites for a
+#   style preference, not a bug.
+# - readability-function-cognitive-complexity: inverseKinematics() is
+#   inherently branchy (8 IK solution branches from the geometric method);
+#   splitting it up is a real refactor with behavior-change risk, out of
+#   scope here (non-goal: no functional changes).
+# - performance-enum-size: URtype is a public API enum; shrinking its
+#   underlying type is an ABI-affecting change out of scope for a lint task.
+# - performance-type-promotion-in-math-fn: fires on unqualified sin/cos/atan2/asin
+#   calls throughout the IK/FK solver and calcTransformationMatrix — but only on
+#   Linux/libstdc++ (clang-tidy-18), not on the Windows/MSVC STL toolchain used to
+#   author this config, which is itself the exact kind of platform-dependent libm
+#   overload-resolution difference task 04f already had to work around. Qualifying
+#   these calls (or adding casts) to silence it risks nudging which overload gets
+#   selected on one platform vs. the other; not something to do as a drive-by lint
+#   fix without a dedicated cross-platform numerical review.
+# - cppcoreguidelines-pro-bounds-constant-array-index: fires ~74 times on
+#   ordinary compile-time-constant indexing into fixed-size DH-parameter and
+#   joint arrays (m_d[i], m_a[i], ...) — the normal, safe way to write this
+#   domain's code; .at() churn here adds exception-based bounds checks with
+#   no real benefit since the indices are compile-time constants.
 
 # Public library headers only; the demo app under apps/ is excluded.
 HeaderFilterRegex: 'include[/\\]ur_kinematics[/\\].*'
