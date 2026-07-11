@@ -1,0 +1,7 @@
+<map id="universalRobots::RobotParameters" name="universalRobots::RobotParameters">
+<area shape="rect" id="Node000001" title="Denavit&#45;Hartenberg link dimensions (meters) for a UR model. d &#45; z&#45;axis translations (d[6] is the end&#45;..." alt="" coords="48,133,287,199"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,156,71"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,69,138,118,134,121,100,72"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="180,5,331,71"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,72,201,121,197,118,231,69"/>
+</map>

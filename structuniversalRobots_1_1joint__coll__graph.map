@@ -1,0 +1,5 @@
+<map id="universalRobots::joint" name="universalRobots::joint">
+<area shape="rect" id="Node000001" title="Structure which holds the current value and pose of a joint." alt="" coords="7,293,163,359"/>
+<area shape="rect" id="Node000002" href="$structuniversalRobots_1_1pose.html" title="Structure which holds a pose { x y z } { alpha beta gamma }." alt="" coords="5,5,164,231"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,231,87,277,82,277,82,231"/>
+</map>

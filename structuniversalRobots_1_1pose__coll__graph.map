@@ -1,0 +1,3 @@
+<map id="universalRobots::pose" name="universalRobots::pose">
+<area shape="rect" id="Node000001" title="Structure which holds a pose { x y z } { alpha beta gamma }." alt="" coords="5,5,164,231"/>
+</map>

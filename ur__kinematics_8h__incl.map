@@ -1,0 +1,14 @@
+<map id="include/ur_kinematics/ur_kinematics.h" name="include/ur_kinematics/ur_kinematics.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="113,5,279,45"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,93,69,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,48,74,90,72,85,157,43"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="199,167,255,192"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,48,152,63,138,80,131,99,134,117,157,143,187,161,185,166,154,147,130,120,125,98,133,78,148,59,166,44"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="145,93,247,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="199,46,199,79,193,79,193,46"/>
+<area shape="rect" id="Node000005" href="$robot__parameters_8h.html" title=" " alt="" coords="271,93,422,119"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="233,43,313,84,311,89,231,48"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="446,93,533,119"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="267,43,434,87,432,92,266,48"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="329,121,260,162,257,157,326,116"/>
+</map>
