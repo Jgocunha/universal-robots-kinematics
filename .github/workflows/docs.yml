@@ -1,0 +1,37 @@
+name: Deploy Doxygen Docs
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Doxygen and Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Get version from git tag
+        run: |
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          VERSION="${TAG#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Generate Doxyfile from template
+        run: sed "s/@UR_KINEMATICS_VERSION@/$VERSION/g" Doxyfile.in > Doxyfile
+
+      - name: Generate documentation
+        run: doxygen Doxyfile
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: doxygen-build/html

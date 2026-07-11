@@ -1,9 +1,28 @@
-# universal-robots-kinematics
+![logo](docs/images/ur-kin-cpp-logo.png)
 
-![Logo](docs/images/ur-kin-cpp-logo.png)
+<h1 align="center">universal-robots-kinematics</h1>
 
+<p align="center">
+  <strong>A C++20 library for forward and inverse kinematics of Universal Robots (UR3/UR5/UR10) manipulators.</strong>
+</p>
 
-[![CI](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml/badge.svg)](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jgocunha/universal-robots-kinematics/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/static-analysis.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jgocunha/universal-robots-kinematics/static-analysis.yml?branch=main&style=flat-square&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI3Ii8%2BPGxpbmUgeDE9IjE1IiB5MT0iMTUiIHgyPSIyMSIgeTI9IjIxIi8%2BPC9zdmc%2B&logoColor=white&label=static%20analysis" alt="Static Analysis" /></a>
+  <a href="https://codecov.io/gh/Jgocunha/universal-robots-kinematics"><img src="https://img.shields.io/codecov/c/github/Jgocunha/universal-robots-kinematics?style=flat-square&logo=codecov&logoColor=white" alt="Coverage" /></a>
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/releases/latest"><img src="https://img.shields.io/github/v/release/Jgocunha/universal-robots-kinematics?style=flat-square&logo=github&logoColor=white" alt="Latest Release" /></a>
+  <a href="https://jgocunha.github.io/universal-robots-kinematics/"><img src="https://img.shields.io/badge/docs-doxygen-blue?style=flat-square&logo=readthedocs&logoColor=white" alt="Docs" /></a>
+</p>
+
+<p align="center">
+  <a href="https://en.cppreference.com/w/cpp/20"><img src="https://img.shields.io/badge/C%2B%2B-20-00599C?style=flat-square&logo=cplusplus&logoColor=white" alt="C++20" /></a>
+  <a href="https://cmake.org"><img src="https://img.shields.io/badge/CMake-3.20%2B-064F8C?style=flat-square&logo=cmake&logoColor=white" alt="CMake" /></a>
+  <img src="https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=data:image/svg%2Bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZiI%2BPHBhdGggZD0iTTAgMy40NDlMOS43NSAyLjF2OS40NTFIMG0xMC45NDktOS42MDJMMjQgMHYxMS40SDEwLjk0OU0wIDEyLjZoOS43NXY5LjQ1MUwwIDIwLjY5OU0xMC45NDkgMTIuNkgyNFYyNGwtMTIuOS0xLjgwMSIvPjwvc3ZnPg%3D%3D&logoColor=white" alt="Windows" />
+  <img src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" alt="Linux" />
+  <img src="https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white" alt="macOS" />
+</p>
+
+---
 
 This work was developed in the context of our MSc dissertations: *A Collaborative Work Cell to Improve Ergonomics and Productivity* by João Cunha, and *Human-Like Motion Generation through Waypoints for Collaborative Robots in Industry 4.0* by João Pereira, in which we got to work with the collaborative robotic arm **UR10 e-series**. 
 

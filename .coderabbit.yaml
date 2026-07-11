@@ -1,0 +1,61 @@
+language: en-US
+
+reviews:
+  # Review all non-draft PRs automatically, including from first-time contributors
+  auto_review:
+    enabled: true
+    drafts: false
+
+  # Project-specific review instructions
+  instructions: |
+    This is **universal-robots-kinematics**, a C++20 library implementing forward and
+    inverse kinematics for Universal Robots manipulators (UR3/UR5/UR10). Built with CMake
+    (FetchContent pulls Eigen and GoogleTest automatically), tested with GoogleTest.
+
+    Review every PR for the following, posting inline comments on the relevant lines:
+
+    **Code style (Clean Code)**
+    - Meaningful names: variables, functions, and types should read like prose.
+    - Small, focused functions with a single responsibility.
+    - No owning raw pointers — std::shared_ptr / std::unique_ptr only.
+    - C++20 idioms preferred (ranges, concepts, structured bindings, std::span, etc.).
+    - No comments that explain *what*; only add one if the *why* is non-obvious.
+
+    **Golden-data regression discipline**
+    - Any behavior change to forwardKinematics/inverseKinematics must regenerate the
+      golden JSON files under `tests/golden/` via `tests/golden_generator.cpp`, and the
+      generator's rev-vs-new bit-identical assertion means previously-valid rows must stay
+      bit-identical — only newly affected rows may change. Flag any golden diff that isn't
+      purely additive without an explanation in the PR.
+    - Respect the IK `valid[]` / NaN contract: invalid solutions are NaN-filled with
+      `valid[i] == false`, never silently dropped or left partially populated.
+    - `forwardKinematics` throws on non-finite joint input — flag any change that would
+      let non-finite values pass through silently instead.
+
+    **Test coverage**
+    - Any behavior or public API change needs corresponding GoogleTest coverage in `tests/`.
+    - Flag new public functions or changed behavior without tests.
+
+    **Cross-platform numerical stability**
+    - This repo has already shipped a macOS-only libm divergence fix (task 04f, wrist
+      singularity at theta5 == +-pi) caused by a sub-ULP difference between platforms
+      flipping a sign near a branch boundary. Flag any new trig/atan2/acos usage near a
+      known singularity or branch boundary that isn't guarded the same way.
+    - Prefer tolerances at the proven round-trip bound (1e-4) used by the existing golden
+      suite rather than inventing new ad hoc tolerances.
+
+    **Performance and safety**
+    - Unnecessary copies of `JointVector`, `pose`, or Eigen matrix types.
+    - Prefer `std::span` / `std::string_view` over pass-by-const-ref where applicable.
+
+  # Files to exclude from review
+  path_filters:
+    - "!build/**"
+    - "!docs/**"
+    - "!deps/**"
+    - "!**/compile_commands.json"
+    - "!CMakeCache.txt"
+    - "!**/CMakeFiles/**"
+
+chat:
+  auto_reply: true

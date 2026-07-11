@@ -58,3 +58,61 @@ jobs:
           fi
           echo "Running $BIN"
           "$BIN" < /dev/null
+
+  coverage:
+    name: coverage (ubuntu / Debug)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install gcovr
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcovr
+
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.deps
+          key: deps-coverage-ubuntu-latest-eigen-3.4.0-gtest-v1.15.2-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            deps-coverage-ubuntu-latest-
+
+      # Plain CMake configure (not the debug/release presets): coverage needs its own
+      # instrumented build directory, kept out of the ordinary build/debug|release trees.
+      - name: Configure (coverage)
+        run: |
+          cmake -S . -B build/coverage \
+                -DCMAKE_BUILD_TYPE=Debug \
+                -DCMAKE_CXX_FLAGS=--coverage \
+                -DCMAKE_EXE_LINKER_FLAGS=--coverage \
+                -D FETCHCONTENT_BASE_DIR=${{ github.workspace }}/.deps
+
+      - name: Build (coverage)
+        run: cmake --build build/coverage --parallel
+
+      - name: Test (coverage)
+        run: ctest --test-dir build/coverage --output-on-failure
+
+      - name: Generate coverage report
+        run: |
+          gcovr \
+            --root . \
+            --filter 'include/.*' --filter 'src/.*' \
+            --exclude '.*/tests/.*' \
+            --exclude '.*/apps/.*' \
+            --exclude-directories '.*_deps.*' \
+            --object-directory build/coverage \
+            --gcov-ignore-errors=no_working_dir_found \
+            --xml \
+            -o coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          flags: unittests
+          fail_ci_if_error: false

@@ -1,0 +1,41 @@
+name: Static Analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang clang-tidy cmake
+
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.deps
+          key: deps-clang-tidy-ubuntu-latest-eigen-3.4.0-gtest-v1.15.2-${{ hashFiles('**/CMakeLists.txt') }}
+          restore-keys: |
+            deps-clang-tidy-ubuntu-latest-
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+                -DCMAKE_CXX_COMPILER=clang++ \
+                -DCMAKE_C_COMPILER=clang \
+                -D FETCHCONTENT_BASE_DIR=${{ github.workspace }}/.deps
+
+      - name: Run clang-tidy
+        run: |
+          run-clang-tidy -p build \
+            $(find src apps -name '*.cpp')

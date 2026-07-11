@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+
+    env:
+      INSTALL_PREFIX: ${{ github.workspace }}/install
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Normalize paths
+        run: echo "INSTALL_PREFIX=$(echo "$INSTALL_PREFIX" | tr '\\' '/')" >> "$GITHUB_ENV"
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$INSTALL_PREFIX"
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Install
+        run: cmake --install build --config Release
+
+      - name: Create release archive
+        run: |
+          cd "$INSTALL_PREFIX"
+          7z a "$GITHUB_WORKSPACE/universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip" .
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          path: universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip
+
+  release-linux:
+    runs-on: ubuntu-latest
+
+    env:
+      INSTALL_PREFIX: ${{ github.workspace }}/install
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX
+
+      - name: Build
+        run: cmake --build build --parallel $(nproc)
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Create release archive
+        run: |
+          cd $INSTALL_PREFIX
+          tar -czf $GITHUB_WORKSPACE/universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz .
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz
+
+  release-macos:
+    runs-on: macos-latest
+
+    env:
+      INSTALL_PREFIX: ${{ github.workspace }}/install
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure CMake
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX
+
+      - name: Build
+        run: cmake --build build --parallel $(sysctl -n hw.logicalcpu)
+
+      - name: Install
+        run: cmake --install build
+
+      - name: Create release archive
+        run: |
+          cd $INSTALL_PREFIX
+          tar -czf $GITHUB_WORKSPACE/universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz .
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-arm64
+          path: universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz
+
+  # ── GitHub Release (after all builds succeed) ──────────────────────────
+  create-release:
+    needs: [release-windows, release-linux, release-macos]
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-x64
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-x64
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-arm64
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          body: |
+            ## What's included
+
+            Each archive contains the compiled kinematics library, public headers, and the
+            `ur_demo` executable.
+
+            | File | Platform |
+            |------|----------|
+            | `universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip` | Windows (x64) |
+            | `universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz` | Linux (x64) |
+            | `universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz` | macOS (Apple Silicon) |
+
+            ## Archive contents
+
+            ```
+            bin/     — ur_demo
+            lib/     — compiled ur_kinematics library
+            include/ — public headers (ur_kinematics/)
+            ```
+
+            ## Using as a library
+
+            Link against the library under `lib/` and include headers from `include/`.
+          files: |
+            universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip
+            universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz
+            universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz

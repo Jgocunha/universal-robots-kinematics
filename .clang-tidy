@@ -1,0 +1,38 @@
+# This codebase predates clang-tidy adoption, so checks that would flag purely
+# pre-existing style (not a correctness risk) across most of the file are disabled
+# below rather than forcing a bulk unrelated rewrite. bugprone-narrowing-conversions
+# is disabled too: the flagged sites are float<->double interop inside the IK/FK
+# solver, which is fragile floating-point code (see task 04f) — not something to
+# touch casually as a side effect of a static-analysis setup change.
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-branch-clone,
+  -bugprone-narrowing-conversions,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-avoid-c-arrays,
+  -modernize-use-nodiscard,
+  -modernize-return-braced-init-list,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-uppercase-literal-suffix,
+  -readability-braces-around-statements,
+  -readability-static-accessed-through-instance,
+  -readability-function-cognitive-complexity,
+  -readability-convert-member-functions-to-static,
+  -readability-use-anyofallof,
+  -readability-redundant-member-init,
+  -readability-implicit-bool-conversion,
+  clang-analyzer-*,
+  performance-*,
+  -performance-enum-size,
+  -performance-avoid-endl,
+  -performance-type-promotion-in-math-fn
+
+# Public library headers only; the demo app under apps/ is excluded.
+HeaderFilterRegex: 'include[/\\]ur_kinematics[/\\].*'
+WarningsAsErrors: '*'
+FormatStyle: none
