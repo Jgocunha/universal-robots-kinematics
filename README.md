@@ -1,5 +1,8 @@
 # universal-robots-kinematics
 
+![Logo](docs/images/ur-kin-cpp-logo.png)
+
+
 [![CI](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml/badge.svg)](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml)
 
 This work was developed in the context of our MSc dissertations: *A Collaborative Work Cell to Improve Ergonomics and Productivity* by João Cunha, and *Human-Like Motion Generation through Waypoints for Collaborative Robots in Industry 4.0* by João Pereira, in which we got to work with the collaborative robotic arm **UR10 e-series**. 
@@ -104,7 +107,7 @@ MATLAB's compute times are 10x slower than with C++, so **the C++ solution is ob
 
 To compute the average error the following flowchart was followed:
 
-![How to get the errors](docs/images/errorSolsFlow.png)
+![How to get the errors](docs/images/error-calculation.png)
 
 ||*x*|*y*|*z*|*alpha*|*beta*|*gamma*|
 |-|--|---|---|-------|------|-------|
