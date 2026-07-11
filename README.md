@@ -1,9 +1,24 @@
-# universal-robots-kinematics
+![logo](docs/images/ur-kin-cpp-logo.png)
 
-![Logo](docs/images/ur-kin-cpp-logo.png)
+<h1 align="center">universal-robots-kinematics</h1>
 
+<p align="center">
+  <strong>A C++20 library for forward and inverse kinematics of Universal Robots (UR3/UR5/UR10) manipulators.</strong>
+</p>
 
-[![CI](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml/badge.svg)](https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml)
+<p align="center">
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jgocunha/universal-robots-kinematics/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
+</p>
+
+<p align="center">
+  <a href="https://en.cppreference.com/w/cpp/20"><img src="https://img.shields.io/badge/C%2B%2B-20-00599C?style=flat-square&logo=cplusplus&logoColor=white" alt="C++20" /></a>
+  <a href="https://cmake.org"><img src="https://img.shields.io/badge/CMake-3.20%2B-064F8C?style=flat-square&logo=cmake&logoColor=white" alt="CMake" /></a>
+  <img src="https://img.shields.io/badge/Windows-0078D6?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmZiI%2BPHBhdGggZD0iTTAgMy40NDlMOS43NSAyLjF2OS40NTFIMG0xMC45NDktOS42MDJMMjQgMHYxMS40SDEwLjk0OU0wIDEyLjZoOS43NXY5LjQ1MUwwIDIwLjY5OU0xMC45NDkgMTIuNkgyNFYyNGwtMTIuOS0xLjgwMSIvPjwvc3ZnPg%3D%3D&logoColor=white" alt="Windows" />
+  <img src="https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black" alt="Linux" />
+  <img src="https://img.shields.io/badge/macOS-000000?style=flat-square&logo=apple&logoColor=white" alt="macOS" />
+</p>
+
+---
 
 This work was developed in the context of our MSc dissertations: *A Collaborative Work Cell to Improve Ergonomics and Productivity* by João Cunha, and *Human-Like Motion Generation through Waypoints for Collaborative Robots in Industry 4.0* by João Pereira, in which we got to work with the collaborative robotic arm **UR10 e-series**. 
 
