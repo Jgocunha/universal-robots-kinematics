@@ -16,7 +16,17 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang clang-tidy cmake
+          sudo apt-get install -y clang clang-tidy clang-format cppcheck cmake
+
+      - name: Check formatting
+        run: |
+          find include src apps tests -name '*.h' -o -name '*.hpp' -o -name '*.cpp' | \
+            xargs clang-format --dry-run -Werror
+
+      - name: Run cppcheck
+        run: |
+          cppcheck --enable=warning,performance,portability --error-exitcode=1 \
+            --inline-suppr -I include -I src --std=c++20 --language=c++ src apps
 
       - name: Cache FetchContent dependencies
         uses: actions/cache@v4
