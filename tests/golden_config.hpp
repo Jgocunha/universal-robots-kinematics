@@ -53,7 +53,8 @@ namespace goldencfg
 
 	// Tolerances (documented per-suite; also written into each JSON header).
 	inline constexpr double kFkTolerance = 1e-5;        // abs, meters / radians
-	inline constexpr double kIkTolerance = 1e-5;        // abs, radians per joint
+	inline constexpr double kIkTolerance = 1e-4;        // abs, radians per joint
+	// 1e-4: cross-platform float determinism floor for the 6-DOF IK chain; matches rev1/main.
 	inline constexpr double kRoundTripPosTolerance = 1e-4; // abs, meters
 
 	inline std::string fkFileName(const std::string& model, const std::string& eeTag)
