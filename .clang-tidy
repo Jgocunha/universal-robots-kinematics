@@ -1,0 +1,16 @@
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  clang-analyzer-*,
+  performance-*
+
+# Public library headers only; the demo app under apps/ is excluded.
+HeaderFilterRegex: 'include[/\\]ur_kinematics[/\\].*'
+WarningsAsErrors: '*'
+FormatStyle: none
