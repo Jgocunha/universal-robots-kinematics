@@ -212,6 +212,7 @@ namespace universalRobots
 		outIkSols.valid.fill(true); // start optimistic; mark false at each failed acos site
 
 		constexpr float kAcosEps = 1e-6f; // clamp when |arg| in (1, 1+eps]; invalid beyond
+		constexpr float kWristSingularityEps = 1e-3f; // |sin(theta5)| below this = theta5≈0/pi wrist singularity
 
 		Eigen::Matrix4f T_07 = Eigen::Matrix4f::Identity(); // 0T7
 
@@ -268,6 +269,15 @@ namespace universalRobots
 				outIkSols.solutions[i][4] = contains(kWristUpSolutionIndices, i) ? t5 : -t5;
 			}
 			else
+			{
+				outIkSols.solutions[i][4] = std::numeric_limits<float>::quiet_NaN();
+				outIkSols.valid[i] = false;
+			}
+
+			// theta5≈0/pi is a wrist singularity (theta3/theta4 become non-unique); handling
+			// that properly is deferred to task 04f, so such rows stay invalid here, exactly as
+			// they were before this task (they were previously NaN via the unclamped acos call).
+			if (std::abs(sin(outIkSols.solutions[i][4])) < kWristSingularityEps)
 			{
 				outIkSols.solutions[i][4] = std::numeric_limits<float>::quiet_NaN();
 				outIkSols.valid[i] = false;
