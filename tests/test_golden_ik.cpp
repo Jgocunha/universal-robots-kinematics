@@ -36,6 +36,11 @@ namespace
 		const double ikTol = header["ik_tolerance"].asDouble();
 		const double rtTol = header["roundtrip_pos_tolerance"].asDouble();
 
+		// "valid" array was added in golden revision 2.
+		// Check if this is a rev-2 file by probing for the key (throws if absent).
+		bool hasValidFlags = false;
+		try { header["golden_revision"]; hasValidFlags = true; } catch (...) {}
+
 		const jsonmini::Value& cases = doc["cases"];
 		ASSERT_GT(cases.size(), 0u);
 
@@ -77,6 +82,16 @@ namespace
 							<< "sol " << s << " joint " << k;
 						if (std::isnan(actual)) rowFinite = false;
 					}
+				}
+
+				// Check valid flag against golden when the file has revision-2 data.
+				if (hasValidFlags)
+				{
+					const jsonmini::Value& validArr = tc["valid"];
+					ASSERT_EQ(validArr.size(), 8u);
+					const bool goldenValid = validArr[static_cast<std::size_t>(s)].asBool();
+					EXPECT_EQ(sols.valid[s], goldenValid)
+						<< "sol " << s << " valid flag mismatch";
 				}
 
 				// Round-trip only for reachable targets with a fully finite solution row.
