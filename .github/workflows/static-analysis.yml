@@ -26,8 +26,8 @@ jobs:
       - name: Check formatting
         run: |
           clang-format --version
-          find include src apps tests -name '*.h' -o -name '*.hpp' -o -name '*.cpp' | \
-            xargs clang-format --dry-run -Werror
+          find include src apps tests \( -name '*.h' -o -name '*.hpp' -o -name '*.cpp' \) -print0 | \
+            xargs -0 clang-format --dry-run -Werror
 
       - name: Run cppcheck
         run: |
