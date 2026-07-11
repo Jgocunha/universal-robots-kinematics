@@ -8,6 +8,10 @@
 
 <p align="center">
   <a href="https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jgocunha/universal-robots-kinematics/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI" alt="CI" /></a>
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/actions/workflows/static-analysis.yml"><img src="https://img.shields.io/github/actions/workflow/status/Jgocunha/universal-robots-kinematics/static-analysis.yml?branch=main&style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSI3Ii8%2BPGxpbmUgeDE9IjE1IiB5MT0iMTUiIHgyPSIyMSIgeTI9IjIxIi8%2BPC9zdmc%2B&logoColor=white&label=static%20analysis" alt="Static Analysis" /></a>
+  <a href="https://codecov.io/gh/Jgocunha/universal-robots-kinematics"><img src="https://img.shields.io/codecov/c/github/Jgocunha/universal-robots-kinematics?style=flat-square&logo=codecov&logoColor=white" alt="Coverage" /></a>
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/releases/latest"><img src="https://img.shields.io/github/v/release/Jgocunha/universal-robots-kinematics?style=flat-square&logo=github&logoColor=white" alt="Latest Release" /></a>
+  <a href="https://jgocunha.github.io/universal-robots-kinematics/"><img src="https://img.shields.io/badge/docs-doxygen-blue?style=flat-square&logo=readthedocs&logoColor=white" alt="Docs" /></a>
 </p>
 
 <p align="center">
