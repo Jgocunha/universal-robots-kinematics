@@ -37,3 +37,13 @@ target_link_libraries(ur_demo PRIVATE ur_kinematics)
 
 enable_testing()
 add_subdirectory(tests)
+
+# --- Install rules (for packaged releases) -----------------------------------------
+include(GNUInstallDirs)
+
+install(TARGETS ur_kinematics ur_demo
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
