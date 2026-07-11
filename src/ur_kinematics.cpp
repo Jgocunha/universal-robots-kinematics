@@ -15,10 +15,7 @@ namespace
 	// Membership test for the small frame/solution index sets below.
 	template <std::size_t N> constexpr bool contains(const std::array<unsigned int, N>& set, unsigned int value)
 	{
-		for (const unsigned int element : set)
-			if (element == value)
-				return true;
-		return false;
+		return std::ranges::any_of(set, [value](unsigned int element) { return element == value; });
 	}
 
 	// Of the 9 Modified-DH reference frames, these are the ones whose general
@@ -167,7 +164,7 @@ namespace universalRobots
 		pose tipPose = {};
 		for (unsigned int i = 0; i < m_numReferenceFrames; i++)
 		{
-			if (!i)
+			if (i == 0)
 				m_generalTransformationMatrices[0] = m_individualTransformationMatrices[0];
 			else
 				m_generalTransformationMatrices[i] =
@@ -361,7 +358,7 @@ namespace universalRobots
 				// Computing theta4.
 				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
 					Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1],
-									   outIkSols.solutions[i][1] - std::numbers::pi_v<float> / 2));
+									   outIkSols.solutions[i][1] - (std::numbers::pi_v<float> / 2)));
 				Eigen::Matrix4f T_23 = universalRobots::calcTransformationMatrix(
 					Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
 				Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
@@ -384,7 +381,7 @@ namespace universalRobots
 				// Computing theta4.
 				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
 					Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1],
-									   outIkSols.solutions[i][1] - std::numbers::pi_v<float> / 2));
+									   outIkSols.solutions[i][1] - (std::numbers::pi_v<float> / 2)));
 				Eigen::Matrix4f T_23 = universalRobots::calcTransformationMatrix(
 					Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
 				Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
@@ -430,7 +427,7 @@ namespace universalRobots
 	/// </summary>
 	/// <param name="ikSolution"></param>
 	/// <returns>bool</returns>
-	bool UR::isSolutionValid(const std::array<float, m_numDoF>& ikSolution) const
+	bool UR::isSolutionValid(const std::array<float, m_numDoF>& ikSolution)
 	{
 		for (unsigned int i = 0; i < m_numDoF; i++)
 		{
@@ -474,84 +471,81 @@ namespace universalRobots
 	/// <returns>stream</returns>
 	std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot)
 	{
-		stream << "Robot type: " << robot.m_type << std::endl
-			   << "Number of DoFs: " << robot.m_numDoF << std::endl
+		stream << "Robot type: " << robot.m_type << '\n'
+			   << "Number of DoFs: " << UR::m_numDoF << '\n'
 			   << "Link dimensions\n"
 			   << "Translations in the z-axis (meters):\n";
-		for (unsigned int i = 0; i < robot.m_numTransZ; i++)
-			stream << "d" << i + 1 << ": " << robot.m_d[i] << std::endl;
+		for (unsigned int i = 0; i < UR::m_numTransZ; i++)
+			stream << "d" << i + 1 << ": " << robot.m_d[i] << '\n';
 		stream << "Translations in the x-axis (meters):\n";
-		for (unsigned int i = 0; i < robot.m_numTransX; i++)
-			stream << "a" << i + 2 << ": " << robot.m_a[i] << std::endl;
+		for (unsigned int i = 0; i < UR::m_numTransX; i++)
+			stream << "a" << i + 2 << ": " << robot.m_a[i] << '\n';
 		stream << "Joint values (degrees):\n";
-		for (unsigned int i = 0; i < robot.m_numDoF; i++)
-			stream << "Theta" << i + 1 << ": " << universalRobots::deg(robot.getTheta(i)) << std::endl;
+		for (unsigned int i = 0; i < UR::m_numDoF; i++)
+			stream << "Theta" << i + 1 << ": " << universalRobots::deg(robot.getTheta(i)) << '\n';
 		stream << "Tip pose:\n";
 		const pose tipPose = robot.getTipPose();
 		stream << "x " << tipPose.m_pos[0] << " y " << tipPose.m_pos[1] << " z " << tipPose.m_pos[2]
 			   << " (meters)\nalpha " << universalRobots::deg(tipPose.m_eulerAngles[0]) << " beta "
 			   << universalRobots::deg(tipPose.m_eulerAngles[1]) << " gamma "
-			   << universalRobots::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << std::endl;
+			   << universalRobots::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << '\n';
 		stream << "Individual Transformation Matrices:\n";
 		unsigned int counter = 0;
-		for (unsigned int i = 0; i < robot.m_numReferenceFrames; i++)
+		for (unsigned int i = 0; i < UR::m_numReferenceFrames; i++)
 		{
 			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 8)
 			{
-				stream << counter << "T" << counter + 1 << std::endl
-					   << robot.m_individualTransformationMatrices[i] << std::endl;
+				stream << counter << "T" << counter + 1 << '\n' << robot.m_individualTransformationMatrices[i] << '\n';
 				counter++;
 			}
 			else
 			{
 				if (i == 4)
-					stream << counter << "T" << counter << "'" << std::endl
-						   << robot.m_individualTransformationMatrices[i] << std::endl;
+					stream << counter << "T" << counter << "'" << '\n'
+						   << robot.m_individualTransformationMatrices[i] << '\n';
 				if (i == 5)
 				{
-					stream << counter << "'T" << counter + 1 << std::endl
-						   << robot.m_individualTransformationMatrices[i] << std::endl;
+					stream << counter << "'T" << counter + 1 << '\n'
+						   << robot.m_individualTransformationMatrices[i] << '\n';
 					counter++;
 				}
 				if (i == 6)
-					stream << counter << "T" << counter << "'" << std::endl
-						   << robot.m_individualTransformationMatrices[i] << std::endl;
+					stream << counter << "T" << counter << "'" << '\n'
+						   << robot.m_individualTransformationMatrices[i] << '\n';
 				if (i == 7)
 				{
-					stream << counter << "'T" << counter + 1 << std::endl
-						   << robot.m_individualTransformationMatrices[i] << std::endl;
+					stream << counter << "'T" << counter + 1 << '\n'
+						   << robot.m_individualTransformationMatrices[i] << '\n';
 					counter++;
 				}
 			}
 		}
 		stream << "General Transformation Matrices:\n";
 		counter = 1;
-		for (unsigned int i = 0; i < robot.m_numReferenceFrames; i++)
+		for (unsigned int i = 0; i < UR::m_numReferenceFrames; i++)
 		{
 			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7 || i == 8)
 			{
-				stream << "0T" << counter << std::endl << robot.m_generalTransformationMatrices[i] << std::endl;
+				stream << "0T" << counter << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
 				counter++;
 			}
 
 			else
 			{
 				if (i == 4)
-					stream << "0T" << counter - 1 << "'" << std::endl
-						   << robot.m_generalTransformationMatrices[i] << std::endl;
+					stream << "0T" << counter - 1 << "'" << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
 				if (i == 6)
-					stream << "0T" << counter - 1 << "'" << std::endl
-						   << robot.m_generalTransformationMatrices[i] << std::endl;
+					stream << "0T" << counter - 1 << "'" << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
 			}
 		}
 		stream << "Joint poses: {x, y, z} metres {alpha, beta, gamma} degrees\n";
-		for (unsigned int i = 0; i < robot.m_numDoF; i++)
+		for (unsigned int i = 0; i < UR::m_numDoF; i++)
 			stream << "J" << i + 1 << ": {" << robot.m_jointState[i].m_jointPose.m_pos[0] << ", "
 				   << robot.m_jointState[i].m_jointPose.m_pos[1] << ", " << robot.m_jointState[i].m_jointPose.m_pos[2]
 				   << "}"
 				   << " {" << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[0]) << ", "
 				   << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[1]) << ", "
-				   << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[2]) << "}" << std::endl;
+				   << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[2]) << "}" << '\n';
 
 		return stream;
 	}

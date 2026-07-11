@@ -4,6 +4,7 @@
 
 #include <iosfwd>
 #include <array>
+#include <algorithm>
 #include <Eigen/Dense>
 #include "robot_parameters.h"
 #include <stdexcept>
@@ -31,11 +32,17 @@ namespace universalRobots
 
 		pose() = default;
 
+		// Public constructor kept as plain positional floats to match existing call
+		// sites; splitting into named pos/euler types would be an API-breaking
+		// redesign out of scope here.
+		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 		pose(float pos1, float pos2, float pos3, float eulerAngles1, float eulerAngles2, float eulerAngles3)
 			: m_pos{pos1, pos2, pos3}, m_eulerAngles{eulerAngles1, eulerAngles2, eulerAngles3}
 		{
 		}
 
+		// Same rationale as above.
+		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 		pose(const float (&pos)[3], const float (&eulerAngles)[3])
 			: m_pos{pos[0], pos[1], pos[2]}, m_eulerAngles{eulerAngles[0], eulerAngles[1], eulerAngles[2]}
 		{
@@ -48,17 +55,20 @@ namespace universalRobots
 		{
 		}
 
-		pose divideByConst(float constant) const
+		[[nodiscard]] pose divideByConst(float constant) const
 		{
-			return pose(m_pos[0] / constant, m_pos[1] / constant, m_pos[2] / constant, m_eulerAngles[0] / constant,
-						m_eulerAngles[1] / constant, m_eulerAngles[2] / constant);
+			return {m_pos[0] / constant,		 m_pos[1] / constant,		  m_pos[2] / constant,
+					m_eulerAngles[0] / constant, m_eulerAngles[1] / constant, m_eulerAngles[2] / constant};
 		}
 
-		pose subtract(const pose& other) const
+		[[nodiscard]] pose subtract(const pose& other) const
 		{
-			return pose(m_pos[0] - other.m_pos[0], m_pos[1] - other.m_pos[1], m_pos[2] - other.m_pos[2],
-						m_eulerAngles[0] - other.m_eulerAngles[0], m_eulerAngles[1] - other.m_eulerAngles[1],
-						m_eulerAngles[2] - other.m_eulerAngles[2]);
+			return {m_pos[0] - other.m_pos[0],
+					m_pos[1] - other.m_pos[1],
+					m_pos[2] - other.m_pos[2],
+					m_eulerAngles[0] - other.m_eulerAngles[0],
+					m_eulerAngles[1] - other.m_eulerAngles[1],
+					m_eulerAngles[2] - other.m_eulerAngles[2]};
 		}
 
 		pose operator/(float constant) const
@@ -77,7 +87,7 @@ namespace universalRobots
 	/// </summary>
 	struct joint
 	{
-		pose m_jointPose = {};
+		pose m_jointPose;
 		float m_jointValue = 0.0f;
 	};
 
@@ -129,12 +139,9 @@ namespace universalRobots
 			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
 			/// false where the geometric solution does not exist
 			std::array<bool, m_numIkSol> valid;
-			bool anyValid() const
+			[[nodiscard]] bool anyValid() const
 			{
-				for (bool v : valid)
-					if (v)
-						return true;
-				return false;
+				return std::ranges::any_of(valid, [](bool isValid) { return isValid; });
 			}
 		};
 
@@ -189,7 +196,7 @@ namespace universalRobots
 
 	  public:
 		UR(URtype robotType = UR10, bool endEffector = false, float endEffectorDimension = 0.0f);
-		URtype getRobotType() const;
+		[[nodiscard]] URtype getRobotType() const;
 		/// Precondition: every joint value must be finite and in [-2π, 2π].
 		/// Throws std::invalid_argument otherwise.
 		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
@@ -197,7 +204,7 @@ namespace universalRobots
 		/// Returns true iff inverseKinematics(targetPose).anyValid().
 		[[nodiscard]] bool isPoseReachable(const pose& targetPose);
 		pose generateRandomReachablePose();
-		[[nodiscard]] bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution) const;
+		[[nodiscard]] static bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution);
 		friend std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot);
 		friend std::ostream& operator<<(std::ostream& stream, universalRobots::URtype type);
 
@@ -205,10 +212,10 @@ namespace universalRobots
 		void setMDHmatrix();
 		void setRobotType(URtype type);
 		void setTheta(const JointVector& jointVal);
-		const float* getTransZ() const;
-		const float* getTransX() const;
-		float getTheta(int ix) const;
-		pose getTipPose() const;
+		[[nodiscard]] const float* getTransZ() const;
+		[[nodiscard]] const float* getTransX() const;
+		[[nodiscard]] float getTheta(int ix) const;
+		[[nodiscard]] pose getTipPose() const;
 	};
 
 	std::ostream& operator<<(std::ostream& stream, universalRobots::URtype type);
