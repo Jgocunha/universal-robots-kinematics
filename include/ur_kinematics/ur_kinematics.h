@@ -184,8 +184,11 @@ namespace universalRobots
 		/// <summary>
 		/// This boolean indicates whether a tool is/isnt attached to the robot.
 		/// Must be specified in the constructor, if not default is false.
+		/// Currently stored but not read anywhere (endEffectorDimension alone drives
+		/// forwardKinematics); kept for API/ABI stability rather than removed, since
+		/// that's a behavior question out of scope for a lint-only change.
 		/// </summary>
-		bool m_endEffector = false;
+		[[maybe_unused]] bool m_endEffector = false;
 
 		/// <summary>
 		/// Modified Denavit-Hartenberg parameters matrix (9x4)
