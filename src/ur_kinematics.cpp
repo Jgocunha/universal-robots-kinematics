@@ -205,6 +205,15 @@ namespace universalRobots
 	/// </summary>
 	/// <param name="targetTipPose"></param>
 	/// <param name="outIkSols"></param>
+	// This geometric solver mixes double-returning math functions (acos, atan2, sqrt,
+	// pow, ...) with float state throughout; the narrowing conversions are inherent to
+	// the algorithm, not bugs (see task 04f: even seemingly-neutral rewrites here have
+	// shifted golden values via extra rounding steps near singularities), so the
+	// warning is suppressed for the whole function rather than edited away site-by-site.
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4244)
+#endif
 	UR::IkSolutions UR::inverseKinematics(const pose& targetTipPose)
 	{
 		IkSolutions outIkSols = {};
@@ -395,6 +404,9 @@ namespace universalRobots
 
 		return outIkSols;
 	}
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 	bool UR::isPoseReachable(const pose& targetPose)
 	{
@@ -416,7 +428,7 @@ namespace universalRobots
 
 		for (unsigned int i = 0; i < m_numDoF; i++)
 		{
-			randomTargetJointValue[i] = universalRobots::rad(distrib(gen));
+			randomTargetJointValue[i] = universalRobots::rad(static_cast<float>(distrib(gen)));
 		}
 
 		return forwardKinematics(randomTargetJointValue);

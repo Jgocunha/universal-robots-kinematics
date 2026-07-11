@@ -10,7 +10,6 @@ namespace benchmark
 		std::cout << "____________________________\nBenchmarking..." << '\n' << '\n';
 
 		universalRobots::UR::IkSolutions ikSols = {};
-		universalRobots::pose tipPoseInput = {};
 		universalRobots::pose tipPoseOutput = {};
 		universalRobots::pose poseError = {};
 		universalRobots::pose avgPoseError = {};

@@ -34,7 +34,7 @@ set(GOLDEN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/golden")
 # --- Golden data generator (run once; NOT registered with CTest) ------------------
 add_executable(golden_generator golden_generator.cpp)
 target_include_directories(golden_generator PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(golden_generator PRIVATE ur_kinematics)
+target_link_libraries(golden_generator PRIVATE ur_kinematics project_warnings)
 target_compile_definitions(golden_generator PRIVATE
     GOLDEN_DIR="${GOLDEN_DIR}"
     GIT_COMMIT="${GOLDEN_GIT_COMMIT}"
@@ -48,7 +48,7 @@ add_executable(ur_kinematics_tests
     test_validation.cpp
 )
 target_include_directories(ur_kinematics_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ur_kinematics_tests PRIVATE ur_kinematics GTest::gtest_main)
+target_link_libraries(ur_kinematics_tests PRIVATE ur_kinematics GTest::gtest_main project_warnings)
 target_compile_definitions(ur_kinematics_tests PRIVATE
     GOLDEN_DIR="${GOLDEN_DIR}"
 )

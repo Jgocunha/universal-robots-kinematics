@@ -138,7 +138,7 @@ namespace universalRobots
 		{
 			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions;
 			/// false where the geometric solution does not exist
-			std::array<bool, m_numIkSol> valid;
+			std::array<bool, m_numIkSol> valid = {};
 			[[nodiscard]] bool anyValid() const
 			{
 				return std::ranges::any_of(valid, [](bool isValid) { return isValid; });
@@ -215,6 +215,10 @@ namespace universalRobots
 		[[nodiscard]] const float* getTransZ() const;
 		[[nodiscard]] const float* getTransX() const;
 		[[nodiscard]] float getTheta(int ix) const;
+		// `pose` is 6 floats (24 bytes), trivially copyable; a const-reference
+		// return would couple the caller to this object's lifetime for no
+		// measurable performance win.
+		// cppcheck-suppress returnByReference
 		[[nodiscard]] pose getTipPose() const;
 	};
 
