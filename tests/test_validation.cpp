@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 #include <ur_kinematics/ur_kinematics.h>
+#include "golden_config.hpp"
 
 namespace
 {
@@ -22,9 +23,9 @@ namespace
 	universalRobots::UR::JointVector zeros() { return {}; }
 
 	// Build a clearly reachable, well-conditioned pose (all-zero joints is a theta5≈0
-	// wrist singularity for this robot's home configuration, and singular poses are
-	// correctly excluded from anyValid() — see the wrist-singularity guard in
-	// UR::inverseKinematics; that's deferred to task 04f, not a poor choice of fixture here).
+	// wrist singularity for this robot's home configuration; using a non-singular
+	// fixture here keeps these tests independent of the singularity-handling behavior
+	// covered separately below).
 	universalRobots::pose reachablePose()
 	{
 		universalRobots::UR robot;
@@ -154,4 +155,66 @@ TEST(IsPoseReachable, ReturnsFalseForUnreachable)
 	universalRobots::pose far;
 	far.m_pos[0] = 10.0f; far.m_pos[1] = 10.0f; far.m_pos[2] = 10.0f;
 	EXPECT_FALSE(robot.isPoseReachable(far));
+}
+
+// ---- Wrist singularity handling (task 04f) ----
+//
+// theta5 == 0/pi is a wrist singularity (see the convention comment in
+// UR::inverseKinematics). Before task 04f these rows were unconditionally marked
+// invalid; 04f lets the (already acos-clamped, task 04e) downstream math run instead,
+// which stays FK-consistent even this close to the singularity.
+namespace
+{
+	void expectValidRowsAreFkConsistent(universalRobots::UR& robot, const universalRobots::pose& target)
+	{
+		const auto sols = robot.inverseKinematics(target);
+		EXPECT_TRUE(sols.anyValid());
+		for (int s = 0; s < 8; ++s)
+		{
+			if (!sols.valid[s]) continue;
+			for (int k = 0; k < 6; ++k)
+				EXPECT_TRUE(std::isfinite(sols.solutions[s][k])) << "sol " << s << " joint " << k;
+
+			const universalRobots::pose fk = robot.forwardKinematics(sols.solutions[s]);
+			for (int i = 0; i < 3; ++i)
+				EXPECT_NEAR(fk.m_pos[i], target.m_pos[i], goldencfg::kRoundTripPosTolerance)
+					<< "round-trip sol " << s << " pos[" << i << "]";
+		}
+	}
+}
+
+TEST(WristSingularity, Theta5ZeroRowsAreValidAndFkConsistent)
+{
+	universalRobots::UR robot;
+	const universalRobots::pose target = robot.forwardKinematics(zeros()); // theta5 == 0
+	expectValidRowsAreFkConsistent(robot, target);
+}
+
+TEST(WristSingularity, Theta5PiRowsAreValidAndFkConsistent)
+{
+	universalRobots::UR robot;
+	const universalRobots::UR::JointVector joints{ kPi, kPi, kPi, kPi, kPi, kPi }; // theta5 == pi
+	const universalRobots::pose target = robot.forwardKinematics(joints);
+	expectValidRowsAreFkConsistent(robot, target);
+}
+
+TEST(WristSingularity, ConventionIsDeterministic)
+{
+	universalRobots::UR robot;
+	const universalRobots::pose target = robot.forwardKinematics(zeros());
+	const auto sols1 = robot.inverseKinematics(target);
+	const auto sols2 = robot.inverseKinematics(target);
+	for (int s = 0; s < 8; ++s)
+	{
+		EXPECT_EQ(sols1.valid[s], sols2.valid[s]) << "sol " << s;
+		for (int k = 0; k < 6; ++k)
+		{
+			const float a = sols1.solutions[s][k];
+			const float b = sols2.solutions[s][k];
+			if (std::isnan(a) || std::isnan(b))
+				EXPECT_TRUE(std::isnan(a) && std::isnan(b)) << "sol " << s << " joint " << k;
+			else
+				EXPECT_EQ(a, b) << "sol " << s << " joint " << k;
+		}
+	}
 }
