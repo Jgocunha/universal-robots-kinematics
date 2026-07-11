@@ -276,18 +276,28 @@ namespace universalRobots
 			// theta5==0/pi is a wrist singularity: the joint-6 axis becomes (anti)parallel to
 			// the joint-4 axis, so theta6 alone is underdetermined (the atan2 below divides by
 			// sin(theta5)==0) while theta1..theta5 stay uniquely determined by the target pose.
-			// Convention (task 04f): pin theta6 = 0 only at the exact singularity (sin(theta5) is
-			// literally 0, which would otherwise be a 0/0 division); theta3/theta2/theta4 are then
-			// solved consistently for that choice downstream via T_46. Away from the exact
+			// Convention (task 04f): pin theta6 = 0 at the singularity; theta3/theta2/theta4 are
+			// then solved consistently for that choice downstream via T_46. Away from the
 			// singularity the ordinary formula below remains numerically well-conditioned (the
 			// division is by a small but genuine, non-zero denominator) and is used unchanged.
+			//
+			// theta5 == +pi and theta5 == -pi are the *same* physical angle, so right at this
+			// singularity a sub-ULP difference in acos()/sin() between platforms/compilers can
+			// flip which side of pi is computed, flipping the sign of sin(theta5) and sending the
+			// formula below to a different branch entirely (observed: macOS libm vs Windows/Linux
+			// on this exact case). kPiSingularityEps guards the pi branch specifically — it must
+			// stay well below reachable-but-non-singular theta5 values (empirically ~1e-3 rad in
+			// the golden set) so it does not also swallow those.
+			constexpr float kPiSingularityEps = 1e-4f;
+			const float theta5 = outIkSols.solutions[i][4];
+			const bool nearPiSingularity = std::abs(std::abs(theta5) - std::numbers::pi_v<float>) < kPiSingularityEps;
 
 			// Computing theta6.
-			if (outIkSols.solutions[i][4] == 0 || outIkSols.solutions[i][4] == 2 * std::numbers::pi_v<float>) // If theta5 is equal to zero.
+			if (theta5 == 0 || theta5 == 2 * std::numbers::pi_v<float> || nearPiSingularity) // If theta5 is at the singularity (0 or +-pi).
 				outIkSols.solutions[i][5] = 0.0f; // Wrist singularity: theta6 pinned to 0 by convention.
 			else
 			{
-				const float sinTheta5 = sin(outIkSols.solutions[i][4]);
+				const float sinTheta5 = sin(theta5);
 				outIkSols.solutions[i][5] = std::numbers::pi_v<float> / 2 + atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
 			}
 
