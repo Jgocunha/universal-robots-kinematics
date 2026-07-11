@@ -45,6 +45,7 @@ add_executable(ur_kinematics_tests
     test_sanity.cpp
     test_golden_fk.cpp
     test_golden_ik.cpp
+    test_validation.cpp
 )
 target_include_directories(ur_kinematics_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ur_kinematics_tests PRIVATE ur_kinematics GTest::gtest_main)
