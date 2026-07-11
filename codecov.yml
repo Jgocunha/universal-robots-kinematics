@@ -1,0 +1,27 @@
+# Codecov configuration — scope the coverage figure to the testable core library.
+
+coverage:
+  precision: 2
+  round: down
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        informational: true
+
+# Paths that must not count against coverage:
+# - apps/  : the demo/benchmarking executable, not unit-testable by design
+# - tests/ : the test code itself (also excluded in the gcovr step)
+ignore:
+  - "apps/**"
+  - "**/apps/**"
+  - "tests/**"
+  - "**/tests/**"
+
+comment:
+  layout: "condensed_header, diff"
+  behavior: default
+  require_changes: false
