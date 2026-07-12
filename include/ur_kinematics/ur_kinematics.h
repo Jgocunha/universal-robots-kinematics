@@ -12,19 +12,13 @@
 namespace universalRobots
 {
 
-	/// <summary>
-	/// Converts an angle in degrees to radians.
-	/// </summary>
+	/** @brief Converts an angle in degrees to radians. */
 	float rad(float degree);
 
-	/// <summary>
-	/// Converts an angle in radians to degrees.
-	/// </summary>
+	/** @brief Converts an angle in radians to degrees. */
 	float deg(float rad);
 
-	/// <summary>
-	/// Structure which holds a pose { x y z } { alpha beta gamma }
-	/// </summary>
+	/** @brief Structure which holds a pose { x y z } { alpha beta gamma } */
 	struct pose
 	{
 		float m_pos[3] = {};		 // x y z (meters)
@@ -82,58 +76,44 @@ namespace universalRobots
 		}
 	};
 
-	/// <summary>
-	/// Structure which holds the current value and pose of a joint.
-	/// </summary>
+	/** @brief Structure which holds the current value and pose of a joint. */
 	struct joint
 	{
 		pose m_jointPose;
 		float m_jointValue = 0.0f;
 	};
 
-	/// <summary>
-	/// Implements 'UR robot type' object.
-	/// </summary>
+	/** @brief Implements 'UR robot type' object. */
 	class UR
 	{
 	  public:
-		/// <summary>
-		/// Number of Degrees of Freedom is always 6 for all URs.
-		/// </summary>
+		/** @brief Number of Degrees of Freedom is always 6 for all URs. */
 		static constexpr unsigned int m_numDoF = 6;
 
-		/// <summary>
-		/// Number of translations in the z-axis is always 7 (this includes a translation for the end-effector).
-		/// </summary>
+		/** @brief Number of translations in the z-axis is always 7 (this includes a translation for the end-effector).
+		 */
 		static constexpr unsigned int m_numTransZ = 7;
 
-		/// <summary>
-		/// Number of translations in the x-axis is always 4.
-		/// </summary>
+		/** @brief Number of translations in the x-axis is always 4. */
 		static constexpr unsigned int m_numTransX = 4;
 
-		/// <summary>
-		/// Number of frames is pre-defined (according to the MDH convention it is 9).
-		/// </summary>
+		/** @brief Number of frames is pre-defined (according to the MDH convention it is 9). */
 		static constexpr unsigned int m_numReferenceFrames = 9;
 
-		/// <summary>
-		/// Number of inverse kinematics solutions for a UR is 8.
-		/// </summary>
+		/** @brief Number of inverse kinematics solutions for a UR is 8. */
 		static constexpr unsigned int m_numIkSol = 8;
 
-		/// <summary>
-		/// Six joint angles (radians), in joint order 1..6.
-		/// </summary>
+		/** @brief Six joint angles (radians), in joint order 1..6. */
 		using JointVector = std::array<float, m_numDoF>;
 
-		/// <summary>
-		/// The eight inverse-kinematics solutions, each a full joint vector.
-		/// valid[i] is true when solution i is geometrically feasible (no NaN angles).
-		/// anyValid() returns true when at least one solution exists.
-		/// For invalid rows, angle values are NaN — old-style consumers checking
-		/// std::isnan() continue to work; valid[] is the authoritative flag.
-		/// </summary>
+		/**
+		 * @brief The eight inverse-kinematics solutions, each a full joint vector.
+		 *
+		 * valid[i] is true when solution i is geometrically feasible (no NaN angles).
+		 * anyValid() returns true when at least one solution exists.
+		 * For invalid rows, angle values are NaN — old-style consumers checking
+		 * std::isnan() continue to work; valid[] is the authoritative flag.
+		 */
 		struct IkSolutions
 		{
 			std::array<std::array<float, m_numDoF>, m_numIkSol> solutions = {};
@@ -146,55 +126,51 @@ namespace universalRobots
 		};
 
 	  private:
-		/// <summary>
-		/// Robot type/name UR 3, 5, or 10.
-		/// </summary>
-		/// <returns>0, 1, 2</returns>
+		/** @brief Robot type/name UR 3, 5, or 10. Values: 0, 1, 2. */
 		URtype m_type = UR10;
 
-		/// <summary>
-		/// d - translation (meters) in the z-axis (the last translation d[6] is for an end-effector).
-		/// d_i is a nomeclature convention.
-		/// </summary>
+		/**
+		 * @brief d - translation (meters) in the z-axis (the last translation d[6] is for an end-effector).
+		 *
+		 * d_i is a nomeclature convention.
+		 */
 		std::array<float, m_numTransZ> m_d = kUR10.d;
 
-		/// <summary>
-		/// a - translation (meters) in the x-axis.
-		/// a_i is a nomeclature convention.
-		/// </summary>
+		/**
+		 * @brief a - translation (meters) in the x-axis.
+		 *
+		 * a_i is a nomeclature convention.
+		 */
 		std::array<float, m_numTransX> m_a = kUR10.a;
 
-		/// <summary>
-		/// Position, Euler Angles, and Value of the robot's joints. {x, y, z} {alpha, beta, gamma} {jointValue}
-		/// </summary>
+		/** @brief Position, Euler Angles, and Value of the robot's joints. {x, y, z} {alpha, beta, gamma} {jointValue}
+		 */
 		joint m_jointState[m_numDoF] = {};
 
 		// Create an array of (individual) transformation matrices iTi+1 / i-1Ti
 
-		/// <summary>
-		/// Array of (individual) transformation matrices iTi+1 / i-1Ti
-		/// </summary>
+		/** @brief Array of (individual) transformation matrices iTi+1 / i-1Ti */
 		Eigen::Matrix4f m_individualTransformationMatrices[m_numReferenceFrames] = {};
 
-		/// <summary>
-		/// Array of (general) transformation matrices 0Ti
-		/// </summary>
+		/** @brief Array of (general) transformation matrices 0Ti */
 		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
 
-		/// <summary>
-		/// This boolean indicates whether a tool is/isnt attached to the robot.
-		/// Must be specified in the constructor, if not default is false.
-		/// Currently stored but not read anywhere (endEffectorDimension alone drives
-		/// forwardKinematics); kept for API/ABI stability rather than removed, since
-		/// that's a behavior question out of scope for a lint-only change.
-		/// </summary>
+		/**
+		 * @brief This boolean indicates whether a tool is/isnt attached to the robot.
+		 *
+		 * Must be specified in the constructor, if not default is false.
+		 * Currently stored but not read anywhere (endEffectorDimension alone drives
+		 * forwardKinematics); kept for API/ABI stability rather than removed, since
+		 * that's a behavior question out of scope for a lint-only change.
+		 */
 		[[maybe_unused]] bool m_endEffector = false;
 
-		/// <summary>
-		/// Modified Denavit-Hartenberg parameters matrix (9x4)
-		/// { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
-		/// Populated by setMDHmatrix() from the constructor.
-		/// </summary>
+		/**
+		 * @brief Modified Denavit-Hartenberg parameters matrix (9x4)
+		 * { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
+		 *
+		 * Populated by setMDHmatrix() from the constructor.
+		 */
 		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix;
 
 	  public:
