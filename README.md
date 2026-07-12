@@ -12,6 +12,7 @@
   <a href="https://codecov.io/gh/Jgocunha/universal-robots-kinematics"><img src="https://img.shields.io/codecov/c/github/Jgocunha/universal-robots-kinematics?style=flat-square&logo=codecov&logoColor=white" alt="Coverage" /></a>
   <a href="https://github.com/Jgocunha/universal-robots-kinematics/releases/latest"><img src="https://img.shields.io/github/v/release/Jgocunha/universal-robots-kinematics?style=flat-square&logo=github&logoColor=white" alt="Latest Release" /></a>
   <a href="https://jgocunha.github.io/universal-robots-kinematics/"><img src="https://img.shields.io/badge/docs-doxygen-blue?style=flat-square&logo=readthedocs&logoColor=white" alt="Docs" /></a>
+  <a href="https://github.com/Jgocunha/universal-robots-kinematics/wiki"><img src="https://img.shields.io/badge/docs-wiki-blue?style=flat-square&logo=githubpages&logoColor=white" alt="Wiki" /></a>
 </p>
 
 <p align="center">
