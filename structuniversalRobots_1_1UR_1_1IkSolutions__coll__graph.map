@@ -1,5 +1,5 @@
 <map id="universalRobots::UR::IkSolutions" name="universalRobots::UR::IkSolutions">
-<area shape="rect" id="Node000001" title="The eight inverse&#45;kinematics solutions, each a full joint vector. valid[i] is true when solution i is..." alt="" coords="111,163,258,243"/>
+<area shape="rect" id="Node000001" title="The eight inverse&#45;kinematics solutions, each a full joint vector." alt="" coords="111,163,258,243"/>
 <area shape="rect" id="Node000002" title=" " alt="" coords="5,5,183,100"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,99,154,147,150,150,120,102"/>
 <area shape="rect" id="Node000003" title=" " alt="" coords="207,13,347,93"/>

@@ -11,7 +11,7 @@
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:title="Denavit&#45;Hartenberg link dimensions (meters) for a UR model. d &#45; z&#45;axis translations (d[6] is the end&#45;...">
+<g id="a_Node000001"><a xlink:title="Denavit&#45;Hartenberg link dimensions (meters) for a UR model.">
 <polygon fill="#999999" stroke="transparent" points="211,-49 32,-49 32,0 211,0 211,-49"/>
 <text text-anchor="start" x="37.5" y="-36.5" font-family="Helvetica,sans-Serif" font-size="10.00">universalRobots::RobotParameters</text>
 <text text-anchor="start" x="70.5" y="-21.5" font-family="Helvetica,sans-Serif" font-size="10.00">+</text>

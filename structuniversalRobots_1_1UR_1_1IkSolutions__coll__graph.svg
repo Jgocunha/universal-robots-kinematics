@@ -11,7 +11,7 @@
 <!-- Node1 -->
 <g id="Node000001" class="node">
 <title>Node1</title>
-<g id="a_Node000001"><a xlink:title="The eight inverse&#45;kinematics solutions, each a full joint vector. valid[i] is true when solution i is...">
+<g id="a_Node000001"><a xlink:title="The eight inverse&#45;kinematics solutions, each a full joint vector.">
 <polygon fill="#999999" stroke="transparent" points="189.5,-60 79.5,-60 79.5,0 189.5,0 189.5,-60"/>
 <text text-anchor="start" x="84.5" y="-48" font-family="Helvetica,sans-Serif" font-size="10.00">universalRobots::UR</text>
 <text text-anchor="start" x="104" y="-37" font-family="Helvetica,sans-Serif" font-size="10.00">::IkSolutions</text>
