@@ -6,6 +6,8 @@
 
 #include <ur_kinematics/robot_parameters.h>
 
+#include "test_baseline_params.hpp"
+
 namespace
 {
 	void expectParams(const universalRobots::RobotParameters& p, universalRobots::URtype type,
@@ -21,21 +23,17 @@ namespace
 
 TEST(RobotParameters, UR3MatchesBaseline)
 {
-	expectParams(universalRobots::kUR3, universalRobots::UR3, {0.1089f, 0.1115f, 0.0f, 0.0f, 0.0007f, 0.0818f, 0.0f},
-				 {0.2437f, 0.2132f, 0.0842f, 0.0011f});
+	expectParams(universalRobots::kUR3, universalRobots::UR3, baselineParams::kUR3.d, baselineParams::kUR3.a);
 }
 
 TEST(RobotParameters, UR5MatchesBaseline)
 {
-	expectParams(universalRobots::kUR5, universalRobots::UR5, {0.0746f, 0.0703f, 0.0f, 0.0f, 0.0397f, 0.0829f, 0.0f},
-				 {0.4251f, 0.3922f, 0.0456f, 0.0492f});
+	expectParams(universalRobots::kUR5, universalRobots::UR5, baselineParams::kUR5.d, baselineParams::kUR5.a);
 }
 
 TEST(RobotParameters, UR10MatchesBaseline)
 {
-	expectParams(universalRobots::kUR10, universalRobots::UR10,
-				 {0.109f, 0.10122f, 0.01945f, -0.00661f, 0.0584f, 0.09372f, 0.0f},
-				 {0.6121f, 0.5722f, 0.0573f, 0.0584f});
+	expectParams(universalRobots::kUR10, universalRobots::UR10, baselineParams::kUR10.d, baselineParams::kUR10.a);
 }
 
 TEST(RobotParameters, ParametersForDispatchesByType)
