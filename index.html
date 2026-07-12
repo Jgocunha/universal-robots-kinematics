@@ -144,6 +144,11 @@ Building</h2>
 <h3><a class="anchor" id="autotoc_md7"></a>
 Tests</h3>
 <div class="fragment"><div class="line">ctest --test-dir build/release --output-on-failure   # add -C Release on Windows/multi-config</div>
+</div><!-- fragment --><p>Coverage (GCC/Clang only, via <code>UR_KINEMATICS_COVERAGE</code>):</p>
+<div class="fragment"><div class="line">cmake -B build/coverage -DCMAKE_BUILD_TYPE=Debug -DUR_KINEMATICS_COVERAGE=ON</div>
+<div class="line">cmake --build build/coverage</div>
+<div class="line">ctest --test-dir build/coverage --output-on-failure</div>
+<div class="line">gcovr --root . --filter &#39;include/.*&#39; --filter &#39;src/.*&#39; --object-directory build/coverage</div>
 </div><!-- fragment --><hr  />
 <h2><a class="anchor" id="autotoc_md8"></a>
 Benchmarking</h2>
