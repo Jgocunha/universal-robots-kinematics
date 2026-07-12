@@ -7,9 +7,7 @@
 namespace universalRobots
 {
 
-	/// <summary> URtype
-	/// Different types of URs.
-	/// </summary>
+	/** @brief Different types of URs. */
 	enum URtype : unsigned int
 	{
 		UR3,
@@ -17,10 +15,11 @@ namespace universalRobots
 		UR10 // 0, 1, 2
 	};
 
-	/// <summary>
-	/// Denavit-Hartenberg link dimensions (meters) for a UR model.
-	/// d - z-axis translations (d[6] is the end-effector slot); a - x-axis translations.
-	/// </summary>
+	/**
+	 * @brief Denavit-Hartenberg link dimensions (meters) for a UR model.
+	 *
+	 * d - z-axis translations (d[6] is the end-effector slot); a - x-axis translations.
+	 */
 	struct RobotParameters
 	{
 		URtype type;
@@ -38,9 +37,7 @@ namespace universalRobots
 										   .d = {0.109f, 0.10122f, 0.01945f, -0.00661f, 0.0584f, 0.09372f, 0.0f},
 										   .a = {0.6121f, 0.5722f, 0.0573f, 0.0584f}};
 
-	/// <summary>
-	/// Returns the DH parameters for a given UR model. Unknown values fall back to UR10.
-	/// </summary>
+	/** @brief Returns the DH parameters for a given UR model. Unknown values fall back to UR10. */
 	constexpr const RobotParameters& parametersFor(const URtype type)
 	{
 		switch (type)
