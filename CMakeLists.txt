@@ -35,6 +35,13 @@ set(EIGEN_BUILD_DOC OFF CACHE BOOL "" FORCE)
 set(BUILD_TESTING   OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(Eigen3)
 
+# Eigen has no install-toggle option of its own; exclude its subdirectory from the
+# default build/install so `cmake --install` doesn't ship its headers and CMake
+# package config alongside our own release archives. Eigen3::Eigen is header-only
+# (INTERFACE), so this only suppresses Eigen's own all-target/install() rules -- it
+# does not affect our usage of it (re-added as SYSTEM include dirs below).
+set_property(DIRECTORY ${eigen3_SOURCE_DIR} PROPERTY EXCLUDE_FROM_ALL TRUE)
+
 # Eigen's own headers trip our -Wall/-Wextra/-Wpedantic /-W4 (its CMakeLists
 # doesn't mark its include dirs SYSTEM). Re-add them as SYSTEM on our targets
 # so warnings-as-errors only applies to our own code, not template
