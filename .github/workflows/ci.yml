@@ -82,12 +82,14 @@ jobs:
 
       # Plain CMake configure (not the debug/release presets): coverage needs its own
       # instrumented build directory, kept out of the ordinary build/debug|release trees.
+      # UR_KINEMATICS_COVERAGE scopes --coverage to ur_kinematics + its test suite only
+      # (see project_coverage in the top-level CMakeLists.txt), instead of blanket
+      # compiler flags that would also instrument FetchContent'd Eigen/GoogleTest.
       - name: Configure (coverage)
         run: |
           cmake -S . -B build/coverage \
                 -DCMAKE_BUILD_TYPE=Debug \
-                -DCMAKE_CXX_FLAGS=--coverage \
-                -DCMAKE_EXE_LINKER_FLAGS=--coverage \
+                -DUR_KINEMATICS_COVERAGE=ON \
                 -D FETCHCONTENT_BASE_DIR=${{ github.workspace }}/.deps
 
       - name: Build (coverage)

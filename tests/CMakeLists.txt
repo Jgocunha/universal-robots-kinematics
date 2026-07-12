@@ -46,9 +46,17 @@ add_executable(ur_kinematics_tests
     test_golden_fk.cpp
     test_golden_ik.cpp
     test_validation.cpp
+    test_math_utils.cpp
+    test_robot_parameters.cpp
+    test_pose_and_fk_anchors.cpp
+    test_properties.cpp
 )
 target_include_directories(ur_kinematics_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(ur_kinematics_tests PRIVATE ur_kinematics GTest::gtest_main project_warnings)
+# test_math_utils.cpp unit-tests calcTransformationMatrix directly, which is a
+# private library implementation detail (src/math_utils.h), not part of the public
+# include/ API.
+target_include_directories(ur_kinematics_tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(ur_kinematics_tests PRIVATE ur_kinematics GTest::gtest_main project_warnings project_coverage)
 target_compile_definitions(ur_kinematics_tests PRIVATE
     GOLDEN_DIR="${GOLDEN_DIR}"
 )

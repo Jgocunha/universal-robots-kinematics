@@ -13,6 +13,16 @@ target_compile_options(project_warnings INTERFACE
     $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
 )
 
+# Coverage instrumentation (GCC/Clang --coverage), off by default. Scoped to
+# ur_kinematics + its test suite only (never FetchContent'd deps) via this
+# INTERFACE target, same pattern as project_warnings above.
+option(UR_KINEMATICS_COVERAGE "Enable --coverage instrumentation for ur_kinematics + its test suite" OFF)
+add_library(project_coverage INTERFACE)
+if(UR_KINEMATICS_COVERAGE)
+    target_compile_options(project_coverage INTERFACE --coverage)
+    target_link_options(project_coverage INTERFACE --coverage)
+endif()
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -41,7 +51,7 @@ target_include_directories(ur_kinematics
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 target_include_directories(ur_kinematics SYSTEM PUBLIC ${EIGEN_INCLUDE_DIRS})
-target_link_libraries(ur_kinematics PUBLIC Eigen3::Eigen PRIVATE project_warnings)
+target_link_libraries(ur_kinematics PUBLIC Eigen3::Eigen PRIVATE project_warnings project_coverage)
 
 # --- ur_demo: the console demo application ----------------------------------------
 add_executable(ur_demo
