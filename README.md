@@ -40,7 +40,7 @@ This repository is the **C++ library** (UR3/UR5/UR10, C++20, CMake). The origina
 
 The C++ solution uses **C++20** and builds on **Windows, Linux, and macOS** via CMake.
 
-### The `UR class`
+### The `UR` class
 
 Instantiate a robot and call `forwardKinematics` or `inverseKinematics`:
 
@@ -55,6 +55,9 @@ universalRobots::pose tip = robot.forwardKinematics(joints);
 
 // Inverse kinematics (up to 8 solutions)
 const universalRobots::UR::IkSolutions ikSols = robot.inverseKinematics(tip);
+
+// ikSols.valid[i] tells you whether ikSols.solutions[i] is a real solution
+const bool hasSolution = ikSols.anyValid();
 ```
 
 Supported robot types: `URtype::UR3`, `URtype::UR5`, `URtype::UR10`.
