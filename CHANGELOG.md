@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [2.0.0] — 2026-07-12
 
 ### Added
 - `.github/workflows/ci.yml` — cross-platform GitHub Actions CI: builds and runs the golden characterization suite on {ubuntu, windows, macos} × {Debug, Release} (6 jobs, `fail-fast: false`), smoke-runs `ur_app`, and caches FetchContent downloads. CI status badge added to the README.
@@ -120,7 +120,7 @@ Initial commit. MATLAB forward and inverse kinematics for UR10 with CoppeliaSim 
 - Initial `README.md`
 - `LICENSE`
 
-[Unreleased]: https://github.com/Jgocunha/universal-robots-kinematics/compare/v1.0.0...HEAD
+[2.0.0]: https://github.com/Jgocunha/universal-robots-kinematics/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Jgocunha/universal-robots-kinematics/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/Jgocunha/universal-robots-kinematics/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Jgocunha/universal-robots-kinematics/compare/v0.1.0...v0.2.0
