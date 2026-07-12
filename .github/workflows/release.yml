@@ -123,6 +123,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
@@ -140,6 +142,8 @@ jobs:
           name: macos-arm64
 
       - name: Build release notes
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           {
             echo "## What's included"
@@ -149,9 +153,9 @@ jobs:
             echo
             echo "| File | Platform |"
             echo "|------|----------|"
-            echo "| \`universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip\` | Windows (x64) |"
-            echo "| \`universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz\` | Linux (x64) |"
-            echo "| \`universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz\` | macOS (Apple Silicon) |"
+            echo "| \`universal-robots-kinematics-${REF_NAME}-windows-x64.zip\` | Windows (x64) |"
+            echo "| \`universal-robots-kinematics-${REF_NAME}-linux-x64.tar.gz\` | Linux (x64) |"
+            echo "| \`universal-robots-kinematics-${REF_NAME}-macos-arm64.tar.gz\` | macOS (Apple Silicon) |"
             echo
             echo "## Archive contents"
             echo
