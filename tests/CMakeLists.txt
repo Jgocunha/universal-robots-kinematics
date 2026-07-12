@@ -12,6 +12,9 @@ FetchContent_Declare(
 )
 # On Windows/MSVC, link GoogleTest against the shared CRT to match the default.
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# We only need GoogleTest to build the test suite, not ship it in release archives
+# (cmake --install would otherwise pull in its headers/libs/CMake package config).
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 include(GoogleTest)
