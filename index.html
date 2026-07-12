@@ -93,7 +93,7 @@ $(function() {
 C++ source code</h2>
 <p>The C++ solution uses <b>C++20</b> and builds on <b>Windows, Linux, and macOS</b> via CMake.</p>
 <h3><a class="anchor" id="autotoc_md2"></a>
-The &lt;tt&gt;UR class&lt;/tt&gt;</h3>
+The &lt;tt&gt;UR&lt;/tt&gt; class</h3>
 <p>Instantiate a robot and call <code>forwardKinematics</code> or <code>inverseKinematics</code>:</p>
 <div class="fragment"><div class="line"><span class="preprocessor">#include &lt;<a class="code" href="ur__kinematics_8h.html">ur_kinematics/ur_kinematics.h</a>&gt;</span></div>
 <div class="line"> </div>
@@ -105,10 +105,14 @@ The &lt;tt&gt;UR class&lt;/tt&gt;</h3>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Inverse kinematics (up to 8 solutions)</span></div>
 <div class="line"><span class="keyword">const</span> <a class="code hl_struct" href="structuniversalRobots_1_1UR_1_1IkSolutions.html">universalRobots::UR::IkSolutions</a> ikSols = robot.inverseKinematics(tip);</div>
+<div class="line"> </div>
+<div class="line"><span class="comment">// ikSols.valid[i] tells you whether ikSols.solutions[i] is a real solution</span></div>
+<div class="line"><span class="keyword">const</span> <span class="keywordtype">bool</span> hasSolution = ikSols.<a class="code hl_function" href="structuniversalRobots_1_1UR_1_1IkSolutions.html#acaaee574ca8fc319a50e479fbc4cc026">anyValid</a>();</div>
 <div class="ttc" id="aclassuniversalRobots_1_1UR_html"><div class="ttname"><a href="classuniversalRobots_1_1UR.html">universalRobots::UR</a></div><div class="ttdoc">Implements 'UR robot type' object.</div><div class="ttdef"><b>Definition</b> ur_kinematics.h:88</div></div>
 <div class="ttc" id="aclassuniversalRobots_1_1UR_html_a6820daa64d4a1a0bae42dfd9eb90806a"><div class="ttname"><a href="classuniversalRobots_1_1UR.html#a6820daa64d4a1a0bae42dfd9eb90806a">universalRobots::UR::JointVector</a></div><div class="ttdeci">std::array&lt; float, m_numDoF &gt; JointVector</div><div class="ttdoc">Six joint angles (radians), in joint order 1..6.</div><div class="ttdef"><b>Definition</b> ur_kinematics.h:107</div></div>
 <div class="ttc" id="anamespaceuniversalRobots_html_af1019f736979811a07c8c32d8c52da36abb6602102e11b78b6d080355b96a97f6"><div class="ttname"><a href="namespaceuniversalRobots.html#af1019f736979811a07c8c32d8c52da36abb6602102e11b78b6d080355b96a97f6">universalRobots::UR5</a></div><div class="ttdeci">@ UR5</div><div class="ttdef"><b>Definition</b> robot_parameters.h:14</div></div>
 <div class="ttc" id="astructuniversalRobots_1_1UR_1_1IkSolutions_html"><div class="ttname"><a href="structuniversalRobots_1_1UR_1_1IkSolutions.html">universalRobots::UR::IkSolutions</a></div><div class="ttdoc">The eight inverse-kinematics solutions, each a full joint vector.</div><div class="ttdef"><b>Definition</b> ur_kinematics.h:118</div></div>
+<div class="ttc" id="astructuniversalRobots_1_1UR_1_1IkSolutions_html_acaaee574ca8fc319a50e479fbc4cc026"><div class="ttname"><a href="structuniversalRobots_1_1UR_1_1IkSolutions.html#acaaee574ca8fc319a50e479fbc4cc026">universalRobots::UR::IkSolutions::anyValid</a></div><div class="ttdeci">bool anyValid() const</div><div class="ttdef"><b>Definition</b> ur_kinematics.h:122</div></div>
 <div class="ttc" id="astructuniversalRobots_1_1pose_html"><div class="ttname"><a href="structuniversalRobots_1_1pose.html">universalRobots::pose</a></div><div class="ttdoc">Structure which holds a pose { x y z } { alpha beta gamma }.</div><div class="ttdef"><b>Definition</b> ur_kinematics.h:23</div></div>
 <div class="ttc" id="aur__kinematics_8h_html"><div class="ttname"><a href="ur__kinematics_8h.html">ur_kinematics.h</a></div></div>
 </div><!-- fragment --><p>Supported robot types: <code>URtype::UR3</code>, <code>URtype::UR5</code>, <code>URtype::UR10</code>.</p>
