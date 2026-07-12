@@ -29,6 +29,9 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release
+
       - name: Install
         run: cmake --install build --config Release
 
@@ -58,6 +61,9 @@ jobs:
 
       - name: Build
         run: cmake --build build --parallel $(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
 
       - name: Install
         run: cmake --install build
@@ -89,6 +95,9 @@ jobs:
       - name: Build
         run: cmake --build build --parallel $(sysctl -n hw.logicalcpu)
 
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
       - name: Install
         run: cmake --install build
 
@@ -112,6 +121,9 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download Windows artifact
         uses: actions/download-artifact@v4
         with:
@@ -127,35 +139,53 @@ jobs:
         with:
           name: macos-arm64
 
+      - name: Build release notes
+        run: |
+          {
+            echo "## What's included"
+            echo
+            echo "Each archive contains the compiled kinematics library, public headers, the"
+            echo "\`ur_demo\` executable, the license, and the README."
+            echo
+            echo "| File | Platform |"
+            echo "|------|----------|"
+            echo "| \`universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip\` | Windows (x64) |"
+            echo "| \`universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz\` | Linux (x64) |"
+            echo "| \`universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz\` | macOS (Apple Silicon) |"
+            echo
+            echo "## Archive contents"
+            echo
+            echo '```'
+            echo "bin/       — ur_demo"
+            echo "lib/       — compiled ur_kinematics library"
+            echo "include/   — public headers (ur_kinematics/)"
+            echo "LICENSE    — license text"
+            echo "README.md  — project readme"
+            echo '```'
+            echo
+            echo "## Using as a library"
+            echo
+            echo "Link against the library under \`lib/\` and include headers from \`include/\`."
+            echo
+            echo "## Changelog"
+            echo
+            awk '
+              /^## \[/{c++}
+              c==1 && !/^## \[/ {
+                if ($0 == "---") exit
+                print
+              }
+              c==2{exit}
+            ' CHANGELOG.md
+          } > RELEASE_NOTES.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
-          body: |
-            ## What's included
-
-            Each archive contains the compiled kinematics library, public headers, and the
-            `ur_demo` executable.
-
-            | File | Platform |
-            |------|----------|
-            | `universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip` | Windows (x64) |
-            | `universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz` | Linux (x64) |
-            | `universal-robots-kinematics-${{ github.ref_name }}-macos-arm64.tar.gz` | macOS (Apple Silicon) |
-
-            ## Archive contents
-
-            ```
-            bin/     — ur_demo
-            lib/     — compiled ur_kinematics library
-            include/ — public headers (ur_kinematics/)
-            ```
-
-            ## Using as a library
-
-            Link against the library under `lib/` and include headers from `include/`.
+          body_path: RELEASE_NOTES.md
           files: |
             universal-robots-kinematics-${{ github.ref_name }}-windows-x64.zip
             universal-robots-kinematics-${{ github.ref_name }}-linux-x64.tar.gz
