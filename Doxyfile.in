@@ -26,7 +26,6 @@ DOT_IMAGE_FORMAT       = svg
 UML_LOOK               = YES
 CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
-CLASS_DIAGRAMS         = YES
 COLLABORATION_GRAPH    = YES
 
 WARN_IF_UNDOCUMENTED   = YES
