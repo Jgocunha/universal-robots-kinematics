@@ -171,12 +171,17 @@ TEST(IsPoseReachable, ReturnsFalseForUnreachable)
 	EXPECT_FALSE(robot.isPoseReachable(far));
 }
 
-// ---- Wrist singularity handling (task 04f) ----
+// ---- Wrist singularity handling (task 04f, extended by issue #17) ----
 //
 // theta5 == 0/pi is a wrist singularity (see the convention comment in
 // UR::inverseKinematics). Before task 04f these rows were unconditionally marked
 // invalid; 04f lets the (already acos-clamped, task 04e) downstream math run instead,
 // which stays FK-consistent even this close to the singularity.
+//
+// Issue #17: the original near-zero guard used exact float equality (theta5 == 0),
+// so a near-zero-but-nonzero theta5 fell through to the atan2(.../sin(theta5)) formula
+// and could produce a numerically blown-up theta6. The epsilon-band guard below closes
+// that gap symmetrically to the pre-existing near-pi handling.
 namespace
 {
 	void expectValidRowsAreFkConsistent(universalRobots::UR& robot, const universalRobots::pose& target)
@@ -232,4 +237,21 @@ TEST(WristSingularity, ConventionIsDeterministic)
 				EXPECT_EQ(a, b) << "sol " << s << " joint " << k;
 		}
 	}
+}
+
+// theta5 == 1e-7 (issue #17's illustrative value) is below float32's acos-domain
+// resolution this close to the singularity, so it round-trips through
+// forwardKinematics()/inverseKinematics() to a recovered |theta5| inside the epsilon
+// band rather than surviving as literally 1e-7 -- that resolution floor is inherent to
+// acos'(x) near x = +-1, not a bug. This is exactly the case the original exact-equality
+// guard (theta5 == 0) missed: a nonzero-but-tiny theta5 that still needs the pinned
+// convention to avoid the atan2(.../sin(theta5)) formula's near-zero-denominator
+// instability.
+TEST(WristSingularity, Theta5NearZeroRowsAreValidAndFkConsistent)
+{
+	universalRobots::UR robot;
+	universalRobots::UR::JointVector joints = zeros();
+	joints[4] = 1e-7f; // theta5 near-but-not-exactly zero (issue #17).
+	const universalRobots::pose target = robot.forwardKinematics(joints);
+	expectValidRowsAreFkConsistent(robot, target);
 }
