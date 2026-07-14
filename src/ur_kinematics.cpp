@@ -303,14 +303,21 @@ namespace universalRobots
 			// on this exact case). kPiSingularityEps guards the pi branch specifically — it must
 			// stay well below reachable-but-non-singular theta5 values (empirically ~1e-3 rad in
 			// the golden set) so it does not also swallow those.
+			//
+			// theta5 near (but not exactly) 0 is the same singularity from the other side (issue
+			// #17): the original exact-equality check (theta5 == 0) let a near-zero, non-zero
+			// theta5 (e.g. from float rounding in the acos above) fall through to the atan2
+			// division below, dividing by a near-zero sin(theta5) and producing a numerically
+			// blown-up theta6. kZeroSingularityEps guards this side symmetrically to the pi case.
 			constexpr float kPiSingularityEps = 1e-4f;
+			constexpr float kZeroSingularityEps = 1e-4f;
 			const float theta5 = outIkSols.solutions[i][4];
 			const bool nearPiSingularity = std::abs(std::abs(theta5) - std::numbers::pi_v<float>) < kPiSingularityEps;
+			const bool nearZeroSingularity = std::abs(theta5) < kZeroSingularityEps;
 
 			// Computing theta6.
-			if (theta5 == 0 || theta5 == 2 * std::numbers::pi_v<float> ||
-				nearPiSingularity)				  // If theta5 is at the singularity (0 or +-pi).
-				outIkSols.solutions[i][5] = 0.0f; // Wrist singularity: theta6 pinned to 0 by convention.
+			if (nearZeroSingularity || nearPiSingularity) // If theta5 is at the singularity (0 or +-pi).
+				outIkSols.solutions[i][5] = 0.0f;		  // Wrist singularity: theta6 pinned to 0 by convention.
 			else
 			{
 				const float sinTheta5 = sin(theta5);
