@@ -13,7 +13,8 @@ namespace benchmark
 		universalRobots::UR::IkSolutions ikSols = {};
 		universalRobots::pose tipPoseOutput = {};
 		universalRobots::pose poseError = {};
-		universalRobots::pose sumAbsPoseError = {};
+		double sumAbsPos[3] = {0.0, 0.0, 0.0};
+		double sumAbsEuler[3] = {0.0, 0.0, 0.0};
 		universalRobots::pose avgPoseError = {};
 
 		std::chrono::duration<double, std::micro> invKin_us{};
@@ -52,14 +53,21 @@ namespace benchmark
 				poseError = tipPoseInput - tipPoseOutput;
 				for (unsigned int k = 0; k < 3; k++)
 				{
-					sumAbsPoseError.m_pos[k] += std::abs(poseError.m_pos[k]);
-					sumAbsPoseError.m_eulerAngles[k] += std::abs(poseError.m_eulerAngles[k]);
+					sumAbsPos[k] += std::abs(poseError.m_pos[k]);
+					sumAbsEuler[k] += std::abs(poseError.m_eulerAngles[k]);
 				}
 			}
 		}
 		avgInvKin_us = sumInvKin_us / ITERATIONS;
 		avgFwdKin_us = fkCalls > 0 ? sumFwdKin_us / fkCalls : std::chrono::duration<double, std::micro>::zero();
-		avgPoseError = fkCalls > 0 ? sumAbsPoseError / static_cast<float>(fkCalls) : universalRobots::pose{};
+		if (fkCalls > 0)
+		{
+			for (unsigned int k = 0; k < 3; k++)
+			{
+				avgPoseError.m_pos[k] = static_cast<float>(sumAbsPos[k] / fkCalls);
+				avgPoseError.m_eulerAngles[k] = static_cast<float>(sumAbsEuler[k] / fkCalls);
+			}
+		}
 
 		std::cout << "Generated " << ITERATIONS << " random valid tip poses for " << robot.getRobotType() << "..."
 				  << '\n';
