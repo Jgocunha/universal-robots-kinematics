@@ -1,5 +1,6 @@
 // benchmarking.cpp
 
+#include <cmath>
 #include <iostream>
 #include "benchmarking.h"
 
@@ -12,6 +13,7 @@ namespace benchmark
 		universalRobots::UR::IkSolutions ikSols = {};
 		universalRobots::pose tipPoseOutput = {};
 		universalRobots::pose poseError = {};
+		universalRobots::pose sumAbsPoseError = {};
 		universalRobots::pose avgPoseError = {};
 
 		std::chrono::duration<double, std::micro> invKin_us{};
@@ -48,11 +50,16 @@ namespace benchmark
 				++fkCalls;
 				sumFwdKin_us = sumFwdKin_us + fwdKin_us;
 				poseError = tipPoseInput - tipPoseOutput;
+				for (unsigned int k = 0; k < 3; k++)
+				{
+					sumAbsPoseError.m_pos[k] += std::abs(poseError.m_pos[k]);
+					sumAbsPoseError.m_eulerAngles[k] += std::abs(poseError.m_eulerAngles[k]);
+				}
 			}
 		}
 		avgInvKin_us = sumInvKin_us / ITERATIONS;
 		avgFwdKin_us = fkCalls > 0 ? sumFwdKin_us / fkCalls : std::chrono::duration<double, std::micro>::zero();
-		avgPoseError = poseError / (ITERATIONS * universalRobots::UR::m_numIkSol);
+		avgPoseError = fkCalls > 0 ? sumAbsPoseError / static_cast<float>(fkCalls) : universalRobots::pose{};
 
 		std::cout << "Generated " << ITERATIONS << " random valid tip poses for " << robot.getRobotType() << "..."
 				  << '\n';
@@ -60,9 +67,10 @@ namespace benchmark
 		std::cout << "Average IK function execution time: " << avgInvKin_us.count() << "us" << '\n';
 		std::cout << "Each IK sol (" << fkCalls << ") has been run through forward kinematics..." << '\n';
 		std::cout << "Average FK function execution time: " << avgFwdKin_us.count() << "us" << '\n';
-		std::cout << "error = [tip_pose_input - tip_pose_output]" << '\n';
-		std::cout << "average error = " << avgPoseError.m_pos[0] << " " << avgPoseError.m_pos[1] << " "
-				  << avgPoseError.m_pos[2] << " " << avgPoseError.m_eulerAngles[0] << " "
+		std::cout << "error = mean |tip_pose_input - tip_pose_output| over all valid IK solutions" << '\n';
+		std::cout << "average position error (m): " << avgPoseError.m_pos[0] << " " << avgPoseError.m_pos[1] << " "
+				  << avgPoseError.m_pos[2] << '\n';
+		std::cout << "average orientation error (rad): " << avgPoseError.m_eulerAngles[0] << " "
 				  << avgPoseError.m_eulerAngles[1] << " " << avgPoseError.m_eulerAngles[2] << '\n';
 	}
 
