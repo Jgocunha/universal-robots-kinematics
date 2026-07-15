@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['seconds_0',['Average Computation Times (in seconds)',['../index.html#autotoc_md9',1,'']]],
-  ['solutions_1',['solutions',['../structuniversalRobots_1_1UR_1_1IkSolutions.html#ab425d6e717abc03974e2b936baae05ca',1,'universalRobots::UR::IkSolutions']]],
-  ['source_20code_2',['C++ source code',['../index.html#autotoc_md1',1,'']]],
-  ['subtract_3',['subtract',['../structuniversalRobots_1_1pose.html#a7520a18e5faf393df003ffaf3735717e',1,'universalRobots::pose']]]
+  ['parametersfor_0',['parametersFor',['../namespaceuniversalRobots.html#a44b57456a09ec41868356756ad566c38',1,'universalRobots']]],
+  ['pose_1',['pose',['../structuniversalRobots_1_1pose.html',1,'universalRobots::pose'],['../structuniversalRobots_1_1pose.html#a2324fba110fa1cbe680418b1fa564d36',1,'universalRobots::pose::pose()=default'],['../structuniversalRobots_1_1pose.html#a0384d461de291f0f3e1220da955e5112',1,'universalRobots::pose::pose(float pos1, float pos2, float pos3, float eulerAngles1, float eulerAngles2, float eulerAngles3)'],['../structuniversalRobots_1_1pose.html#a0077a830b891a43353c2250f9aa3ee1b',1,'universalRobots::pose::pose(const std::array&lt; float, 3 &gt; &amp;pos, const std::array&lt; float, 3 &gt; &amp;eulerAngles)'],['../structuniversalRobots_1_1pose.html#aacc6fcacfea106eda0e7feee55fe9422',1,'universalRobots::pose::pose(const std::array&lt; float, 3 &gt; &amp;pos, const Eigen::Matrix3f &amp;rotationMatrix)']]]
 ];

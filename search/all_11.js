@@ -1,4 +1,8 @@
 var searchData=
 [
-  ['valid_0',['valid',['../structuniversalRobots_1_1UR_1_1IkSolutions.html#a0cdb5d110afbd9598cedee2573423c78',1,'universalRobots::UR::IkSolutions']]]
+  ['tests_0',['Tests',['../index.html#autotoc_md7',1,'']]],
+  ['the_20tt_20ur_20tt_20class_1',['The &lt;tt&gt;UR&lt;/tt&gt; class',['../index.html#autotoc_md2',1,'']]],
+  ['times_20in_20seconds_2',['Average Computation Times (in seconds)',['../index.html#autotoc_md9',1,'']]],
+  ['tt_20ur_20tt_20class_3',['The &lt;tt&gt;UR&lt;/tt&gt; class',['../index.html#autotoc_md2',1,'']]],
+  ['type_4',['type',['../structuniversalRobots_1_1RobotParameters.html#affba01c28e998c1b0949971aa4987223',1,'universalRobots::RobotParameters']]]
 ];

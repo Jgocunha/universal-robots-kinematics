@@ -78,13 +78,17 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#namespaces">Namespaces</a> &#124;
-<a href="#func-members">Functions</a>  </div>
+<a href="#func-members">Functions</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">ur_kinematics.h File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &lt;iosfwd&gt;</code><br />
 <code>#include &lt;array&gt;</code><br />
 <code>#include &lt;algorithm&gt;</code><br />
+<code>#include &lt;cstddef&gt;</code><br />
+<code>#include &lt;numbers&gt;</code><br />
+<code>#include &lt;optional&gt;</code><br />
 <code>#include &lt;type_traits&gt;</code><br />
 <code>#include &lt;Eigen/Dense&gt;</code><br />
 <code>#include &quot;<a class="el" href="robot__parameters_8h_source.html">robot_parameters.h</a>&quot;</code><br />
@@ -92,7 +96,7 @@ $(function() {
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for ur_kinematics.h:</div>
 <div class="dyncontent">
-<div class="center"><iframe scrolling="no" frameborder="0" src="ur__kinematics_8h__incl.svg" width="764" height="198"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
+<div class="center"><iframe scrolling="no" frameborder="0" src="ur__kinematics_8h__incl.svg" width="1062" height="198"><p><b>This browser is not able to show SVG: try Firefox, Chrome, Safari, or Opera instead.</b></p></iframe></div>
 </div>
 </div>
 <p><a href="ur__kinematics_8h_source.html">Go to the source code of this file.</a></p>
@@ -111,10 +115,15 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuniversalRobots_1_1UR_1_1IkSolutions.html">universalRobots::UR::IkSolutions</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The eight inverse-kinematics solutions, each a full joint vector.  <a href="structuniversalRobots_1_1UR_1_1IkSolutions.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structuniversalRobots_1_1JointLimits.html">universalRobots::JointLimits</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Per-joint inclusive [lower, upper] bounds (radians) used by <a class="el" href="namespaceuniversalRobots.html#a71463f9623ca461ec9211b34e9efacc7" title="Marks solutions.valid[i] false where any joint of solutions.solutions[i] falls outside [limits....">filterByJointLimits()</a>.  <a href="structuniversalRobots_1_1JointLimits.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
 Namespaces</h2></td></tr>
 <tr class="memitem:namespaceuniversalRobots" id="r_namespaceuniversalRobots"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots.html">universalRobots</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:namespaceuniversalRobots_1_1detail" id="r_namespaceuniversalRobots_1_1detail"><td class="memItemLeft" align="right" valign="top">namespace &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots_1_1detail.html">universalRobots::detail</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -129,6 +138,20 @@ Functions</h2></td></tr>
 <tr class="separator:a242775014e397bf2638efa5d54c79fd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaaf1722d7dc2fdb07804322529a35e8e" id="r_aaaf1722d7dc2fdb07804322529a35e8e"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots.html#aaaf1722d7dc2fdb07804322529a35e8e">universalRobots::operator&lt;&lt;</a> (std::ostream &amp;stream, const <a class="el" href="classuniversalRobots_1_1UR.html">universalRobots::UR</a> &amp;robot)</td></tr>
 <tr class="separator:aaaf1722d7dc2fdb07804322529a35e8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad277bf758530bc63d55dd585f10405d0" id="r_ad277bf758530bc63d55dd585f10405d0"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structuniversalRobots_1_1JointLimits.html">JointLimits</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots_1_1detail.html#ad277bf758530bc63d55dd585f10405d0">universalRobots::detail::makeDefaultUrLimits</a> ()</td></tr>
+<tr class="separator:ad277bf758530bc63d55dd585f10405d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71463f9623ca461ec9211b34e9efacc7" id="r_a71463f9623ca461ec9211b34e9efacc7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots.html#a71463f9623ca461ec9211b34e9efacc7">universalRobots::filterByJointLimits</a> (<a class="el" href="structuniversalRobots_1_1UR_1_1IkSolutions.html">UR::IkSolutions</a> &amp;solutions, const <a class="el" href="structuniversalRobots_1_1JointLimits.html">JointLimits</a> &amp;limits=<a class="el" href="namespaceuniversalRobots.html#a01763b1dc7863144cf053b1883309760">kDefaultUrLimits</a>)</td></tr>
+<tr class="memdesc:a71463f9623ca461ec9211b34e9efacc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Marks solutions.valid[i] false where any joint of solutions.solutions[i] falls outside [limits.lower[j], limits.upper[j]]. Prune-only: never flips an already-false row to true, and never reorders or renumbers rows. Bounds are inclusive.  <br /></td></tr>
+<tr class="separator:a71463f9623ca461ec9211b34e9efacc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18f6ad49f75ab6198c581a5d36067321" id="r_a18f6ad49f75ab6198c581a5d36067321"><td class="memItemLeft" align="right" valign="top">std::optional&lt; std::size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots.html#a18f6ad49f75ab6198c581a5d36067321">universalRobots::nearestSolution</a> (const <a class="el" href="structuniversalRobots_1_1UR_1_1IkSolutions.html">UR::IkSolutions</a> &amp;solutions, const <a class="el" href="classuniversalRobots_1_1UR.html#a6820daa64d4a1a0bae42dfd9eb90806a">UR::JointVector</a> &amp;current)</td></tr>
+<tr class="memdesc:a18f6ad49f75ab6198c581a5d36067321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of the valid row in <code>solutions</code> nearest to <code>current</code>, by summed per-joint |Δ| (plain minimal-travel metric, no angle-wraparound handling). Returns std::nullopt when no row is valid.  <br /></td></tr>
+<tr class="separator:a18f6ad49f75ab6198c581a5d36067321"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a01763b1dc7863144cf053b1883309760" id="r_a01763b1dc7863144cf053b1883309760"><td class="memItemLeft" align="right" valign="top">constexpr <a class="el" href="structuniversalRobots_1_1JointLimits.html">JointLimits</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceuniversalRobots.html#a01763b1dc7863144cf053b1883309760">universalRobots::kDefaultUrLimits</a> = <a class="el" href="namespaceuniversalRobots_1_1detail.html#ad277bf758530bc63d55dd585f10405d0">detail::makeDefaultUrLimits</a>()</td></tr>
+<tr class="memdesc:a01763b1dc7863144cf053b1883309760"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default joint limits: [-2π, +2π] per joint, matching forwardKinematics()'s accepted range exactly (see forwardKinematics()'s precondition) &ndash; a solution that survives filterByJointLimits(kDefaultUrLimits) is guaranteed FK-consumable.  <br /></td></tr>
+<tr class="separator:a01763b1dc7863144cf053b1883309760"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 <!-- start footer part -->

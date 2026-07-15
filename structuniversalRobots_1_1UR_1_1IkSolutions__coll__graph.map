@@ -1,7 +1,9 @@
 <map id="universalRobots::UR::IkSolutions" name="universalRobots::UR::IkSolutions">
-<area shape="rect" id="Node000001" title="The eight inverse&#45;kinematics solutions, each a full joint vector." alt="" coords="111,163,258,243"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,5,183,100"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,99,154,147,150,150,120,102"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="207,13,347,93"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="256,94,228,140,222,150,217,147,224,137,252,92"/>
+<area shape="rect" id="Node000001" title="The eight inverse&#45;kinematics solutions, each a full joint vector." alt="" coords="150,305,297,385"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,148,183,243"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="135,241,168,280,179,291,175,295,164,283,131,245"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="32,5,156,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="97,85,97,131,91,131,91,85"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="207,155,347,235"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="265,236,245,291,240,289,260,234"/>
 </map>

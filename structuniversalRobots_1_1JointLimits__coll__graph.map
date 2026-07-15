@@ -1,0 +1,5 @@
+<map id="universalRobots::JointLimits" name="universalRobots::JointLimits">
+<area shape="rect" id="Node000001" title="Per&#45;joint inclusive [lower, upper] bounds (radians) used by filterByJointLimits()." alt="" coords="5,163,201,228"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="41,5,165,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,85,106,146,101,146,101,85"/>
+</map>

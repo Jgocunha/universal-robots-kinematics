@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['valid_0',['valid',['../structuniversalRobots_1_1UR_1_1IkSolutions.html#a0cdb5d110afbd9598cedee2573423c78',1,'universalRobots::UR::IkSolutions']]]
+  ['type_0',['type',['../structuniversalRobots_1_1RobotParameters.html#affba01c28e998c1b0949971aa4987223',1,'universalRobots::RobotParameters']]]
 ];
