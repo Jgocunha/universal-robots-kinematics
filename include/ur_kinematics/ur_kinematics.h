@@ -5,6 +5,9 @@
 #include <iosfwd>
 #include <array>
 #include <algorithm>
+#include <cstddef>
+#include <numbers>
+#include <optional>
 #include <type_traits>
 #include <Eigen/Dense>
 #include "robot_parameters.h"
@@ -254,5 +257,49 @@ namespace universalRobots
 	std::ostream& operator<<(std::ostream& stream, universalRobots::URtype type);
 
 	std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot);
+
+	/** @brief Per-joint inclusive [lower, upper] bounds (radians) used by filterByJointLimits(). */
+	struct JointLimits
+	{
+		UR::JointVector lower;
+		UR::JointVector upper;
+	};
+
+	namespace detail
+	{
+		constexpr JointLimits makeDefaultUrLimits()
+		{
+			constexpr float kTwoPi = 2.0f * std::numbers::pi_v<float>;
+			JointLimits limits{};
+			for (std::size_t i = 0; i < UR::m_numDoF; ++i)
+			{
+				limits.lower[i] = -kTwoPi;
+				limits.upper[i] = kTwoPi;
+			}
+			return limits;
+		}
+	} // namespace detail
+
+	/**
+	 * @brief Default joint limits: [-2π, +2π] per joint, matching forwardKinematics()'s
+	 * accepted range exactly (see forwardKinematics()'s precondition) -- a solution that
+	 * survives filterByJointLimits(kDefaultUrLimits) is guaranteed FK-consumable.
+	 */
+	inline constexpr JointLimits kDefaultUrLimits = detail::makeDefaultUrLimits();
+
+	/**
+	 * @brief Marks solutions.valid[i] false where any joint of solutions.solutions[i] falls
+	 * outside [limits.lower[j], limits.upper[j]]. Prune-only: never flips an already-false
+	 * row to true, and never reorders or renumbers rows. Bounds are inclusive.
+	 */
+	void filterByJointLimits(UR::IkSolutions& solutions, const JointLimits& limits = kDefaultUrLimits);
+
+	/**
+	 * @brief Index of the valid row in `solutions` nearest to `current`, by summed
+	 * per-joint |Δ| (plain minimal-travel metric, no angle-wraparound handling).
+	 * Returns std::nullopt when no row is valid.
+	 */
+	[[nodiscard]] std::optional<std::size_t> nearestSolution(const UR::IkSolutions& solutions,
+															 const UR::JointVector& current);
 
 } // namespace universalRobots

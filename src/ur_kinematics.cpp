@@ -501,6 +501,57 @@ namespace universalRobots
 	}
 
 	/// <summary>
+	/// Marks solutions.valid[i] false where any joint of solutions.solutions[i] falls outside
+	/// [limits.lower[j], limits.upper[j]]. Prune-only: never flips an already-false row to
+	/// true, never reorders rows.
+	/// </summary>
+	/// <param name="solutions"></param>
+	/// <param name="limits"></param>
+	void filterByJointLimits(UR::IkSolutions& solutions, const JointLimits& limits)
+	{
+		for (unsigned int i = 0; i < UR::m_numIkSol; ++i)
+		{
+			if (!solutions.valid[i])
+				continue;
+			for (unsigned int j = 0; j < UR::m_numDoF; ++j)
+			{
+				const float angle = solutions.solutions[i][j];
+				if (angle < limits.lower[j] || angle > limits.upper[j])
+				{
+					solutions.valid[i] = false;
+					break;
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Index of the valid row in `solutions` nearest to `current`, by summed per-joint
+	/// |delta|. Returns std::nullopt when no row is valid.
+	/// </summary>
+	/// <param name="solutions"></param>
+	/// <param name="current"></param>
+	std::optional<std::size_t> nearestSolution(const UR::IkSolutions& solutions, const UR::JointVector& current)
+	{
+		std::optional<std::size_t> best;
+		float bestDistance = std::numeric_limits<float>::max();
+		for (std::size_t i = 0; i < UR::m_numIkSol; ++i)
+		{
+			if (!solutions.valid[i])
+				continue;
+			float distance = 0.0f;
+			for (unsigned int j = 0; j < UR::m_numDoF; ++j)
+				distance += std::abs(solutions.solutions[i][j] - current[j]);
+			if (distance < bestDistance)
+			{
+				best = i;
+				bestDistance = distance;
+			}
+		}
+		return best;
+	}
+
+	/// <summary>
 	/// Operator overloading to be able to print a URtype enum.
 	/// </summary>
 	/// <param name="stream"></param>
