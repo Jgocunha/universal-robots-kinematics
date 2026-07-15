@@ -19,9 +19,10 @@ namespace benchmark
 		// see #54.
 		Eigen::Matrix3f reconstructRotation(const universalRobots::pose& p)
 		{
-			return Eigen::Matrix3f(Eigen::AngleAxisf(p.m_eulerAngles[2], Eigen::Vector3f::UnitY()) *
-									Eigen::AngleAxisf(p.m_eulerAngles[1], Eigen::Vector3f::UnitZ()) *
-									Eigen::AngleAxisf(p.m_eulerAngles[0], Eigen::Vector3f::UnitX()));
+			const Eigen::AngleAxisf rotY(p.m_eulerAngles[2], Eigen::Vector3f::UnitY());
+			const Eigen::AngleAxisf rotZ(p.m_eulerAngles[1], Eigen::Vector3f::UnitZ());
+			const Eigen::AngleAxisf rotX(p.m_eulerAngles[0], Eigen::Vector3f::UnitX());
+			return Eigen::Matrix3f(rotY * rotZ * rotX);
 		}
 
 		// Rotation-invariant SO(3) geodesic distance (radians) between two rotation
