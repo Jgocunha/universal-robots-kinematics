@@ -48,12 +48,13 @@ namespace
 namespace universalRobots
 {
 	/// <summary>
-	/// Constructor. User is only allowed to specify whether there is an end-effector and its translation to the tip.
+	/// Constructor. The endEffector parameter is retained for API compatibility but unused;
+	/// the end-effector translation to the tip is applied unconditionally via endEffectorDimension.
 	/// Example usage:
-	///		universalRobots::UR robot_one(); Robot does not have an end-effector.
+	///		universalRobots::UR robot_one();
 	///		universalRobots::UR robot_one(true, 0.15f); End-effector translated 0.15 meters from the robot's tip.
 	/// </summary>
-	/// <param name="endEffector"></param>
+	/// <param name="endEffector">Retained for API compatibility (unused).</param>
 	/// <param name="endEffectorDimension"></param>
 	UR::UR(URtype robotType, [[maybe_unused]] bool endEffector, float endEffectorDimension) : m_type(robotType)
 	{
