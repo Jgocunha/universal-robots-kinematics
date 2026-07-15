@@ -258,11 +258,10 @@ namespace universalRobots
 		if (!phi_inDomain)
 			outIkSols.valid.fill(false);
 		const float theta1_phi =
-			phi_inDomain
-				? std::acos(std::clamp((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
-											(std::sqrt(std::pow(P_05(0, 1), 2) + std::pow(P_05(0, 0), 2))),
-									  -1.0, 1.0))
-				: std::numeric_limits<float>::quiet_NaN();
+			phi_inDomain ? std::acos(std::clamp((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
+													(std::sqrt(std::pow(P_05(0, 1), 2) + std::pow(P_05(0, 0), 2))),
+												-1.0, 1.0))
+						 : std::numeric_limits<float>::quiet_NaN();
 
 		for (int i = -4; i < int(m_numIkSol) - 4; i++)
 		{
@@ -359,17 +358,15 @@ namespace universalRobots
 			// See the site-1 note above: acos() is called on the untouched inline expression
 			// (clamped with double bounds) rather than a materialized float intermediate, to
 			// avoid an extra precision-losing rounding step right at this near-singular edge.
-			const bool psi_inDomain =
-				std::abs((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
-						 (-2 * m_a[0] * m_a[1])) <= 1.0 + kAcosEps;
+			const bool psi_inDomain = std::abs((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
+											   (-2 * m_a[0] * m_a[1])) <= 1.0 + kAcosEps;
 			if (!psi_inDomain)
 				outIkSols.valid[i] = false;
 			const float theta3_psi =
-				psi_inDomain
-					? std::acos(std::clamp((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
-												(-2 * m_a[0] * m_a[1]),
-									  -1.0, 1.0))
-					: std::numeric_limits<float>::quiet_NaN();
+				psi_inDomain ? std::acos(std::clamp((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
+														(-2 * m_a[0] * m_a[1]),
+													-1.0, 1.0))
+							 : std::numeric_limits<float>::quiet_NaN();
 
 			// Elbow up or down
 			if (contains(kSecondElbowSolutionIndices, i))
@@ -380,7 +377,7 @@ namespace universalRobots
 				if (outIkSols.solutions[i][2] > std::numbers::pi_v<float>)
 					outIkSols.solutions[i][2] = outIkSols.solutions[i][2] - std::numbers::pi_v<float> * 2;
 				// Computing theta2.
-				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14(2, 3), T_14(0, 3)) +
+				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14_z, T_14_x) +
 											std::asin((m_a[1] * std::sin(-theta3_psi)) / P_14_xz);
 				// Computing theta4.
 				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
@@ -403,7 +400,7 @@ namespace universalRobots
 				if (outIkSols.solutions[i][2] > std::numbers::pi_v<float>)
 					outIkSols.solutions[i][2] = outIkSols.solutions[i][2] - std::numbers::pi_v<float> * 2;
 				// Computing theta2.
-				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14(2, 3), T_14(0, 3)) +
+				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14_z, T_14_x) +
 											std::asin(m_a[1] * std::sin(theta3_psi) / P_14_xz);
 				// Computing theta4.
 				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
