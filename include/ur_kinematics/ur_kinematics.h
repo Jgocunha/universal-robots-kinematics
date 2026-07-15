@@ -230,13 +230,18 @@ namespace universalRobots
 
 		[[nodiscard]] Theta1Solution solveTheta1(const Eigen::Matrix4f& T_07) const;
 		[[nodiscard]] Theta5Solution solveTheta5(const Eigen::Matrix4f& T_16, unsigned int i) const;
-		[[nodiscard]] float solveTheta6(const Eigen::Matrix4f& T_16, float theta5) const;
+		// static: unlike the other solve* helpers, this one touches no UR member data.
+		[[nodiscard]] static float solveTheta6(const Eigen::Matrix4f& T_16, float theta5);
 		// secondElbow selects between the two elbow configurations (formerly two
 		// near-duplicate branches keyed by kSecondElbowSolutionIndices); folded
 		// into one parameterized path (issue #60).
+		// Several same-typed parameters here represent distinct physical quantities
+		// (transforms / xz-plane scalars); same rationale as pose's constructors above.
+		// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 		[[nodiscard]] ElbowSolution solveElbow(const Eigen::Matrix4f& T_01, const Eigen::Matrix4f& T_06,
 											   const Eigen::Matrix4f& T_46, float T_14_x, float T_14_z, float P_14_xz,
 											   float theta3_psi, bool secondElbow) const;
+		// NOLINTEND(bugprone-easily-swappable-parameters)
 
 		// Helpers for operator<<(std::ostream&, const UR&); split out to keep each
 		// print section (and its frame/loop bookkeeping) independently readable.

@@ -290,7 +290,7 @@ namespace universalRobots
 	// theta5 (e.g. from float rounding in the acos above) fall through to the atan2
 	// division below, dividing by a near-zero sin(theta5) and producing a numerically
 	// blown-up theta6. kZeroSingularityEps guards this side symmetrically to the pi case.
-	float UR::solveTheta6(const Eigen::Matrix4f& T_16, float theta5) const
+	float UR::solveTheta6(const Eigen::Matrix4f& T_16, float theta5)
 	{
 		constexpr float kPiSingularityEps = 1e-4f;
 		constexpr float kZeroSingularityEps = 1e-4f;
@@ -317,9 +317,11 @@ namespace universalRobots
 	// rounding), and floating-point a-b is defined identically to a+(-b), so routing
 	// both branches through one signed intermediate reproduces each original branch's
 	// float ops bit-for-bit (verified via golden ctest + the operator<< stash-diff).
+	// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 	UR::ElbowSolution UR::solveElbow(const Eigen::Matrix4f& T_01, const Eigen::Matrix4f& T_06,
 									 const Eigen::Matrix4f& T_46, float T_14_x, float T_14_z, float P_14_xz,
 									 float theta3_psi, bool secondElbow) const
+	// NOLINTEND(bugprone-easily-swappable-parameters)
 	{
 		const float signedTheta3Psi = secondElbow ? -theta3_psi : theta3_psi;
 
