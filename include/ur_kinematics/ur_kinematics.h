@@ -43,11 +43,10 @@ namespace universalRobots
 		{
 		}
 
-		pose(const std::array<float, 3>& pos, const Eigen::Matrix3f& rotationMatrix)
-			: m_pos(pos),
-			  m_eulerAngles{rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(),
-							rotationMatrix.eulerAngles(1, 2, 0).x()}
+		pose(const std::array<float, 3>& pos, const Eigen::Matrix3f& rotationMatrix) : m_pos(pos)
 		{
+			const auto euler = rotationMatrix.eulerAngles(1, 2, 0);
+			m_eulerAngles = {euler.z(), euler.y(), euler.x()};
 		}
 
 		[[nodiscard]] pose divideByConst(float constant) const
