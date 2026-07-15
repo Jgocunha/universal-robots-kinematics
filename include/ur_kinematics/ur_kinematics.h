@@ -5,6 +5,7 @@
 #include <iosfwd>
 #include <array>
 #include <algorithm>
+#include <type_traits>
 #include <Eigen/Dense>
 #include "robot_parameters.h"
 #include <stdexcept>
@@ -21,8 +22,8 @@ namespace universalRobots
 	/** @brief Structure which holds a pose { x y z } { alpha beta gamma } */
 	struct pose
 	{
-		float m_pos[3] = {};		 // x y z (meters)
-		float m_eulerAngles[3] = {}; // alpha beta gamma (radians)
+		std::array<float, 3> m_pos = {};		 // x y z (meters)
+		std::array<float, 3> m_eulerAngles = {}; // alpha beta gamma (radians)
 
 		pose() = default;
 
@@ -37,16 +38,15 @@ namespace universalRobots
 
 		// Same rationale as above.
 		// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-		pose(const float (&pos)[3], const float (&eulerAngles)[3])
-			: m_pos{pos[0], pos[1], pos[2]}, m_eulerAngles{eulerAngles[0], eulerAngles[1], eulerAngles[2]}
+		pose(const std::array<float, 3>& pos, const std::array<float, 3>& eulerAngles)
+			: m_pos(pos), m_eulerAngles(eulerAngles)
 		{
 		}
 
-		pose(const float (&pos)[3], const Eigen::Matrix3f& rotationMatrix)
-			: m_pos{pos[0], pos[1], pos[2]},
-			  m_eulerAngles{rotationMatrix.eulerAngles(1, 2, 0).z(), rotationMatrix.eulerAngles(1, 2, 0).y(),
-							rotationMatrix.eulerAngles(1, 2, 0).x()}
+		pose(const std::array<float, 3>& pos, const Eigen::Matrix3f& rotationMatrix) : m_pos(pos)
 		{
+			const auto euler = rotationMatrix.eulerAngles(1, 2, 0);
+			m_eulerAngles = {euler.z(), euler.y(), euler.x()};
 		}
 
 		[[nodiscard]] pose divideByConst(float constant) const
@@ -75,6 +75,10 @@ namespace universalRobots
 			return subtract(other);
 		}
 	};
+
+	// #57: m_pos/m_eulerAngles moved from float[3] to std::array<float,3>; pose
+	// must stay cheap to pass/return by value.
+	static_assert(std::is_trivially_copyable_v<pose>, "pose must remain trivially copyable");
 
 	/** @brief Structure which holds the current value and pose of a joint. */
 	struct joint
@@ -154,15 +158,15 @@ namespace universalRobots
 
 		/** @brief Position, Euler Angles, and Value of the robot's joints. {x, y, z} {alpha, beta, gamma} {jointValue}
 		 */
-		mutable joint m_jointState[m_numDoF] = {};
+		mutable std::array<joint, m_numDoF> m_jointState = {};
 
 		// Create an array of (individual) transformation matrices iTi+1 / i-1Ti
 
 		/** @brief Array of (individual) transformation matrices iTi+1 / i-1Ti */
-		mutable Eigen::Matrix4f m_individualTransformationMatrices[m_numReferenceFrames] = {};
+		mutable std::array<Eigen::Matrix4f, m_numReferenceFrames> m_individualTransformationMatrices = {};
 
 		/** @brief Array of (general) transformation matrices 0Ti */
-		mutable Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
+		mutable std::array<Eigen::Matrix4f, m_numReferenceFrames> m_generalTransformationMatrices = {};
 
 		/**
 		 * @brief Modified Denavit-Hartenberg parameters matrix (9x4)
