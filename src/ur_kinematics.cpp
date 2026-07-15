@@ -243,7 +243,7 @@ namespace universalRobots
 		const Eigen::Matrix<float, 1, 4> P_05 =
 			T_07 * Eigen::Matrix<float, 1, 4>(0.0f, 0.0f, -m_d[5] - m_d[6], 1.0f)
 					   .transpose(); // 0P5 position of reference frame {5} in relation to {0}
-		const float theta1_psi = atan2(P_05(0, 1), P_05(0, 0));
+		const float theta1_psi = std::atan2(P_05(0, 1), P_05(0, 0));
 
 		// There are two possible solutions for theta1, that depend on whether the shoulder joint (joint 2) is left or
 		// right. acos site 1: theta1_phi — if |arg| > 1+eps, all 8 solutions are invalid. NOTE: the domain check below
@@ -252,14 +252,16 @@ namespace universalRobots
 		// rounding step that, right at this near-singular domain edge (|arg|≈1, where d(acos)/dx diverges), measurably
 		// shifts the result vs the golden baseline. Keeping the acos() call on the untouched inline expression
 		// preserves bit-identical valid-row output.
-		const bool phi_inDomain = std::abs((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
-										   (sqrt(pow(P_05(0, 1), 2) + pow(P_05(0, 0), 2)))) <= 1.0 + kAcosEps;
+		const bool phi_inDomain =
+			std::abs((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
+					 (std::sqrt(std::pow(P_05(0, 1), 2) + std::pow(P_05(0, 0), 2)))) <= 1.0 + kAcosEps;
 		if (!phi_inDomain)
 			outIkSols.valid.fill(false);
 		const float theta1_phi =
 			phi_inDomain
-				? acos(std::clamp((m_d[1] + m_d[2] + m_d[3] + m_d[4]) / (sqrt(pow(P_05(0, 1), 2) + pow(P_05(0, 0), 2))),
-								  -1.0, 1.0))
+				? std::acos(std::clamp((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
+											(std::sqrt(std::pow(P_05(0, 1), 2) + std::pow(P_05(0, 0), 2))),
+									  -1.0, 1.0))
 				: std::numeric_limits<float>::quiet_NaN();
 
 		for (int i = -4; i < int(m_numIkSol) - 4; i++)
@@ -283,7 +285,7 @@ namespace universalRobots
 			const float t5_arg = (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5];
 			if (std::abs(t5_arg) <= 1.0f + kAcosEps)
 			{
-				const float t5 = acos(std::clamp(t5_arg, -1.0f, 1.0f));
+				const float t5 = std::acos(std::clamp(t5_arg, -1.0f, 1.0f));
 				outIkSols.solutions[i][4] = contains(kWristUpSolutionIndices, i) ? t5 : -t5;
 			}
 			else
@@ -324,9 +326,10 @@ namespace universalRobots
 				outIkSols.solutions[i][5] = 0.0f;		  // Wrist singularity: theta6 pinned to 0 by convention.
 			else
 			{
-				const float sinTheta5 = sin(theta5);
-				outIkSols.solutions[i][5] = std::numbers::pi_v<float> / 2 +
-											atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
+				const float sinTheta5 = std::sin(theta5);
+				outIkSols.solutions[i][5] =
+					std::numbers::pi_v<float> / 2 +
+					std::atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
 			}
 
 			// Computing theta3, theta2, and theta4.
@@ -348,19 +351,23 @@ namespace universalRobots
 			Eigen::Matrix4f T_46 = T_45 * T_56;
 			Eigen::Matrix4f T_14 = T_16 * T_46.inverse();
 
-			float P_14_xz = sqrtf(pow(T_14(0, 3), 2) + pow(T_14(2, 3), 2));
+			const float T_14_x = T_14(0, 3);
+			const float T_14_z = T_14(2, 3);
+			float P_14_xz = std::sqrt(T_14_x * T_14_x + T_14_z * T_14_z);
 
 			// acos site 3: theta3_psi — if |arg| > 1+eps, solution i is invalid.
 			// See the site-1 note above: acos() is called on the untouched inline expression
 			// (clamped with double bounds) rather than a materialized float intermediate, to
 			// avoid an extra precision-losing rounding step right at this near-singular edge.
-			const bool psi_inDomain = std::abs((pow(P_14_xz, 2) - pow(m_a[1], 2) - pow(m_a[0], 2)) /
-											   (-2 * m_a[0] * m_a[1])) <= 1.0 + kAcosEps;
+			const bool psi_inDomain =
+				std::abs((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
+						 (-2 * m_a[0] * m_a[1])) <= 1.0 + kAcosEps;
 			if (!psi_inDomain)
 				outIkSols.valid[i] = false;
 			const float theta3_psi =
 				psi_inDomain
-					? acos(std::clamp((pow(P_14_xz, 2) - pow(m_a[1], 2) - pow(m_a[0], 2)) / (-2 * m_a[0] * m_a[1]),
+					? std::acos(std::clamp((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
+												(-2 * m_a[0] * m_a[1]),
 									  -1.0, 1.0))
 					: std::numeric_limits<float>::quiet_NaN();
 
@@ -373,8 +380,8 @@ namespace universalRobots
 				if (outIkSols.solutions[i][2] > std::numbers::pi_v<float>)
 					outIkSols.solutions[i][2] = outIkSols.solutions[i][2] - std::numbers::pi_v<float> * 2;
 				// Computing theta2.
-				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - atan2(T_14(2, 3), T_14(0, 3)) +
-											asin((m_a[1] * sin(-theta3_psi)) / P_14_xz);
+				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14(2, 3), T_14(0, 3)) +
+											std::asin((m_a[1] * std::sin(-theta3_psi)) / P_14_xz);
 				// Computing theta4.
 				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
 					Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1],
@@ -386,7 +393,7 @@ namespace universalRobots
 				Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
 				Eigen::Matrix4f T_34 = T_36 * T_46.inverse();
 
-				outIkSols.solutions[i][3] = atan2(T_34(1, 0), T_34(0, 0));
+				outIkSols.solutions[i][3] = std::atan2(T_34(1, 0), T_34(0, 0));
 			}
 			else
 			{
@@ -396,8 +403,8 @@ namespace universalRobots
 				if (outIkSols.solutions[i][2] > std::numbers::pi_v<float>)
 					outIkSols.solutions[i][2] = outIkSols.solutions[i][2] - std::numbers::pi_v<float> * 2;
 				// Computing theta2.
-				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - atan2(T_14(2, 3), T_14(0, 3)) +
-											asin(m_a[1] * sin(theta3_psi) / P_14_xz);
+				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14(2, 3), T_14(0, 3)) +
+											std::asin(m_a[1] * std::sin(theta3_psi) / P_14_xz);
 				// Computing theta4.
 				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
 					Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1],
@@ -409,7 +416,7 @@ namespace universalRobots
 				Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
 				Eigen::Matrix4f T_34 = T_36 * T_46.inverse();
 
-				outIkSols.solutions[i][3] = atan2(T_34(1, 0), T_34(0, 0));
+				outIkSols.solutions[i][3] = std::atan2(T_34(1, 0), T_34(0, 0));
 			}
 		}
 
