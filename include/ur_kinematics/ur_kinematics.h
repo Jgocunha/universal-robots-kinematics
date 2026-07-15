@@ -205,6 +205,39 @@ namespace universalRobots
 		// cppcheck-suppress returnByReference
 		[[nodiscard]] pose getTipPose() const;
 
+		// Private helpers decomposing inverseKinematics() into its named
+		// theta-solve steps (issue #60). Each returns plain float/bool state;
+		// no helper owns any side effect on IkSolutions -- the caller
+		// (inverseKinematics()) is solely responsible for writing into
+		// outIkSols.
+		struct Theta1Solution
+		{
+			float psi = 0.0f;
+			float phi = 0.0f;
+			bool phiInDomain = true;
+		};
+		struct Theta5Solution
+		{
+			float theta5 = 0.0f;
+			bool valid = true;
+		};
+		struct ElbowSolution
+		{
+			float theta2 = 0.0f;
+			float theta3 = 0.0f;
+			float theta4 = 0.0f;
+		};
+
+		[[nodiscard]] Theta1Solution solveTheta1(const Eigen::Matrix4f& T_07) const;
+		[[nodiscard]] Theta5Solution solveTheta5(const Eigen::Matrix4f& T_16, unsigned int i) const;
+		[[nodiscard]] float solveTheta6(const Eigen::Matrix4f& T_16, float theta5) const;
+		// secondElbow selects between the two elbow configurations (formerly two
+		// near-duplicate branches keyed by kSecondElbowSolutionIndices); folded
+		// into one parameterized path (issue #60).
+		[[nodiscard]] ElbowSolution solveElbow(const Eigen::Matrix4f& T_01, const Eigen::Matrix4f& T_06,
+											   const Eigen::Matrix4f& T_46, float T_14_x, float T_14_z, float P_14_xz,
+											   float theta3_psi, bool secondElbow) const;
+
 		// Helpers for operator<<(std::ostream&, const UR&); split out to keep each
 		// print section (and its frame/loop bookkeeping) independently readable.
 		static void printLinkDimensions(std::ostream& stream, const UR& robot);

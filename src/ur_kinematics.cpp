@@ -31,6 +31,10 @@ namespace
 	// theta3 = pi - psi branch, the even indices take theta3 = pi + psi.
 	constexpr std::array<unsigned int, 4> kSecondElbowSolutionIndices{1, 3, 5, 7};
 
+	// acos domain clamp margin shared by all three acos sites in inverseKinematics()
+	// (theta1_phi, theta5, theta3_psi): clamp when |arg| in (1, 1+eps]; invalid beyond.
+	constexpr float kAcosEps = 1e-6f;
+
 	// Streams a frame's transform-label number (e.g. "4" or, for the primed
 	// intermediate wrist frames not in kPoseBearingFrames, "4'"). The number is
 	// the count of pose-bearing frames up to and including this one, so the
@@ -206,40 +210,15 @@ namespace universalRobots
 	}
 
 	/// <summary>
-	/// Computes the eight inverse kinematics solutions for a given tip pose.
+	/// Computing theta1: the shoulder-left/right pair of solutions for the target tip pose.
 	/// </summary>
-	/// <param name="targetTipPose"></param>
-	/// <param name="outIkSols"></param>
 	// This geometric solver mixes double-returning math functions (acos, atan2, sqrt,
-	// pow, ...) with float state throughout; the narrowing conversions are inherent to
-	// the algorithm, not bugs (see task 04f: even seemingly-neutral rewrites here have
-	// shifted golden values via extra rounding steps near singularities), so the
-	// warning is suppressed for the whole function rather than edited away site-by-site.
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4244)
-#endif
-	UR::IkSolutions UR::inverseKinematics(const pose& targetTipPose) const
+	// pow, ...) with float state throughout; the narrowing conversion below is inherent
+	// to the algorithm, not a bug (see task 04f: even seemingly-neutral rewrites here
+	// have shifted golden values via extra rounding steps near singularities), so the
+	// warning is suppressed only at the site that genuinely emits it.
+	UR::Theta1Solution UR::solveTheta1(const Eigen::Matrix4f& T_07) const
 	{
-		IkSolutions outIkSols = {};
-		outIkSols.valid.fill(true); // start optimistic; mark false at each failed acos site
-
-		constexpr float kAcosEps = 1e-6f; // clamp when |arg| in (1, 1+eps]; invalid beyond
-
-		Eigen::Matrix4f T_07 = Eigen::Matrix4f::Identity(); // 0T7
-
-		// Get translation matrix.
-		const Eigen::Vector3f translation = {targetTipPose.m_pos[0], targetTipPose.m_pos[1], targetTipPose.m_pos[2]};
-
-		// Calculate rotation matrix.
-		Eigen::Matrix3f rotation;
-		rotation = Eigen::AngleAxisf(targetTipPose.m_eulerAngles[0], Eigen::Vector3f::UnitX()) *
-				   Eigen::AngleAxisf(targetTipPose.m_eulerAngles[1], Eigen::Vector3f::UnitY()) *
-				   Eigen::AngleAxisf(targetTipPose.m_eulerAngles[2], Eigen::Vector3f::UnitZ());
-
-		T_07.block<3, 3>(0, 0) = rotation;
-		T_07.block<3, 1>(0, 3) = translation;
-
 		// Computing theta1.
 		const Eigen::Matrix<float, 1, 4> P_05 =
 			T_07 * Eigen::Matrix<float, 1, 4>(0.0f, 0.0f, -m_d[5] - m_d[6], 1.0f)
@@ -256,18 +235,150 @@ namespace universalRobots
 		const bool phi_inDomain =
 			std::abs((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
 					 (std::sqrt(std::pow(P_05(0, 1), 2) + std::pow(P_05(0, 0), 2)))) <= 1.0 + kAcosEps;
-		if (!phi_inDomain)
-			outIkSols.valid.fill(false);
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4244) // double-to-float narrowing: acos()/clamp() above stay double until this assignment.
+#endif
 		const float theta1_phi =
 			phi_inDomain ? std::acos(std::clamp((m_d[1] + m_d[2] + m_d[3] + m_d[4]) /
 													(std::sqrt(std::pow(P_05(0, 1), 2) + std::pow(P_05(0, 0), 2))),
 												-1.0, 1.0))
 						 : std::numeric_limits<float>::quiet_NaN();
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
+
+		return {theta1_psi, theta1_phi, phi_inDomain};
+	}
+
+	/// <summary>
+	/// Computing theta5 for solution i — the wrist-up/wrist-down acos site.
+	/// </summary>
+	UR::Theta5Solution UR::solveTheta5(const Eigen::Matrix4f& T_16, unsigned int i) const
+	{
+		// acos site 2: theta5 — if |arg| > 1+eps, solution i is invalid.
+		const float t5_arg = (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5];
+		if (std::abs(t5_arg) <= 1.0f + kAcosEps)
+		{
+			const float t5 = std::acos(std::clamp(t5_arg, -1.0f, 1.0f));
+			return {contains(kWristUpSolutionIndices, i) ? t5 : -t5, true};
+		}
+		return {std::numeric_limits<float>::quiet_NaN(), false};
+	}
+
+	/// <summary>
+	/// Computing theta6, given theta5 and 1T6. Encapsulates the wrist-singularity convention.
+	/// </summary>
+	// theta5==0/pi is a wrist singularity: the joint-6 axis becomes (anti)parallel to
+	// the joint-4 axis, so theta6 alone is underdetermined (the atan2 below divides by
+	// sin(theta5)==0) while theta1..theta5 stay uniquely determined by the target pose.
+	// Convention (task 04f): pin theta6 = 0 at the singularity; theta3/theta2/theta4 are
+	// then solved consistently for that choice downstream via T_46. Away from the
+	// singularity the ordinary formula below remains numerically well-conditioned (the
+	// division is by a small but genuine, non-zero denominator) and is used unchanged.
+	//
+	// theta5 == +pi and theta5 == -pi are the *same* physical angle, so right at this
+	// singularity a sub-ULP difference in acos()/sin() between platforms/compilers can
+	// flip which side of pi is computed, flipping the sign of sin(theta5) and sending the
+	// formula below to a different branch entirely (observed: macOS libm vs Windows/Linux
+	// on this exact case). kPiSingularityEps guards the pi branch specifically — it must
+	// stay well below reachable-but-non-singular theta5 values (empirically ~1e-3 rad in
+	// the golden set) so it does not also swallow those.
+	//
+	// theta5 near (but not exactly) 0 is the same singularity from the other side (issue
+	// #17): the original exact-equality check (theta5 == 0) let a near-zero, non-zero
+	// theta5 (e.g. from float rounding in the acos above) fall through to the atan2
+	// division below, dividing by a near-zero sin(theta5) and producing a numerically
+	// blown-up theta6. kZeroSingularityEps guards this side symmetrically to the pi case.
+	float UR::solveTheta6(const Eigen::Matrix4f& T_16, float theta5) const
+	{
+		constexpr float kPiSingularityEps = 1e-4f;
+		constexpr float kZeroSingularityEps = 1e-4f;
+		const bool nearPiSingularity = std::abs(std::abs(theta5) - std::numbers::pi_v<float>) < kPiSingularityEps;
+		const bool nearZeroSingularity = std::abs(theta5) < kZeroSingularityEps;
+
+		if (nearZeroSingularity || nearPiSingularity) // If theta5 is at the singularity (0 or +-pi).
+			return 0.0f;							  // Wrist singularity: theta6 pinned to 0 by convention.
+
+		const float sinTheta5 = std::sin(theta5);
+		return std::numbers::pi_v<float> / 2 +
+			   std::atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
+	}
+
+	/// <summary>
+	/// Computing theta3, theta2, and theta4 for solution i, given the shared elbow-psi
+	/// acos result. secondElbow selects which of the two elbow configurations
+	/// (formerly two near-duplicate branches keyed by kSecondElbowSolutionIndices) to
+	/// solve; folded into one parameterized path (issue #60).
+	/// </summary>
+	// The two original branches differed only by: theta3 = pi -/+ theta3_psi, and the
+	// asin() argument's sin(-theta3_psi) vs sin(theta3_psi). Both differences reduce to
+	// a single sign flip on theta3_psi. IEEE754 negation is exact (sign-bit flip, no
+	// rounding), and floating-point a-b is defined identically to a+(-b), so routing
+	// both branches through one signed intermediate reproduces each original branch's
+	// float ops bit-for-bit (verified via golden ctest + the operator<< stash-diff).
+	UR::ElbowSolution UR::solveElbow(const Eigen::Matrix4f& T_01, const Eigen::Matrix4f& T_06,
+									 const Eigen::Matrix4f& T_46, float T_14_x, float T_14_z, float P_14_xz,
+									 float theta3_psi, bool secondElbow) const
+	{
+		const float signedTheta3Psi = secondElbow ? -theta3_psi : theta3_psi;
+
+		ElbowSolution sol;
+		// Computing theta3.
+		sol.theta3 = std::numbers::pi_v<float> + signedTheta3Psi;
+		// Masking theta3 for CoppeliaSim(invert value for ang > 180).
+		if (sol.theta3 > std::numbers::pi_v<float>)
+			sol.theta3 = sol.theta3 - std::numbers::pi_v<float> * 2;
+		// Computing theta2.
+		sol.theta2 = std::numbers::pi_v<float> / 2 - std::atan2(T_14_z, T_14_x) +
+					 std::asin((m_a[1] * std::sin(signedTheta3Psi)) / P_14_xz);
+		// Computing theta4.
+		Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(Eigen::RowVector4f(
+			-std::numbers::pi_v<float> / 2, 0.0f, m_d[1], sol.theta2 - (std::numbers::pi_v<float> / 2)));
+		Eigen::Matrix4f T_23 =
+			universalRobots::calcTransformationMatrix(Eigen::RowVector4f(0.0f, m_a[0], m_d[2], sol.theta3));
+		Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
+
+		Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
+		Eigen::Matrix4f T_34 = T_36 * T_46.inverse();
+
+		sol.theta4 = std::atan2(T_34(1, 0), T_34(0, 0));
+
+		return sol;
+	}
+
+	/// <summary>
+	/// Computes the eight inverse kinematics solutions for a given tip pose.
+	/// </summary>
+	/// <param name="targetTipPose"></param>
+	/// <param name="outIkSols"></param>
+	UR::IkSolutions UR::inverseKinematics(const pose& targetTipPose) const
+	{
+		IkSolutions outIkSols = {};
+		outIkSols.valid.fill(true); // start optimistic; mark false at each failed acos site
+
+		Eigen::Matrix4f T_07 = Eigen::Matrix4f::Identity(); // 0T7
+
+		// Get translation matrix.
+		const Eigen::Vector3f translation = {targetTipPose.m_pos[0], targetTipPose.m_pos[1], targetTipPose.m_pos[2]};
+
+		// Calculate rotation matrix.
+		Eigen::Matrix3f rotation;
+		rotation = Eigen::AngleAxisf(targetTipPose.m_eulerAngles[0], Eigen::Vector3f::UnitX()) *
+				   Eigen::AngleAxisf(targetTipPose.m_eulerAngles[1], Eigen::Vector3f::UnitY()) *
+				   Eigen::AngleAxisf(targetTipPose.m_eulerAngles[2], Eigen::Vector3f::UnitZ());
+
+		T_07.block<3, 3>(0, 0) = rotation;
+		T_07.block<3, 1>(0, 3) = translation;
+
+		const Theta1Solution theta1Sol = solveTheta1(T_07);
+		if (!theta1Sol.phiInDomain)
+			outIkSols.valid.fill(false);
 
 		for (int i = -4; i < int(m_numIkSol) - 4; i++)
 		{
 			outIkSols.solutions[i + 4][0] =
-				(std::numbers::pi_v<float> / 2 + theta1_psi + (i < 0 ? 1 : -1) * theta1_phi) -
+				(std::numbers::pi_v<float> / 2 + theta1Sol.psi + (i < 0 ? 1 : -1) * theta1Sol.phi) -
 				std::numbers::pi_v<float>; // (i < 0 ? 1 : -1) first 4 theta1 values have positive phi
 		}
 
@@ -281,56 +392,13 @@ namespace universalRobots
 				0.0f, 0.0f, m_d[0], outIkSols.solutions[i][0]}); // Knowing theta1 it is possible to know 0T1
 			Eigen::Matrix4f T_16 = T_01.inverse() * T_06;		 // 1T6 = 1T0 * 0T6
 
-			// acos site 2: theta5 — if |arg| > 1+eps, solution i is invalid.
-			const float t5_arg = (T_16(1, 3) - (m_d[1] + m_d[2] + m_d[3] + m_d[4])) / m_d[5];
-			if (std::abs(t5_arg) <= 1.0f + kAcosEps)
-			{
-				const float t5 = std::acos(std::clamp(t5_arg, -1.0f, 1.0f));
-				outIkSols.solutions[i][4] = contains(kWristUpSolutionIndices, i) ? t5 : -t5;
-			}
-			else
-			{
-				outIkSols.solutions[i][4] = std::numeric_limits<float>::quiet_NaN();
+			const Theta5Solution theta5Sol = solveTheta5(T_16, i);
+			outIkSols.solutions[i][4] = theta5Sol.theta5;
+			if (!theta5Sol.valid)
 				outIkSols.valid[i] = false;
-			}
-
-			// theta5==0/pi is a wrist singularity: the joint-6 axis becomes (anti)parallel to
-			// the joint-4 axis, so theta6 alone is underdetermined (the atan2 below divides by
-			// sin(theta5)==0) while theta1..theta5 stay uniquely determined by the target pose.
-			// Convention (task 04f): pin theta6 = 0 at the singularity; theta3/theta2/theta4 are
-			// then solved consistently for that choice downstream via T_46. Away from the
-			// singularity the ordinary formula below remains numerically well-conditioned (the
-			// division is by a small but genuine, non-zero denominator) and is used unchanged.
-			//
-			// theta5 == +pi and theta5 == -pi are the *same* physical angle, so right at this
-			// singularity a sub-ULP difference in acos()/sin() between platforms/compilers can
-			// flip which side of pi is computed, flipping the sign of sin(theta5) and sending the
-			// formula below to a different branch entirely (observed: macOS libm vs Windows/Linux
-			// on this exact case). kPiSingularityEps guards the pi branch specifically — it must
-			// stay well below reachable-but-non-singular theta5 values (empirically ~1e-3 rad in
-			// the golden set) so it does not also swallow those.
-			//
-			// theta5 near (but not exactly) 0 is the same singularity from the other side (issue
-			// #17): the original exact-equality check (theta5 == 0) let a near-zero, non-zero
-			// theta5 (e.g. from float rounding in the acos above) fall through to the atan2
-			// division below, dividing by a near-zero sin(theta5) and producing a numerically
-			// blown-up theta6. kZeroSingularityEps guards this side symmetrically to the pi case.
-			constexpr float kPiSingularityEps = 1e-4f;
-			constexpr float kZeroSingularityEps = 1e-4f;
-			const float theta5 = outIkSols.solutions[i][4];
-			const bool nearPiSingularity = std::abs(std::abs(theta5) - std::numbers::pi_v<float>) < kPiSingularityEps;
-			const bool nearZeroSingularity = std::abs(theta5) < kZeroSingularityEps;
 
 			// Computing theta6.
-			if (nearZeroSingularity || nearPiSingularity) // If theta5 is at the singularity (0 or +-pi).
-				outIkSols.solutions[i][5] = 0.0f;		  // Wrist singularity: theta6 pinned to 0 by convention.
-			else
-			{
-				const float sinTheta5 = std::sin(theta5);
-				outIkSols.solutions[i][5] =
-					std::numbers::pi_v<float> / 2 +
-					std::atan2(-T_16.inverse()(1, 1) / sinTheta5, T_16.inverse()(0, 1) / sinTheta5);
-			}
+			outIkSols.solutions[i][5] = solveTheta6(T_16, theta5Sol.theta5);
 
 			// Computing theta3, theta2, and theta4.
 
@@ -363,66 +431,30 @@ namespace universalRobots
 											   (-2 * m_a[0] * m_a[1])) <= 1.0 + kAcosEps;
 			if (!psi_inDomain)
 				outIkSols.valid[i] = false;
+#if defined(_MSC_VER)
+#pragma warning(push)
+#pragma warning(disable : 4244) // double-to-float narrowing: acos()/clamp() above stay double until this assignment.
+#endif
 			const float theta3_psi =
 				psi_inDomain ? std::acos(std::clamp((std::pow(P_14_xz, 2) - std::pow(m_a[1], 2) - std::pow(m_a[0], 2)) /
 														(-2 * m_a[0] * m_a[1]),
 													-1.0, 1.0))
 							 : std::numeric_limits<float>::quiet_NaN();
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
 			// Elbow up or down
-			if (contains(kSecondElbowSolutionIndices, i))
-			{
-				// Computing theta3.
-				outIkSols.solutions[i][2] = std::numbers::pi_v<float> - theta3_psi;
-				// Masking theta3 for CoppeliaSim(invert value for ang > 180).
-				if (outIkSols.solutions[i][2] > std::numbers::pi_v<float>)
-					outIkSols.solutions[i][2] = outIkSols.solutions[i][2] - std::numbers::pi_v<float> * 2;
-				// Computing theta2.
-				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14_z, T_14_x) +
-											std::asin((m_a[1] * std::sin(-theta3_psi)) / P_14_xz);
-				// Computing theta4.
-				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
-					Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1],
-									   outIkSols.solutions[i][1] - (std::numbers::pi_v<float> / 2)));
-				Eigen::Matrix4f T_23 = universalRobots::calcTransformationMatrix(
-					Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
-				Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
-
-				Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
-				Eigen::Matrix4f T_34 = T_36 * T_46.inverse();
-
-				outIkSols.solutions[i][3] = std::atan2(T_34(1, 0), T_34(0, 0));
-			}
-			else
-			{
-				// Computing theta3.
-				outIkSols.solutions[i][2] = std::numbers::pi_v<float> + theta3_psi;
-				// Masking theta3 for CoppeliaSim(invert value for ang > 180).
-				if (outIkSols.solutions[i][2] > std::numbers::pi_v<float>)
-					outIkSols.solutions[i][2] = outIkSols.solutions[i][2] - std::numbers::pi_v<float> * 2;
-				// Computing theta2.
-				outIkSols.solutions[i][1] = std::numbers::pi_v<float> / 2 - std::atan2(T_14_z, T_14_x) +
-											std::asin(m_a[1] * std::sin(theta3_psi) / P_14_xz);
-				// Computing theta4.
-				Eigen::Matrix4f T_12 = universalRobots::calcTransformationMatrix(
-					Eigen::RowVector4f(-std::numbers::pi_v<float> / 2, 0.0f, m_d[1],
-									   outIkSols.solutions[i][1] - (std::numbers::pi_v<float> / 2)));
-				Eigen::Matrix4f T_23 = universalRobots::calcTransformationMatrix(
-					Eigen::RowVector4f(0.0f, m_a[0], m_d[2], outIkSols.solutions[i][2]));
-				Eigen::Matrix4f T_03 = T_01 * T_12 * T_23;
-
-				Eigen::Matrix4f T_36 = T_03.inverse() * T_06;
-				Eigen::Matrix4f T_34 = T_36 * T_46.inverse();
-
-				outIkSols.solutions[i][3] = std::atan2(T_34(1, 0), T_34(0, 0));
-			}
+			const bool secondElbow = contains(kSecondElbowSolutionIndices, i);
+			const ElbowSolution elbowSol =
+				solveElbow(T_01, T_06, T_46, T_14_x, T_14_z, P_14_xz, theta3_psi, secondElbow);
+			outIkSols.solutions[i][1] = elbowSol.theta2;
+			outIkSols.solutions[i][2] = elbowSol.theta3;
+			outIkSols.solutions[i][3] = elbowSol.theta4;
 		}
 
 		return outIkSols;
 	}
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 	bool UR::isPoseReachable(const pose& targetPose) const
 	{
