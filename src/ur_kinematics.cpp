@@ -35,6 +35,10 @@ namespace
 	// (theta1_phi, theta5, theta3_psi): clamp when |arg| in (1, 1+eps]; invalid beyond.
 	constexpr float kAcosEps = 1e-6f;
 
+	// forwardKinematics()'s accepted joint range is [-kTwoPi, +kTwoPi]; shared here so
+	// generateRandomReachablePose() can sample within it without redefining it.
+	constexpr float kTwoPi = 2.0f * std::numbers::pi_v<float>;
+
 	// Streams a frame's transform-label number (e.g. "4" or, for the primed
 	// intermediate wrist frames not in kPoseBearingFrames, "4'"). The number is
 	// the count of pose-bearing frames up to and including this one, so the
@@ -148,7 +152,6 @@ namespace universalRobots
 	/// <returns>tipPose</returns>
 	pose UR::forwardKinematics(const JointVector& targetJointVal) const
 	{
-		constexpr float kTwoPi = 2.0f * std::numbers::pi_v<float>;
 		for (unsigned int i = 0; i < m_numDoF; ++i)
 		{
 			const float j = targetJointVal[i];
@@ -469,16 +472,29 @@ namespace universalRobots
 	/// <returns>randomValidTargetPose</returns>
 	pose UR::generateRandomReachablePose() const
 	{
-		//// https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
 		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> distrib(-360, 360); // URs joints limits [-360; 360]
+		return generateRandomReachablePose(rd());
+	}
+
+	/// <summary>
+	/// Generates a valid tip pose by running forward kinematics with random target joint values,
+	/// sampled deterministically from the given seed.
+	/// </summary>
+	/// <param name="seed"></param>
+	/// <returns>randomValidTargetPose</returns>
+	pose UR::generateRandomReachablePose(unsigned int seed) const
+	{
+		std::mt19937 gen(seed);
+		// Upper bound is nextafter(kTwoPi, 0.0f): defensive against uniform_real_distribution's
+		// known float-rounding-to-upper-bound quirk, so every draw stays within
+		// forwardKinematics()'s accepted [-kTwoPi, +kTwoPi] range.
+		std::uniform_real_distribution<float> distrib(-kTwoPi, std::nextafter(kTwoPi, 0.0f));
 
 		JointVector randomTargetJointValue = {};
 
 		for (unsigned int i = 0; i < m_numDoF; i++)
 		{
-			randomTargetJointValue[i] = universalRobots::rad(static_cast<float>(distrib(gen)));
+			randomTargetJointValue[i] = distrib(gen);
 		}
 
 		return forwardKinematics(randomTargetJointValue);

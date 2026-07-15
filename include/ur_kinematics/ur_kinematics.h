@@ -192,6 +192,8 @@ namespace universalRobots
 		/// Returns true iff inverseKinematics(targetPose).anyValid().
 		[[nodiscard]] bool isPoseReachable(const pose& targetPose) const;
 		pose generateRandomReachablePose() const;
+		/// Deterministic overload: samples with a caller-supplied seed instead of std::random_device.
+		pose generateRandomReachablePose(unsigned int seed) const;
 		[[nodiscard]] static bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution);
 		friend std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot);
 		friend std::ostream& operator<<(std::ostream& stream, universalRobots::URtype type);
