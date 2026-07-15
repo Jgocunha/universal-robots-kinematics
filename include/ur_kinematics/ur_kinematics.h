@@ -143,17 +143,26 @@ namespace universalRobots
 		 */
 		std::array<float, m_numTransX> m_a = kUR10.a;
 
+		// mutable: these four members are a cache of the last forwardKinematics()
+		// computation, kept for operator<</pose accessors. forwardKinematics() is
+		// logically const (its return value depends only on its argument and the
+		// robot's fixed DH parameters); mutable lets it also refresh this cache
+		// without losing const-callability. See forwardKinematics()'s doc comment.
+		// Not thread-safe: the cache is updated without synchronization, so
+		// concurrent const calls (e.g. forwardKinematics()) on the same UR
+		// instance from multiple threads is a data race.
+
 		/** @brief Position, Euler Angles, and Value of the robot's joints. {x, y, z} {alpha, beta, gamma} {jointValue}
 		 */
-		joint m_jointState[m_numDoF] = {};
+		mutable joint m_jointState[m_numDoF] = {};
 
 		// Create an array of (individual) transformation matrices iTi+1 / i-1Ti
 
 		/** @brief Array of (individual) transformation matrices iTi+1 / i-1Ti */
-		Eigen::Matrix4f m_individualTransformationMatrices[m_numReferenceFrames] = {};
+		mutable Eigen::Matrix4f m_individualTransformationMatrices[m_numReferenceFrames] = {};
 
 		/** @brief Array of (general) transformation matrices 0Ti */
-		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
+		mutable Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
 
 		/**
 		 * @brief Modified Denavit-Hartenberg parameters matrix (9x4)
@@ -161,25 +170,28 @@ namespace universalRobots
 		 *
 		 * Populated by setMDHmatrix() from the constructor.
 		 */
-		Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix;
+		mutable Eigen::Matrix<float, m_numReferenceFrames, 4> m_MDHmatrix;
 
 	  public:
 		UR(URtype robotType = UR10, bool endEffector = false, float endEffectorDimension = 0.0f);
 		[[nodiscard]] URtype getRobotType() const;
 		/// Precondition: every joint value must be finite and in [-2π, 2π].
 		/// Throws std::invalid_argument otherwise.
-		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal);
-		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose);
+		/// Note: also refreshes the joint-pose/transform cache used by operator<<
+		/// and the joint-pose accessors (see the mutable members above) -- callable
+		/// on a const UR, but not side-effect-free with respect to that cache.
+		[[nodiscard]] pose forwardKinematics(const JointVector& targetJointVal) const;
+		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose) const;
 		/// Returns true iff inverseKinematics(targetPose).anyValid().
-		[[nodiscard]] bool isPoseReachable(const pose& targetPose);
-		pose generateRandomReachablePose();
+		[[nodiscard]] bool isPoseReachable(const pose& targetPose) const;
+		pose generateRandomReachablePose() const;
 		[[nodiscard]] static bool isSolutionValid(const std::array<float, m_numDoF>& ikSolution);
 		friend std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot);
 		friend std::ostream& operator<<(std::ostream& stream, universalRobots::URtype type);
 
 	  private:
-		void setMDHmatrix();
-		void setTheta(const JointVector& jointVal);
+		void setMDHmatrix() const;
+		void setTheta(const JointVector& jointVal) const;
 		[[nodiscard]] const std::array<float, m_numTransZ>& getTransZ() const;
 		[[nodiscard]] const std::array<float, m_numTransX>& getTransX() const;
 		[[nodiscard]] float getTheta(int ix) const;

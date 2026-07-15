@@ -69,7 +69,7 @@ namespace universalRobots
 	/// <summary>
 	/// setMDHmatrix
 	///	</summary>
-	void UR::setMDHmatrix()
+	void UR::setMDHmatrix() const
 	{
 		m_MDHmatrix << 0.0f, 0.0f, m_d[0], m_jointState[0].m_jointValue,									   // 0T1
 			universalRobots::rad(-90), 0.0f, m_d[1], m_jointState[1].m_jointValue + universalRobots::rad(-90), // 1T2
@@ -86,7 +86,7 @@ namespace universalRobots
 	/// setTheta
 	/// </summary>
 	/// <param name="jointVal"></param>
-	void UR::setTheta(const JointVector& jointVal)
+	void UR::setTheta(const JointVector& jointVal) const
 	{
 		for (unsigned int i = 0; i < m_numDoF; i++)
 			m_jointState[i].m_jointValue = jointVal[i];
@@ -142,7 +142,7 @@ namespace universalRobots
 	/// </summary>
 	/// <param name="targetJointVal"></param>
 	/// <returns>tipPose</returns>
-	pose UR::forwardKinematics(const JointVector& targetJointVal)
+	pose UR::forwardKinematics(const JointVector& targetJointVal) const
 	{
 		constexpr float kTwoPi = 2.0f * std::numbers::pi_v<float>;
 		for (unsigned int i = 0; i < m_numDoF; ++i)
@@ -218,7 +218,7 @@ namespace universalRobots
 #pragma warning(push)
 #pragma warning(disable : 4244)
 #endif
-	UR::IkSolutions UR::inverseKinematics(const pose& targetTipPose)
+	UR::IkSolutions UR::inverseKinematics(const pose& targetTipPose) const
 	{
 		IkSolutions outIkSols = {};
 		outIkSols.valid.fill(true); // start optimistic; mark false at each failed acos site
@@ -423,7 +423,7 @@ namespace universalRobots
 #pragma warning(pop)
 #endif
 
-	bool UR::isPoseReachable(const pose& targetPose)
+	bool UR::isPoseReachable(const pose& targetPose) const
 	{
 		return inverseKinematics(targetPose).anyValid();
 	}
@@ -432,7 +432,7 @@ namespace universalRobots
 	/// Generates a valid tip pose by running forward kinematics with random target joint values.
 	/// </summary>
 	/// <returns>randomValidTargetPose</returns>
-	pose UR::generateRandomReachablePose()
+	pose UR::generateRandomReachablePose() const
 	{
 		//// https://en.cppreference.com/w/cpp/numeric/random/uniform_int_distribution
 		std::random_device rd;
