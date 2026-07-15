@@ -2,7 +2,8 @@
 //
 // All property tests use a seeded std::mt19937 (deterministic, fixed across runs);
 // generateRandomReachablePose() is the one documented exception (uses random_device
-// by design — only its properties are tested, not exact values).
+// by design — only its properties are tested, not exact values). Its seeded overload
+// (generateRandomReachablePose(unsigned int)) is used where determinism is needed.
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -193,6 +194,71 @@ TEST(Property, GenerateRandomReachablePoseRepeatedCallsDiffer)
 			anyDiffers = true;
 	}
 	EXPECT_TRUE(anyDiffers) << "two consecutive draws produced an identical pose";
+}
+
+// ---- generateRandomReachablePose(seed): task 65's continuous-radian sampling ----
+//
+// forwardKinematics() throws for any joint outside [-2pi, +2pi] (src/ur_kinematics.cpp);
+// the seeded overload samples with std::uniform_real_distribution<float> over exactly
+// that range, so every draw is FK-consumable by construction. Swept here across many
+// draws x 3 models as the same kind of empirical proof #64's FK-consumable test used.
+TEST(Property, GenerateRandomReachablePoseSeededNeverThrows)
+{
+	constexpr int kDraws = 200;
+	for (const auto& model : goldencfg::models())
+	{
+		universalRobots::UR robot(model.type);
+		for (int i = 0; i < kDraws; ++i)
+			EXPECT_NO_THROW({ (void)robot.generateRandomReachablePose(static_cast<unsigned int>(kSeed + i)); })
+				<< model.name << " draw " << i;
+	}
+}
+
+TEST(Property, GenerateRandomReachablePoseSeededIsDeterministic)
+{
+	universalRobots::UR robot(universalRobots::URtype::UR5);
+	const universalRobots::pose a = robot.generateRandomReachablePose(4242u);
+	const universalRobots::pose b = robot.generateRandomReachablePose(4242u);
+	EXPECT_EQ(a.m_pos, b.m_pos);
+	EXPECT_EQ(a.m_eulerAngles, b.m_eulerAngles);
+}
+
+// The old implementation sampled whole degrees (std::uniform_int_distribution then
+// rad(static_cast<float>(...))), so the original joint value was always an exact
+// multiple of 1 degree. The new std::uniform_real_distribution<float> samples
+// continuously in radians. Recovering a draw's joints via inverseKinematics() and
+// checking against the nearest degree grid point distinguishes the two: with genuinely
+// continuous sampling, landing exactly on a degree multiple has probability ~0.
+TEST(Property, GenerateRandomReachablePoseSamplesContinuousRadians)
+{
+	constexpr int kDraws = 40;
+	constexpr float kDegPerRad = 180.0f / std::numbers::pi_v<float>;
+	constexpr float kGridEps = 0.01f; // degrees; well above float noise, well below a real grid step
+	bool sawOffGrid = false;
+	for (const auto& model : goldencfg::models())
+	{
+		universalRobots::UR robot(model.type);
+		for (int i = 0; i < kDraws && !sawOffGrid; ++i)
+		{
+			const universalRobots::pose p = robot.generateRandomReachablePose(static_cast<unsigned int>(kSeed + i));
+			const universalRobots::UR::IkSolutions sols = robot.inverseKinematics(p);
+			for (unsigned int s = 0; s < universalRobots::UR::m_numIkSol && !sawOffGrid; ++s)
+			{
+				if (!sols.valid[s])
+					continue;
+				for (float j : sols.solutions[s])
+				{
+					const float deg = j * kDegPerRad;
+					if (std::abs(deg - std::round(deg)) > kGridEps)
+					{
+						sawOffGrid = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+	EXPECT_TRUE(sawOffGrid) << "expected at least one recovered joint value at sub-degree resolution";
 }
 
 // ---- IK solution-family structure (BASELINE.md index semantics) ----

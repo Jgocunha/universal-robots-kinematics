@@ -103,11 +103,14 @@ Equivalent to `inverseKinematics(targetPose).anyValid()` — use this when you o
 
 ```cpp
 pose generateRandomReachablePose();
+pose generateRandomReachablePose(unsigned int seed);
 ```
 
 Picks random joint angles within the robots' limits and runs forward kinematics, returning a pose that is reachable by construction. Useful for tests and benchmarking (see [Benchmarking](Benchmarking)).
 
-Note that "reachable by construction" means the arm can physically get there — the pose is the forward-kinematics image of a real, in-limits joint configuration. It does **not** mean this library's analytic inverse-kinematics solver can necessarily recover a solution for it. A joint draw that swings the wrist center close to the base's vertical axis can land it inside a small cylindrical region around that axis that the solver's closed-form math cannot invert, so `isPoseReachable()` (and `inverseKinematics()`) may reject a fraction of the poses this function generates. In practice this affects roughly a fifth of draws across the full ±360° joint range (e.g. around 159/200 in a seeded UR3 run). If your use case needs every generated pose to be solvable, check `isPoseReachable()` on the result and redraw as needed.
+Joint angles are drawn continuously (`std::uniform_real_distribution<float>`) from `forwardKinematics()`'s full accepted range, `[-2π, +2π]` radians per joint — not a fixed integer-degree grid. The no-arg overload seeds from `std::random_device`; the seeded overload samples deterministically from a caller-supplied seed, for reproducible tests.
+
+Note that "reachable by construction" means the arm can physically get there — the pose is the forward-kinematics image of a real, in-limits joint configuration. It does **not** mean this library's analytic inverse-kinematics solver can necessarily recover a solution for it. A joint draw that swings the wrist center close to the base's vertical axis can land it inside a small cylindrical region around that axis that the solver's closed-form math cannot invert, so `isPoseReachable()` (and `inverseKinematics()`) may reject a fraction of the poses this function generates. In practice this affects roughly a fifth of draws across the full ±2π joint range (e.g. around 159/200 in a seeded UR3 run). If your use case needs every generated pose to be solvable, check `isPoseReachable()` on the result and redraw as needed.
 
 ## `isSolutionValid` (static)
 
