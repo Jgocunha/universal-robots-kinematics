@@ -88,8 +88,8 @@ Returns `true` if none of the 6 joint values in `ikSolution` are NaN. This is wh
 ```cpp
 struct pose
 {
-    float m_pos[3];         // x, y, z (metres)
-    float m_eulerAngles[3]; // alpha, beta, gamma (radians, ZYX convention)
+    std::array<float, 3> m_pos;         // x, y, z (metres)
+    std::array<float, 3> m_eulerAngles; // alpha, beta, gamma (radians, ZYX convention)
 };
 ```
 

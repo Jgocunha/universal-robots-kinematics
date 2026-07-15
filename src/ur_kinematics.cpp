@@ -186,8 +186,9 @@ namespace universalRobots
 					m_generalTransformationMatrices[i](2, 0), m_generalTransformationMatrices[i](2, 1),
 					m_generalTransformationMatrices[i](2, 2);
 
-				float position[3] = {m_generalTransformationMatrices[i](0, 3), m_generalTransformationMatrices[i](1, 3),
-									 m_generalTransformationMatrices[i](2, 3)};
+				std::array<float, 3> position = {m_generalTransformationMatrices[i](0, 3),
+												 m_generalTransformationMatrices[i](1, 3),
+												 m_generalTransformationMatrices[i](2, 3)};
 
 				// Tip pose
 				if (i == 8)
