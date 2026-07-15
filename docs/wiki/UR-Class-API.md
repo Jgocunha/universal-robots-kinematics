@@ -57,6 +57,40 @@ Computes the tip `pose` for a given set of 6 joint angles (radians). Throws `std
 
 Computes all 8 geometric inverse-kinematics solutions for a target tip pose (position + Euler angles). See [Kinematics Theory](Kinematics-Theory) for how the 8 solutions correspond to shoulder-left/right, elbow-up/down, and wrist-up/down configurations.
 
+## Picking a solution: `JointLimits`, `filterByJointLimits`, `nearestSolution`
+
+`inverseKinematics()` returns up to 8 candidate solutions; `valid[i]` marks the geometrically feasible ones, but a geometrically feasible row can still hold a joint angle outside the range `forwardKinematics()` accepts (`[-2π, 2π]`), which would make feeding it back into `forwardKinematics()` throw. These free functions close that gap and help pick one solution to drive the robot with:
+
+```cpp
+struct JointLimits
+{
+    JointVector lower;
+    JointVector upper;
+};
+
+inline constexpr JointLimits kDefaultUrLimits; // [-2π, +2π] per joint, matching forwardKinematics()'s range exactly
+
+void filterByJointLimits(UR::IkSolutions& solutions, const JointLimits& limits = kDefaultUrLimits);
+
+[[nodiscard]] std::optional<std::size_t> nearestSolution(const UR::IkSolutions& solutions,
+                                                           const JointVector& current);
+```
+
+- `filterByJointLimits` marks `valid[i] = false` for any row with a joint outside `limits` (inclusive bounds); it only prunes — it never marks an already-invalid row valid, and never reorders rows. With the default limits, any solution that survives is guaranteed to be accepted by `forwardKinematics()`.
+- `nearestSolution` returns the index of the valid row closest to `current` (summed per-joint `|Δ|`, no angle-wraparound handling), or `std::nullopt` if none are valid.
+
+```cpp
+universalRobots::UR robot(universalRobots::URtype::UR5);
+universalRobots::UR::IkSolutions sols = robot.inverseKinematics(targetPose);
+
+universalRobots::filterByJointLimits(sols); // prune anything forwardKinematics() would reject
+
+if (auto idx = universalRobots::nearestSolution(sols, currentJointVector))
+{
+    const universalRobots::pose reached = robot.forwardKinematics(sols.solutions[*idx]); // never throws here
+}
+```
+
 ## `isPoseReachable`
 
 ```cpp

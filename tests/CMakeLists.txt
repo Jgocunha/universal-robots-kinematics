@@ -53,6 +53,7 @@ add_executable(ur_kinematics_tests
     test_robot_parameters.cpp
     test_pose_and_fk_anchors.cpp
     test_properties.cpp
+    test_ik_selection.cpp
 )
 target_include_directories(ur_kinematics_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 # test_math_utils.cpp unit-tests calcTransformationMatrix directly, which is a
