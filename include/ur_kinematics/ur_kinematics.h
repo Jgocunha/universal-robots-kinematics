@@ -156,16 +156,6 @@ namespace universalRobots
 		Eigen::Matrix4f m_generalTransformationMatrices[m_numReferenceFrames] = {};
 
 		/**
-		 * @brief This boolean indicates whether a tool is/isnt attached to the robot.
-		 *
-		 * Must be specified in the constructor, if not default is false.
-		 * Currently stored but not read anywhere (endEffectorDimension alone drives
-		 * forwardKinematics); kept for API/ABI stability rather than removed, since
-		 * that's a behavior question out of scope for a lint-only change.
-		 */
-		[[maybe_unused]] bool m_endEffector = false;
-
-		/**
 		 * @brief Modified Denavit-Hartenberg parameters matrix (9x4)
 		 * { alpha_i-1, a_i-1, d_i, theta_i } for each frame.
 		 *
@@ -189,10 +179,9 @@ namespace universalRobots
 
 	  private:
 		void setMDHmatrix();
-		void setRobotType(URtype type);
 		void setTheta(const JointVector& jointVal);
-		[[nodiscard]] const float* getTransZ() const;
-		[[nodiscard]] const float* getTransX() const;
+		[[nodiscard]] const std::array<float, m_numTransZ>& getTransZ() const;
+		[[nodiscard]] const std::array<float, m_numTransX>& getTransX() const;
 		[[nodiscard]] float getTheta(int ix) const;
 		// `pose` is 6 floats (24 bytes), trivially copyable; a const-reference
 		// return would couple the caller to this object's lifetime for no
