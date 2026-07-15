@@ -6,7 +6,12 @@
 //   * NaN patterns match exactly (golden null <-> std::isnan),
 //   * round-trip: each NaN-free solution row, fed back through FK, reproduces the
 //     target *position* within kRoundTripPosTolerance (convention-independent
-//     invariant; Euler angles excluded per quirk Q5).
+//     invariant; Euler angles excluded per quirk Q5 -- a genuine FK-extract
+//     (ur_kinematics.h:46-49, R=RotY(e2)*RotZ(e1)*RotX(e0)) vs IK-compose
+//     (ur_kinematics.cpp:369-371, R=RotX(e0)*RotY(e1)*RotZ(e2)) convention asymmetry,
+//     not a two-fold Euler ambiguity -- confirmed by a rotation-invariant SO(3)
+//     geodesic sweep (issue #54; mean error ~1.52 rad across 9148 samples). Kept as
+//     documented v1.0 behavior per human ruling on #54; see tests/README.md.
 #include <gtest/gtest.h>
 
 #include <cmath>

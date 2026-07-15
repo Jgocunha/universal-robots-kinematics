@@ -64,8 +64,23 @@ also written into each JSON header:
 | IK NaN pattern | exact (`null` ⇔ `std::isnan`) |
 | Round-trip: FK(IK solution).position vs target | `1e-4` m |
 
-Round-trip compares **position only** — the FK-extract / IK-compose Euler conventions
-are deliberately asymmetric (quirk Q5) and only round-trip through position.
+Round-trip compares **position only** — quirk **Q5**. The root cause is a genuine
+convention asymmetry, not merely a two-fold Euler representation ambiguity: the
+FK-extract (`pose(pos, Eigen::Matrix3f)` ctor, `include/ur_kinematics/ur_kinematics.h`
+lines 46-49) implies `R = RotY(e2)·RotZ(e1)·RotX(e0)`, while the IK-compose
+(`inverseKinematics()`, `src/ur_kinematics.cpp` lines 369-371) builds
+`R = RotX(e0)·RotY(e1)·RotZ(e2)` from the same stored `(e0,e1,e2)` triple — these are
+not algebraic inverses of each other for generic input. An empirical sweep (issue #54;
+500 iterations × 3 models × 8 solutions, seed 1337, 9148 valid samples) measured the
+rotation-invariant SO(3) geodesic distance between target and round-tripped orientation
+and found errors spanning the full `[0, π]` range with mean ≈1.52 rad (≈π/2, the
+statistical signature of two uncorrelated rotations) — confirming this is a genuine
+mismatch, not a bounded metric artifact. Per human ruling on #54 (2026-07), this is kept
+as documented v1.0 behavior for backward compatibility rather than fixed (fixing it
+would be an output-contract change requiring a golden re-baseline). Position remains a
+convention-independent invariant and continues to round-trip exactly. When comparing
+orientations, prefer a rotation-invariant metric (e.g. the SO(3) geodesic distance,
+`apps/demo/benchmarking.cpp`) over a raw per-component Euler diff.
 
 ## How it was generated
 
