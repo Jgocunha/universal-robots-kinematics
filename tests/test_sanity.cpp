@@ -18,3 +18,18 @@ TEST(Sanity, ForwardKinematicsRuns)
 	for (float p : tip.m_pos)
 		EXPECT_TRUE(std::isfinite(p));
 }
+
+// Issue #59: forwardKinematics()/inverseKinematics() are queries and must be
+// callable on a const UR (const-qualified even though FK still caches the
+// last-computed joint/transform state for operator<< via mutable members).
+TEST(Sanity, QueriesAreCallableOnConstRobot)
+{
+	const universalRobots::UR robot(universalRobots::URtype::UR5);
+	const universalRobots::UR::JointVector zeros = {0, 0, 0, 0, 0, 0};
+	const universalRobots::pose tip = robot.forwardKinematics(zeros);
+	for (float p : tip.m_pos)
+		EXPECT_TRUE(std::isfinite(p));
+
+	const universalRobots::UR::IkSolutions sols = robot.inverseKinematics(tip);
+	EXPECT_TRUE(sols.anyValid());
+}
