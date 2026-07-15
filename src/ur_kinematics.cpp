@@ -542,7 +542,7 @@ namespace universalRobots
 			float distance = 0.0f;
 			for (unsigned int j = 0; j < UR::m_numDoF; ++j)
 				distance += std::abs(solutions.solutions[i][j] - current[j]);
-			if (!best.has_value() || distance < bestDistance)
+			if (distance < bestDistance)
 			{
 				best = i;
 				bestDistance = distance;
