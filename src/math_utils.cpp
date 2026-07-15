@@ -2,6 +2,7 @@
 
 #include "math_utils.h"
 #include <ur_kinematics/ur_kinematics.h>
+#include <cmath>
 #include <numbers>
 
 namespace universalRobots
@@ -20,11 +21,15 @@ namespace universalRobots
 
 	Eigen::Matrix4f calcTransformationMatrix(const Eigen::RowVector4f& DHparams)
 	{
+		const float cos_dh0 = std::cos(DHparams[0]);
+		const float sin_dh0 = std::sin(DHparams[0]);
+		const float cos_dh3 = std::cos(DHparams[3]);
+		const float sin_dh3 = std::sin(DHparams[3]);
+
 		Eigen::Matrix4f individualTransformationMatrix;
-		individualTransformationMatrix << cos(DHparams[3]), -sin(DHparams[3]), 0, DHparams[1],
-			(sin(DHparams[3]) * cos(DHparams[0])), (cos(DHparams[3]) * cos(DHparams[0])), -sin(DHparams[0]),
-			(-sin(DHparams[0]) * DHparams[2]), (sin(DHparams[3]) * sin(DHparams[0])),
-			(cos(DHparams[3]) * sin(DHparams[0])), cos(DHparams[0]), (cos(DHparams[0]) * DHparams[2]), 0, 0, 0, 1;
+		individualTransformationMatrix << cos_dh3, -sin_dh3, 0, DHparams[1], (sin_dh3 * cos_dh0), (cos_dh3 * cos_dh0),
+			-sin_dh0, (-sin_dh0 * DHparams[2]), (sin_dh3 * sin_dh0), (cos_dh3 * sin_dh0), cos_dh0,
+			(cos_dh0 * DHparams[2]), 0, 0, 0, 1;
 
 		return individualTransformationMatrix;
 	}
