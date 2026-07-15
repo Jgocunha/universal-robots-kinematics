@@ -89,11 +89,13 @@ Returns `true` if none of the 6 joint values in `ikSolution` are NaN. This is wh
 struct pose
 {
     std::array<float, 3> m_pos;         // x, y, z (metres)
-    std::array<float, 3> m_eulerAngles; // alpha, beta, gamma (radians, ZYX convention)
+    std::array<float, 3> m_eulerAngles; // alpha, beta, gamma (radians)
 };
 ```
 
 Constructible from position + Euler angles, or from position + an `Eigen::Matrix3f` rotation matrix. Supports `operator-` and `operator/` for computing pose errors (see [Benchmarking](Benchmarking)).
+
+**Euler convention caveat:** `m_eulerAngles` is not a single, consistent convention across the library. `forwardKinematics()` extracts it from the tip rotation matrix as `R = RotY(γ)·RotZ(β)·RotX(α)`, while `inverseKinematics()` composes its target rotation from the same triple as `R = RotX(α)·RotY(β)·RotZ(γ)` — these are two different conventions, not inverses of each other for a generic pose. As a result, `inverseKinematics(forwardKinematics(q))` round-trips **position** exactly but not orientation (quirk Q5; see [Kinematics Theory](Kinematics-Theory) and `tests/README.md`). When comparing orientations, use a rotation-invariant metric (e.g. the SO(3) geodesic distance) rather than a per-component Euler diff.
 
 ## Printing a robot
 

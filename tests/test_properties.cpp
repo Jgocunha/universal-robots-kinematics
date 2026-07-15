@@ -5,12 +5,14 @@
 // by design — only its properties are tested, not exact values).
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <numbers>
 #include <random>
 #include <utility>
 
+#include <Eigen/Dense>
 #include <ur_kinematics/ur_kinematics.h>
 #include "golden_config.hpp"
 
@@ -27,6 +29,26 @@ namespace
 													  universalRobots::rad(78), universalRobots::rad(66),
 													  universalRobots::rad(77), universalRobots::rad(12)};
 		return robot.forwardKinematics(joints);
+	}
+
+	// Reconstructs the rotation matrix implied by a pose's stored Euler triple, using
+	// the SAME convention forwardKinematics()'s FK-extract uses (the pose(pos,
+	// Eigen::Matrix3f) ctor: eulerAngles(1,2,0) remapped to {gamma,beta,alpha} order),
+	// which Eigen guarantees is an exact inverse of that extraction (see #54).
+	Eigen::Matrix3f reconstructRotation(const universalRobots::pose& p)
+	{
+		return Eigen::Matrix3f(Eigen::AngleAxisf(p.m_eulerAngles[2], Eigen::Vector3f::UnitY()) *
+								Eigen::AngleAxisf(p.m_eulerAngles[1], Eigen::Vector3f::UnitZ()) *
+								Eigen::AngleAxisf(p.m_eulerAngles[0], Eigen::Vector3f::UnitX()));
+	}
+
+	// Rotation-invariant SO(3) geodesic distance (radians); not sensitive to the
+	// two-fold Euler representation ambiguity, unlike a raw Euler-component diff.
+	float geodesicOrientationError(const universalRobots::pose& a, const universalRobots::pose& b)
+	{
+		const Eigen::Matrix3f relative = reconstructRotation(a).transpose() * reconstructRotation(b);
+		const float cosTheta = std::clamp((relative.trace() - 1.0f) / 2.0f, -1.0f, 1.0f);
+		return std::acos(cosTheta);
 	}
 } // namespace
 
@@ -64,6 +86,66 @@ TEST(Property, FkIkRoundTrip)
 	}
 	// Guards against a silent no-op regression (e.g. inverseKinematics always invalid).
 	EXPECT_GT(totalValidChecked, 0);
+}
+
+// ---- FK . IK orientation round trip: honestly does NOT hold (quirk Q5) ----
+//
+// #54 diagnosed (see docs/wiki + tests/README.md) that the FK-extract
+// (ur_kinematics.h pose(pos, Eigen::Matrix3f) ctor) and IK-compose
+// (ur_kinematics.cpp inverseKinematics()) use genuinely different Euler
+// composition conventions for the same stored (e0,e1,e2) triple -- FK-extract
+// implies R=RotY(e2)*RotZ(e1)*RotX(e0), IK-compose builds R=RotX(e0)*RotY(e1)*RotZ(e2).
+// These are not algebraic inverses, so IK(FK(q)) does not round-trip orientation, even
+// though it round-trips position (see FkIkRoundTrip above). This is a deliberate,
+// documented v1.0 behavior kept for backward compatibility (human ruling on #54:
+// Option A, non-breaking) -- NOT a bug this test should mask. We measure the
+// orientation gap with a rotation-invariant metric (SO(3) geodesic distance) so the
+// two-fold Euler representation ambiguity cannot produce a false pass or false fail,
+// and assert it is non-trivially large rather than asserting a brittle exact value.
+// A prior empirical sweep (500 iters x 3 models x 8 solutions, seed 1337) found a mean
+// geodesic error of ~1.52 rad (close to pi/2, consistent with the two conventions
+// producing effectively uncorrelated rotations for generic input).
+TEST(Property, FkIkOrientationDoesNotRoundTripQ5)
+{
+	std::mt19937 gen(kSeed);
+	std::uniform_real_distribution<float> dist(-std::numbers::pi_v<float>, std::numbers::pi_v<float>);
+
+	int totalValidChecked = 0;
+	double sumGeodesicError = 0.0;
+	for (const auto& model : goldencfg::models())
+	{
+		universalRobots::UR robot(model.type, false, 0.0f);
+		for (int iter = 0; iter < kRoundTripIterations; ++iter)
+		{
+			universalRobots::UR::JointVector joints{};
+			for (float& j : joints)
+				j = dist(gen);
+
+			const universalRobots::pose target = robot.forwardKinematics(joints);
+			const universalRobots::UR::IkSolutions sols = robot.inverseKinematics(target);
+
+			for (int s = 0; s < 8; ++s)
+			{
+				if (!sols.valid[s])
+					continue;
+				const universalRobots::pose fk = robot.forwardKinematics(sols.solutions[s]);
+				// Position still round-trips (convention-independent invariant).
+				for (int i = 0; i < 3; ++i)
+					EXPECT_NEAR(fk.m_pos[i], target.m_pos[i], goldencfg::kRoundTripPosTolerance)
+						<< model.name << " iter " << iter << " sol " << s << " pos[" << i << "]";
+				sumGeodesicError += geodesicOrientationError(target, fk);
+				++totalValidChecked;
+			}
+		}
+	}
+	ASSERT_GT(totalValidChecked, 0); // guards against a silent no-op regression
+	const double meanGeodesicError = sumGeodesicError / totalValidChecked;
+	// Soft lower bound, not a brittle exact value: comfortably below the ~1.52 rad
+	// mean observed empirically, but far above what a mere numerical-precision gap
+	// (which the FkIkRoundTrip position check already bounds at 1e-4) could produce.
+	// Documents quirk Q5 as current behavior; do NOT tighten this into an
+	// orientation-round-trips-exactly assertion (it doesn't, by design -- see above).
+	EXPECT_GT(meanGeodesicError, 0.1) << "expected orientation to NOT round-trip (quirk Q5)";
 }
 
 // ---- generateRandomReachablePose(): non-deterministic by design, properties only ----
