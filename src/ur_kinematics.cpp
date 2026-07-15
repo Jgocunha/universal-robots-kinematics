@@ -30,6 +30,19 @@ namespace
 	// Solutions alternate elbow configuration; these (odd) indices take the
 	// theta3 = pi - psi branch, the even indices take theta3 = pi + psi.
 	constexpr std::array<unsigned int, 4> kSecondElbowSolutionIndices{1, 3, 5, 7};
+
+	// Streams a frame's transform-label number (e.g. "4" or, for the primed
+	// intermediate wrist frames not in kPoseBearingFrames, "4'"). The number is
+	// the count of pose-bearing frames up to and including this one, so the
+	// numbering advances only across frames that actually carry a pose.
+	void streamFrameLabel(std::ostream& stream, unsigned int frame)
+	{
+		const auto number = static_cast<unsigned int>(std::ranges::count_if(
+			kPoseBearingFrames, [frame](unsigned int bearingFrame) { return bearingFrame <= frame; }));
+		stream << number;
+		if (!contains(kPoseBearingFrames, frame))
+			stream << '\'';
+	}
 } // namespace
 
 namespace universalRobots
@@ -482,81 +495,48 @@ namespace universalRobots
 		return stream;
 	}
 
-	/// <summary>
-	/// Operator overloading to be able to print a UR object.
-	/// </summary>
-	/// <param name="stream"></param>
-	/// <param name="robot"></param>
-	/// <returns>stream</returns>
-	std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot)
+	void UR::printLinkDimensions(std::ostream& stream, const UR& robot)
 	{
-		stream << "Robot type: " << robot.m_type << '\n'
-			   << "Number of DoFs: " << UR::m_numDoF << '\n'
-			   << "Link dimensions\n"
+		stream << "Link dimensions\n"
 			   << "Translations in the z-axis (meters):\n";
 		for (unsigned int i = 0; i < UR::m_numTransZ; i++)
 			stream << "d" << i + 1 << ": " << robot.m_d[i] << '\n';
 		stream << "Translations in the x-axis (meters):\n";
 		for (unsigned int i = 0; i < UR::m_numTransX; i++)
 			stream << "a" << i + 2 << ": " << robot.m_a[i] << '\n';
+	}
+
+	void UR::printJointValues(std::ostream& stream, const UR& robot)
+	{
 		stream << "Joint values (degrees):\n";
 		for (unsigned int i = 0; i < UR::m_numDoF; i++)
 			stream << "Theta" << i + 1 << ": " << universalRobots::deg(robot.getTheta(i)) << '\n';
-		stream << "Tip pose:\n";
-		const pose tipPose = robot.getTipPose();
-		stream << "x " << tipPose.m_pos[0] << " y " << tipPose.m_pos[1] << " z " << tipPose.m_pos[2]
-			   << " (meters)\nalpha " << universalRobots::deg(tipPose.m_eulerAngles[0]) << " beta "
-			   << universalRobots::deg(tipPose.m_eulerAngles[1]) << " gamma "
-			   << universalRobots::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << '\n';
+	}
+
+	void UR::printTransforms(std::ostream& stream, const UR& robot)
+	{
 		stream << "Individual Transformation Matrices:\n";
-		unsigned int counter = 0;
 		for (unsigned int i = 0; i < UR::m_numReferenceFrames; i++)
 		{
-			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 8)
-			{
-				stream << counter << "T" << counter + 1 << '\n' << robot.m_individualTransformationMatrices[i] << '\n';
-				counter++;
-			}
+			if (i == 0)
+				stream << '0';
 			else
-			{
-				if (i == 4)
-					stream << counter << "T" << counter << "'" << '\n'
-						   << robot.m_individualTransformationMatrices[i] << '\n';
-				if (i == 5)
-				{
-					stream << counter << "'T" << counter + 1 << '\n'
-						   << robot.m_individualTransformationMatrices[i] << '\n';
-					counter++;
-				}
-				if (i == 6)
-					stream << counter << "T" << counter << "'" << '\n'
-						   << robot.m_individualTransformationMatrices[i] << '\n';
-				if (i == 7)
-				{
-					stream << counter << "'T" << counter + 1 << '\n'
-						   << robot.m_individualTransformationMatrices[i] << '\n';
-					counter++;
-				}
-			}
+				streamFrameLabel(stream, i - 1);
+			stream << 'T';
+			streamFrameLabel(stream, i);
+			stream << '\n' << robot.m_individualTransformationMatrices[i] << '\n';
 		}
 		stream << "General Transformation Matrices:\n";
-		counter = 1;
 		for (unsigned int i = 0; i < UR::m_numReferenceFrames; i++)
 		{
-			if (i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 7 || i == 8)
-			{
-				stream << "0T" << counter << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
-				counter++;
-			}
-
-			else
-			{
-				if (i == 4)
-					stream << "0T" << counter - 1 << "'" << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
-				if (i == 6)
-					stream << "0T" << counter - 1 << "'" << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
-			}
+			stream << "0T";
+			streamFrameLabel(stream, i);
+			stream << '\n' << robot.m_generalTransformationMatrices[i] << '\n';
 		}
+	}
+
+	void UR::printJointPoses(std::ostream& stream, const UR& robot)
+	{
 		stream << "Joint poses: {x, y, z} metres {alpha, beta, gamma} degrees\n";
 		for (unsigned int i = 0; i < UR::m_numDoF; i++)
 			stream << "J" << i + 1 << ": {" << robot.m_jointState[i].m_jointPose.m_pos[0] << ", "
@@ -565,6 +545,27 @@ namespace universalRobots
 				   << " {" << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[0]) << ", "
 				   << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[1]) << ", "
 				   << universalRobots::deg(robot.m_jointState[i].m_jointPose.m_eulerAngles[2]) << "}" << '\n';
+	}
+
+	/// <summary>
+	/// Operator overloading to be able to print a UR object.
+	/// </summary>
+	/// <param name="stream"></param>
+	/// <param name="robot"></param>
+	/// <returns>stream</returns>
+	std::ostream& operator<<(std::ostream& stream, const universalRobots::UR& robot)
+	{
+		stream << "Robot type: " << robot.m_type << '\n' << "Number of DoFs: " << UR::m_numDoF << '\n';
+		UR::printLinkDimensions(stream, robot);
+		UR::printJointValues(stream, robot);
+		stream << "Tip pose:\n";
+		const pose tipPose = robot.getTipPose();
+		stream << "x " << tipPose.m_pos[0] << " y " << tipPose.m_pos[1] << " z " << tipPose.m_pos[2]
+			   << " (meters)\nalpha " << universalRobots::deg(tipPose.m_eulerAngles[0]) << " beta "
+			   << universalRobots::deg(tipPose.m_eulerAngles[1]) << " gamma "
+			   << universalRobots::deg(tipPose.m_eulerAngles[2]) << " (degrees)" << '\n';
+		UR::printTransforms(stream, robot);
+		UR::printJointPoses(stream, robot);
 
 		return stream;
 	}

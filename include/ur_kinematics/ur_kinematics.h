@@ -199,6 +199,13 @@ namespace universalRobots
 		// measurable performance win.
 		// cppcheck-suppress returnByReference
 		[[nodiscard]] pose getTipPose() const;
+
+		// Helpers for operator<<(std::ostream&, const UR&); split out to keep each
+		// print section (and its frame/loop bookkeeping) independently readable.
+		static void printLinkDimensions(std::ostream& stream, const UR& robot);
+		static void printJointValues(std::ostream& stream, const UR& robot);
+		static void printTransforms(std::ostream& stream, const UR& robot);
+		static void printJointPoses(std::ostream& stream, const UR& robot);
 	};
 
 	std::ostream& operator<<(std::ostream& stream, universalRobots::URtype type);
