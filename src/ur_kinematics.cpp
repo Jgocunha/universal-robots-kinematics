@@ -48,15 +48,15 @@ namespace
 namespace universalRobots
 {
 	/// <summary>
-	/// Constructor. User is only allowed to specify whether there is an end-effector and its translation to the tip.
+	/// Constructor. The endEffector parameter is retained for API compatibility but unused;
+	/// the end-effector translation to the tip is applied unconditionally via endEffectorDimension.
 	/// Example usage:
-	///		universalRobots::UR robot_one(); Robot does not have an end-effector.
+	///		universalRobots::UR robot_one();
 	///		universalRobots::UR robot_one(true, 0.15f); End-effector translated 0.15 meters from the robot's tip.
 	/// </summary>
-	/// <param name="endEffector"></param>
+	/// <param name="endEffector">Retained for API compatibility (unused).</param>
 	/// <param name="endEffectorDimension"></param>
-	UR::UR(URtype robotType, bool endEffector, float endEffectorDimension)
-		: m_type(robotType), m_endEffector(endEffector)
+	UR::UR(URtype robotType, [[maybe_unused]] bool endEffector, float endEffectorDimension) : m_type(robotType)
 	{
 		const RobotParameters& params = parametersFor(robotType);
 		m_d = params.d;
@@ -64,15 +64,6 @@ namespace universalRobots
 
 		m_d[m_numTransZ - 1] = endEffectorDimension;
 		setMDHmatrix();
-	}
-
-	/// <summary>
-	/// setRobotType
-	/// </summary>
-	/// <param name="type"></param>
-	void UR::setRobotType(URtype type)
-	{
-		m_type = type;
 	}
 
 	/// <summary>
@@ -114,18 +105,18 @@ namespace universalRobots
 	/// Returns the values of the z-axis translations (d array). Used for printing purposes.
 	/// </summary>
 	/// <returns>m_d</returns>
-	const float* UR::getTransZ() const
+	const std::array<float, UR::m_numTransZ>& UR::getTransZ() const
 	{
-		return m_d.data();
+		return m_d;
 	}
 
 	/// <summary>
 	/// Returns the values of the x-axis translations (a array). Used for printing purposes.
 	/// </summary>
 	/// <returns>m_a</returns>
-	const float* UR::getTransX() const
+	const std::array<float, UR::m_numTransX>& UR::getTransX() const
 	{
-		return m_a.data();
+		return m_a;
 	}
 
 	/// <summary>
@@ -499,11 +490,13 @@ namespace universalRobots
 	{
 		stream << "Link dimensions\n"
 			   << "Translations in the z-axis (meters):\n";
-		for (unsigned int i = 0; i < UR::m_numTransZ; i++)
-			stream << "d" << i + 1 << ": " << robot.m_d[i] << '\n';
+		unsigned int dIndex = 1;
+		for (float d : robot.getTransZ())
+			stream << "d" << dIndex++ << ": " << d << '\n';
 		stream << "Translations in the x-axis (meters):\n";
-		for (unsigned int i = 0; i < UR::m_numTransX; i++)
-			stream << "a" << i + 2 << ": " << robot.m_a[i] << '\n';
+		unsigned int aIndex = 2;
+		for (float a : robot.getTransX())
+			stream << "a" << aIndex++ << ": " << a << '\n';
 	}
 
 	void UR::printJointValues(std::ostream& stream, const UR& robot)
