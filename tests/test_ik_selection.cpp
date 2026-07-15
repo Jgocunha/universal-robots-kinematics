@@ -15,7 +15,7 @@
 
 namespace
 {
-	constexpr int kSeed = 6464;				  // distinct from other test files' seeds
+	constexpr int kSeed = 6464; // distinct from other test files' seeds
 	constexpr int kSweepIterationsPerModel = 300;
 
 	universalRobots::UR::IkSolutions makeAllInvalid()
@@ -32,7 +32,7 @@ TEST(IkSelection, FilterMarksOutOfRangeInvalid)
 {
 	universalRobots::UR::IkSolutions sols{};
 	sols.valid.fill(true);
-	sols.solutions[0] = {0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f};	// within the tight limit below
+	sols.solutions[0] = {0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f}; // within the tight limit below
 	sols.solutions[1] = {0.1f, 0.1f, 0.1f, 5.0f, 0.1f, 0.1f}; // joint 3 exceeds it
 
 	universalRobots::JointLimits tight{};
