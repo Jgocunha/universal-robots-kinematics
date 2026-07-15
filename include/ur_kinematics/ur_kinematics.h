@@ -148,6 +148,9 @@ namespace universalRobots
 		// logically const (its return value depends only on its argument and the
 		// robot's fixed DH parameters); mutable lets it also refresh this cache
 		// without losing const-callability. See forwardKinematics()'s doc comment.
+		// Not thread-safe: the cache is updated without synchronization, so
+		// concurrent const calls (e.g. forwardKinematics()) on the same UR
+		// instance from multiple threads is a data race.
 
 		/** @brief Position, Euler Angles, and Value of the robot's joints. {x, y, z} {alpha, beta, gamma} {jointValue}
 		 */
