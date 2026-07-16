@@ -70,8 +70,7 @@ TEST(Jacobian, LinearRowsMatchFiniteDifference)
 					// for a tolerance this tight without weakening the gate.
 					const float fd = (pPlus.m_pos[row] - pMinus.m_pos[row]) / (2.0f * kFdEps);
 					const float tol = kFdAbsFloor + kFdRelTol * std::abs(fd);
-					EXPECT_NEAR(J(row, i), fd, tol)
-						<< model.name << " iter " << iter << " col " << i << " row " << row;
+					EXPECT_NEAR(J(row, i), fd, tol) << model.name << " iter " << iter << " col " << i << " row " << row;
 				}
 			}
 		}
