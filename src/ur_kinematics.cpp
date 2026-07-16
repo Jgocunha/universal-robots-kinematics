@@ -500,14 +500,14 @@ namespace universalRobots
 	/// <summary>
 	/// Yoshikawa manipulability index w(q) = sqrt(det(J(q) * J(q)^T)).
 	/// </summary>
-	// Clamped at 0 rather than left to produce NaN: at/beyond a singularity the
-	// radicand can go slightly negative from float noise alone (J*J^T is PSD in
-	// theory, but not bit-exactly so once det() is computed in float).
+	// For a square (non-redundant) Jacobian, det(J * J^T) = det(J)^2, so
+	// sqrt(det(J * J^T)) == abs(det(J)) -- computing it this way avoids the 6x6
+	// J * J^T product and sidesteps the risk of a float-noise-negative radicand
+	// under a sqrt entirely, rather than computing then clamping it.
 	float UR::manipulability(const JointVector& q) const
 	{
 		const Eigen::Matrix<float, 6, 6> J = jacobian(q);
-		const float radicand = (J * J.transpose()).determinant();
-		return std::sqrt(std::max(radicand, 0.0f));
+		return std::abs(J.determinant());
 	}
 
 	/// <summary>

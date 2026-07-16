@@ -6,7 +6,7 @@ This page summarises how `jacobian()` and `manipulability()` work: the geometric
 
 For a 6-DoF manipulator, the Jacobian `J(q)` (6×6, one column per joint) relates joint velocities to the tip's **spatial twist** — its instantaneous linear and angular velocity, stacked as a single 6-vector:
 
-```
+```text
 x_dot = J(q) * q_dot,   x_dot = [v; omega]  (v: linear, meters/s; omega: angular, rad/s)
 ```
 
@@ -21,7 +21,7 @@ All 6 UR joints are revolute. For a serial chain of revolute joints, column `i` 
 
 and the column is:
 
-```
+```text
 J_linear[i]  = z_i x (p_end - p_i)   (top 3 rows)
 J_angular[i] = z_i                    (bottom 3 rows)
 ```
@@ -49,11 +49,11 @@ The subtlety is *which* frame's z-axis/origin to use for `z_i`/`p_i`. Textbook d
 
 The Yoshikawa manipulability index measures how far a configuration `q` is from a singularity — a configuration where `J(q)` loses rank and some tip velocity directions become unreachable no matter how fast the joints move:
 
-```
+```text
 w(q) = sqrt(det(J(q) * J(q)^T))
 ```
 
-`J*J^T` is symmetric positive semi-definite by construction, so its determinant is mathematically never negative — but computed in `float`, right at or past a singularity the determinant can land a hair below zero from rounding alone. `manipulability()` clamps the radicand at 0 before the square root, so the result is always a finite, non-negative `float` (never `NaN`) — `0.0f` at a singularity rather than an ill-defined negative-root result.
+For this library's Jacobian, which is always square (6x6, one column per joint, no redundancy), `det(J * J^T) = det(J)^2`, so `sqrt(det(J * J^T)) == abs(det(J))`. `manipulability()` computes it that way — `abs(J(q).determinant())` — which is both faster (no 6x6 matrix product) and sidesteps the float-noise-negative-radicand problem a literal `sqrt(det(J*J^T))` would have right at a singularity, rather than computing then clamping it: `abs()` of a finite `float` is always finite and non-negative, so the result is never `NaN` and is `0.0f` (or vanishingly close) exactly at a singularity.
 
 `w(q)` is a single scalar summary; the **smallest singular value** of `J(q)` (e.g. via `Eigen::JacobiSVD`) is a related, more granular measure of the same thing — it goes to 0 exactly where `w(q)` does, but also identifies *which* direction in velocity space is becoming unreachable (the corresponding right-singular vector), which `w(q)` alone does not.
 

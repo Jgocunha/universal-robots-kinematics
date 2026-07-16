@@ -183,8 +183,8 @@ TEST(Jacobian, ElbowSingularityDropsRank)
 	}
 }
 
-// ---- manipulability() never returns NaN/negative, even right at a singularity
-//      where the radicand can go slightly negative from float noise alone. ----
+// ---- manipulability() never returns NaN/negative: it is abs(J.determinant()),
+//      which is always finite and non-negative for a finite q. ----
 
 TEST(Jacobian, ManipulabilityNeverNegativeOrNan)
 {
@@ -207,7 +207,7 @@ TEST(Jacobian, ManipulabilityNeverNegativeOrNan)
 		}
 	}
 
-	// Exact wrist singularity: the case most likely to expose float-noise-negative radicand.
+	// Exact wrist singularity: the case most likely to expose an ill-formed result.
 	const universalRobots::UR::JointVector qSingular{0.3f, -0.5f, 0.8f, 0.2f, 0.0f, -0.1f};
 	universalRobots::UR robot(universalRobots::URtype::UR5);
 	const float wSingular = robot.manipulability(qSingular);

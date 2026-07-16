@@ -199,9 +199,8 @@ namespace universalRobots
 		/// Precondition/side effects: same as forwardKinematics() (validates q, refreshes
 		/// the joint-pose/transform cache).
 		[[nodiscard]] Eigen::Matrix<float, 6, 6> jacobian(const JointVector& q) const;
-		/// Yoshikawa manipulability index w(q) = sqrt(det(J(q) * J(q)^T)); 0 (not NaN)
-		/// at or beyond a singularity, where float noise can make the radicand
-		/// slightly negative.
+		/// Yoshikawa manipulability index w(q) = sqrt(det(J(q) * J(q)^T)), computed as
+		/// abs(det(J(q))) (equal for a square Jacobian, and never negative or NaN).
 		[[nodiscard]] float manipulability(const JointVector& q) const;
 		pose generateRandomReachablePose() const;
 		/// Deterministic overload: samples with a caller-supplied seed instead of std::random_device.

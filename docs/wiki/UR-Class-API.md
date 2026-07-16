@@ -108,7 +108,7 @@ Equivalent to `inverseKinematics(targetPose).anyValid()` — use this when you o
 
 `jacobian(q)` returns the geometric (spatial) Jacobian at joint configuration `q`, expressed in the base frame: rows 0-2 are the tip's linear-velocity contribution per joint, rows 3-5 the angular-velocity contribution, columns are joints 1-6. Relates joint velocities to the tip's spatial twist: `x_dot = J(q) * q_dot`. See [Jacobian Theory](Jacobian-Theory) for the derivation, why this (rather than an Euler-rate/analytical Jacobian) was chosen, and the three UR singularity families.
 
-`manipulability(q)` returns the Yoshikawa manipulability index `w(q) = sqrt(det(J(q) * J(q)^T))`, a scalar distance-to-singularity measure — 0 at a singularity, larger away from one. Returns `0.0f` (never `NaN` or negative) when the radicand goes slightly negative from float rounding at or beyond a singularity.
+`manipulability(q)` returns the Yoshikawa manipulability index `w(q) = sqrt(det(J(q) * J(q)^T))`, a scalar distance-to-singularity measure — 0 at a singularity, larger away from one. For this library's square (non-redundant, 6x6) Jacobian, `sqrt(det(J * J^T)) == abs(det(J))`, so it's computed as `abs(J(q).determinant())` — equivalent, but faster and never at risk of a negative-radicand `NaN` at or beyond a singularity.
 
 Same precondition/side effects as `forwardKinematics()`: `q` must be finite and within `[-2π, 2π]` per joint (both functions call it internally), and both refresh the joint-pose/transform cache used by `operator<<`.
 
