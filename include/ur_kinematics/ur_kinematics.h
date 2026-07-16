@@ -191,6 +191,18 @@ namespace universalRobots
 		[[nodiscard]] IkSolutions inverseKinematics(const pose& targetTipPose) const;
 		/// Returns true iff inverseKinematics(targetPose).anyValid().
 		[[nodiscard]] bool isPoseReachable(const pose& targetPose) const;
+		/// Geometric (spatial) Jacobian at joint configuration q, expressed in the base
+		/// frame: maps joint velocities to the tip's spatial twist [linear; angular]
+		/// (rows 0-2 linear, rows 3-5 angular; columns are joints 1-6). See
+		/// docs/wiki/Jacobian-Theory for the derivation and why this convention (rather
+		/// than the analytical/Euler-rate Jacobian) was chosen.
+		/// Precondition/side effects: same as forwardKinematics() (validates q, refreshes
+		/// the joint-pose/transform cache).
+		[[nodiscard]] Eigen::Matrix<float, 6, 6> jacobian(const JointVector& q) const;
+		/// Yoshikawa manipulability index w(q) = sqrt(det(J(q) * J(q)^T)); 0 (not NaN)
+		/// at or beyond a singularity, where float noise can make the radicand
+		/// slightly negative.
+		[[nodiscard]] float manipulability(const JointVector& q) const;
 		pose generateRandomReachablePose() const;
 		/// Deterministic overload: samples with a caller-supplied seed instead of std::random_device.
 		pose generateRandomReachablePose(unsigned int seed) const;
