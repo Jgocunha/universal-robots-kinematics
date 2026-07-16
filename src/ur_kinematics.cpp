@@ -467,6 +467,50 @@ namespace universalRobots
 	}
 
 	/// <summary>
+	/// Computes the geometric (spatial) Jacobian at joint configuration q, in the base
+	/// frame. See docs/wiki/Jacobian-Theory.md for the derivation.
+	/// </summary>
+	// All 6 UR joints are revolute, so column i is [z_i x (p_end - p_i); z_i], where
+	// z_i/p_i are the axis/origin of joint i+1 in the base frame. kPoseBearingFrames[i]
+	// (i=0..5) is exactly the frame that carries joint i+1's own rotation (frames
+	// {0,1,2,3,5,7}; see the MDH frame table in docs/wiki/Modified-Denavit-Hartenberg-
+	// Convention.md) -- and since a pure Rot_z(theta_i) rotation changes neither its own
+	// z-axis nor its origin, that frame's z-axis/origin equal the "z_{i-1}/p_{i-1}"
+	// (pre-rotation) quantities the standard formula calls for. Reuses
+	// m_generalTransformationMatrices, already populated by the forwardKinematics(q)
+	// call below -- no transforms are rebuilt.
+	Eigen::Matrix<float, 6, 6> UR::jacobian(const JointVector& q) const
+	{
+		(void)forwardKinematics(q); // refreshes m_generalTransformationMatrices for q
+
+		const Eigen::Vector3f p_end = m_generalTransformationMatrices[8].block<3, 1>(0, 3);
+
+		Eigen::Matrix<float, 6, 6> J;
+		for (unsigned int i = 0; i < m_numDoF; ++i)
+		{
+			const Eigen::Matrix4f& T = m_generalTransformationMatrices[kPoseBearingFrames[i]];
+			const Eigen::Vector3f z_i = T.block<3, 1>(0, 2);
+			const Eigen::Vector3f p_i = T.block<3, 1>(0, 3);
+			J.block<3, 1>(0, i) = z_i.cross(p_end - p_i);
+			J.block<3, 1>(3, i) = z_i;
+		}
+		return J;
+	}
+
+	/// <summary>
+	/// Yoshikawa manipulability index w(q) = sqrt(det(J(q) * J(q)^T)).
+	/// </summary>
+	// For a square (non-redundant) Jacobian, det(J * J^T) = det(J)^2, so
+	// sqrt(det(J * J^T)) == abs(det(J)) -- computing it this way avoids the 6x6
+	// J * J^T product and sidesteps the risk of a float-noise-negative radicand
+	// under a sqrt entirely, rather than computing then clamping it.
+	float UR::manipulability(const JointVector& q) const
+	{
+		const Eigen::Matrix<float, 6, 6> J = jacobian(q);
+		return std::abs(J.determinant());
+	}
+
+	/// <summary>
 	/// Generates a valid tip pose by running forward kinematics with random target joint values.
 	/// </summary>
 	/// <returns>randomValidTargetPose</returns>
